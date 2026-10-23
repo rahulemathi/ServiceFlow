@@ -2,7 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Branch;
+use App\Models\Membership;
+use App\Models\Organization;
 use App\Models\User;
+use App\UserRole;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,11 +19,42 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $organization = Organization::firstOrCreate(
+            ['slug' => 'serviceflow-hq'],
+            ['name' => 'ServiceFlow HQ']
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        Branch::firstOrCreate(
+            [
+                'organization_id' => $organization->id,
+                'name' => 'Main Branch',
+            ],
+            [
+                'code' => 'MAIN',
+            ]
+        );
+
+        $users = User::all();
+        if ($users->isEmpty()) {
+            $user = User::factory()->create([
+                'name' => 'Admin User',
+                'email' => 'admin@serviceflow.com',
+            ]);
+            $users = collect([$user]);
+        }
+
+        foreach ($users as $user) {
+            $membership = Membership::firstOrCreate(
+                [
+                    'organization_id' => $organization->id,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'status' => 'active',
+                ]
+            );
+
+            $membership->assignRole(UserRole::OrganizationOwner);
+        }
     }
 }

@@ -4,9 +4,9 @@ ServiceFlow is a planned field service and maintenance management platform for b
 
 ## Project status
 
-**Early scaffold; product features are not yet implemented.** The repository currently contains a Laravel starter application with a welcome page, a basic user model, framework database migrations, and example tests. It does not yet provide ServiceFlow business workflows or a production SaaS dashboard.
+**Early functional foundation; not production-ready SaaS.** The repository includes an organization-scoped Filament administration panel for core customer, service, scheduling, maintenance, and financial workflows, along with the organization, branch, membership, role, and panel-access foundation. Mobile technician workflows, member administration, notifications, and SaaS operations remain out of scope.
 
-This README distinguishes the starter implementation from the planned product. Roadmap items below are plans, not existing functionality.
+The implemented panel is an initial operations MVP, not a complete ServiceFlow product. Roadmap items below are plans unless explicitly marked as implemented.
 
 ## Key objectives
 
@@ -20,12 +20,13 @@ This README distinguishes the starter implementation from the planned product. R
 
 | Area | Current implementation | Planned capability |
 | --- | --- | --- |
-| Application foundation | Laravel 13 starter application, one welcome route/view, a `User` model, and Laravel framework configuration | ServiceFlow application and operations dashboard |
-| Authentication | Laravel's web guard and password-reset configuration are present; no login, logout, or reset screens/routes are currently defined | Login, logout, password reset, organization membership, and access control |
-| Persistence | Starter migrations for users, password resets, sessions, cache, and queues | Organization and field-service data models |
-| Frontend | Vite, Tailwind CSS, and Livewire dependencies are installed | ServiceFlow dashboard and mobile-friendly technician workflows |
-| Tests | Example feature and unit tests | Automated coverage for critical business and tenant-isolation workflows |
-| Product modules | None of the ServiceFlow modules below are implemented | Modules described in [Main modules](#main-modules) |
+| Application foundation | Laravel 13 and a tenant-aware Filament admin panel with organization-slug routing | Full ServiceFlow application and production operations |
+| Authentication and access control | Laravel web guard; organization memberships and role assignments; only platform admins and active organization owners/admins can access the panel; business resources are tenant-scoped | Member management, invitations, fine-grained policies, and mobile authentication |
+| Persistence | Framework tables plus organizations, branches, memberships, customers, addresses, equipment, requests, work orders and entries, maintenance contracts, estimates, invoices, items, payments, and technician availability; composite constraints protect organization ownership and payment history | Subscription, notification, and audit-event data |
+| Frontend | Filament dashboard with date/branch filters, database-backed KPIs and charts, scheduling, recent requests, upcoming maintenance, and availability-based utilization | Mobile technician workflows and visual customization beyond Filament defaults |
+| API | No application API routes or token authentication are implemented | Authenticated, versioned REST API for authorized mobile clients |
+| Tests | Feature coverage for role and tenant access, tenant resource pages and data isolation, invoice totals, payment recording and limits, work-order transitions, estimate conversion, and technician availability | Broader workflow, authorization, and production-database coverage |
+| Product modules | Customer and equipment CRUD, service request conversion, work-order scheduling and status actions, maintenance contracts, estimate approval/invoice generation, marking invoices as sent, and payment recording | Recurring work-order generation, notifications, reports, and complete lifecycle workflows |
 
 ## Technology stack
 
@@ -35,6 +36,7 @@ Versions below reflect the installed dependency set observed in this repository.
 | --- | --- |
 | PHP | `^8.3` required; PHP 8.4.12 runtime observed |
 | Laravel | 13.38.0 |
+| Filament | 5.10.3 |
 | Livewire | 4.4.8 |
 | Livewire Blaze | 1.0.19 |
 | Frontend | Tailwind CSS 4.3.3, Vite 8.3.5, Laravel Vite Plugin 3.2.0, and Vite Plus 0.3.0 |
@@ -45,16 +47,15 @@ Local Node.js 22.12.0 and npm 10.9.0 were observed. Use a Node/npm version compa
 
 The following are **not installed as direct project dependencies** and should be considered only if a later phase requires them:
 
-- FilamentPHP administration panel
 - Laravel Sanctum API authentication
 - Laravel Reverb broadcasting
-- A dedicated tenancy or role-permission package
+- A dedicated role-permission package; the current foundation uses explicit role assignments
 
 Redis connection settings and Laravel queue/cache drivers are available in the starter configuration, but a Redis service is not established by this repository. Laravel's database queue and cache are configured as the `.env.example` defaults.
 
 ## Architecture overview
 
-The diagram represents the **intended architecture**, not deployed or implemented product components. Tenant resolution, authorization, domain services, and production infrastructure still need to be designed and built.
+The diagram represents the **intended product architecture**, not a completed or deployed application. The Filament panel resolves the active organization from the tenant route and scopes its resources; mobile workflows, broader authorization, and production infrastructure still need to be built.
 
 ```mermaid
 flowchart LR
@@ -72,63 +73,68 @@ The planned application should centralize organization context and authorization
 
 ## Main modules
 
-All modules in this section are **planned**.
+The following modules are partially implemented in the organization-scoped admin panel unless noted otherwise.
 
 1. **Organization and multi-tenancy**
-   - Organization onboarding, company profiles, branches, and organization-level settings.
-   - Secure organization-level data isolation and centralized tenant resolution.
+   - Organization and branch records, tenant selection, and organization-scoped resources are implemented.
+   - Organization onboarding and member management are planned.
 2. **Authentication and access control**
-   - Login, logout, password reset, and organization membership.
-   - Role-based permissions and authorization policies.
+   - Laravel authentication and organization role checks are implemented for the admin panel.
+   - Invitations, member management, and fine-grained policies are planned.
 3. **Customer management**
-   - Customer profiles and contacts, multiple service addresses, and customer service history.
+   - Customer profiles and service addresses have tenant-scoped CRUD; customer history remains planned.
 4. **Equipment and asset management**
-   - Equipment details, serial numbers, warranty information, ownership, and location.
-   - Maintenance and repair history.
+   - Equipment details, serial numbers, warranty dates, customer ownership, and location have tenant-scoped CRUD.
+   - Integrated maintenance and repair history remains planned.
 5. **Service requests**
-   - Request creation, priority, status, assignment, and conversion to work orders.
-   - Attachments, comments, and activity history.
+   - Requests support creation, priority, status actions, and conversion to work orders.
+   - Attachments, comments, and activity history remain planned.
 6. **Work order management**
-   - Work order creation, assignment, technician scheduling, and job status tracking.
-   - Work logs, labour, used parts, photos, and completion reports.
+   - Work orders support assignment, scheduling, status transitions, completion notes, and work entries.
+   - Photos and completion reports remain planned.
 7. **Technician management**
-   - Technician profiles, availability, workload, and assignment tracking.
-   - A mobile-friendly job interface.
+   - Organization-scoped weekly availability, work assignment, and dashboard utilization are implemented.
+   - Technician profile management and the mobile job interface remain planned.
 8. **Preventive maintenance**
-   - Maintenance contracts, service intervals, and upcoming maintenance schedules.
-   - Automatic recurring work-order generation and contract renewal reminders.
+   - Maintenance contracts and upcoming maintenance schedules are implemented.
+   - Automatic recurring work-order generation and contract renewal reminders remain planned.
 9. **Estimates, invoices, and payments**
-   - Estimates and customer approvals, invoice generation, payment records, and outstanding balances.
-   - Tax handling appropriate to the configured market.
+   - Estimate approval and invoice generation, invoice totals and sent-status tracking, payment recording, and outstanding balances are implemented. Email delivery is not yet configured.
+   - Tax configuration is limited to a per-record rate; jurisdiction-specific tax handling remains planned.
 10. **Notifications and reporting**
     - Email and configurable notification channels.
     - Overdue-job and upcoming-maintenance alerts, operational dashboards, and reports.
 11. **SaaS subscription management**
     - Subscription plans, feature limits, organization billing, usage tracking, and subscription lifecycle management.
 
-## Dashboard UI direction
+## Dashboard
 
-The dashboard is a **design direction only**; the current application does not include this dashboard. The planned interface should have:
+The organization-scoped dashboard currently includes:
 
-- A dark navy sidebar with ServiceFlow branding and a light workspace with white cards.
-- Blue primary actions and restrained status colors.
-- Search, notifications, a user profile, and an organization switcher.
-- KPI cards for open requests, active work orders, scheduled jobs, completed jobs, and pending payments.
-- Service-request trends, work-order status charts, technician utilization, and today's schedule.
-- Recent service requests and upcoming maintenance tables.
+- KPI cards for open requests, active work orders, scheduled jobs, completed jobs, and outstanding payments.
+- Service-request trends, work-order status distribution, and technician utilization calculated from saved weekly availability and scheduled work.
+- Date and branch filters, an upcoming-work-order schedule, recent service requests, and upcoming maintenance.
+- A quick action to create a tenant-owned service request.
+
+The broader design direction also includes mobile technician workflows, additional reports, and organization-level user management.
 
 ## User roles and permissions
 
-Roles and permissions are **not implemented**. The following are initial product roles to validate during Phase 1; the final permission model should be based on organization workflows:
+The role and membership foundation is implemented. `platform_admin` is assigned globally. `organization_owner`, `admin`, `dispatcher`, and `technician` are assigned per organization membership, and one user may have multiple memberships and roles. Active organization owners and admins, plus platform admins, can access the Filament panel; dispatchers and technicians cannot. Operational resources and their selection lists are scoped to the active organization, with database constraints protecting cross-organization references.
 
-| Planned role | Intended responsibility |
+There is not yet a user or membership management screen. Initial user, organization, and owner membership setup must currently be done with an approved seeder or through Laravel Tinker. Avoid creating production users with shared or committed passwords.
+
+The initial roles still need validation against the full organization workflows:
+
+| Role | Scope and intended responsibility |
 | --- | --- |
-| Organization administrator | Manage organization settings, members, branches, and access |
-| Dispatcher | Triage requests, assign work, and coordinate schedules |
-| Technician | View assigned work and record job progress and completion |
-| Office or billing staff | Maintain customer records and manage estimates, invoices, or payments |
+| `platform_admin` | Global platform-level administration |
+| `organization_owner` | Manage one organization's settings, members, branches, and access |
+| `admin` | Organization-level administration |
+| `dispatcher` | Triage requests, assign work, and coordinate schedules |
+| `technician` | View assigned work and record job progress and completion |
 
-Authorization should be enforced server-side through policies and organization membership, not only by hiding interface actions.
+The new operational models and tables exist, but fine-grained permissions for dispatchers and technicians still need to be implemented before those roles receive panel access.
 
 ## Installation prerequisites
 
@@ -195,7 +201,7 @@ Keep `APP_KEY` generated by `php artisan key:generate`. Configure production val
 
 ## Database setup and migrations
 
-The configured default is SQLite at `database/database.sqlite`. The starter migrations create framework tables for users, password-reset tokens, sessions, cache, and queued jobs; they do **not** create ServiceFlow business entities.
+The configured default is SQLite at `database/database.sqlite`. Migrations create framework tables, organization and membership records, and the tenant-owned ServiceFlow operational and financial tables.
 
 After configuring the database:
 
@@ -204,11 +210,11 @@ php artisan migrate
 php artisan migrate:status
 ```
 
-The `DatabaseSeeder` currently creates a starter test user. Review and replace development seed data as product onboarding is designed; no ServiceFlow seed data is currently provided.
+The `DatabaseSeeder` creates a development-only `test@example.com` user without an organization membership. There is no organization/user onboarding UI yet, so provision the first organization and owner membership using a controlled seeder or Laravel Tinker; do not rely on the starter test user in production.
 
 ## Running the application and frontend assets
 
-Frontend entry points are `resources/css/app.css` and `resources/js/app.js`. Tailwind CSS is integrated through Vite. Use:
+Frontend entry points are `resources/css/app.css` and `resources/js/app.js`. The Filament admin panel provides the current operational interface. Tailwind CSS is integrated through Vite. Use:
 
 ```powershell
 npm run dev
@@ -220,7 +226,7 @@ for local asset development, or:
 npm run build
 ```
 
-to build assets. The current only application page is the Laravel welcome route.
+to build assets.
 
 ## Queues, scheduled tasks, and tests
 
@@ -242,11 +248,11 @@ Run the existing tests with:
 php artisan test
 ```
 
-The current tests are framework starter examples, not coverage of ServiceFlow workflows. The Composer `test` script additionally runs the configured Pint check and Larastan analysis before the Artisan test suite.
+The current suite covers starter behavior and the initial tenant foundation, not ServiceFlow business workflows. The Composer `test` script additionally runs the configured Pint check and Larastan analysis before the Artisan test suite.
 
 ## Security and multi-tenancy principles
 
-These are planned engineering principles; they are not evidence that tenant isolation or production controls are already implemented.
+These principles apply as product features are added. The current foundation enforces organization-scoped membership roles and prevents cross-organization branch assignments, but no business-record queries or resources exist yet.
 
 - Resolve the active organization centrally and authorize each action against its membership and role.
 - Scope every organization-owned query and mutation to the authorized tenant; test cross-tenant access boundaries.
@@ -262,11 +268,11 @@ These are planned engineering principles; they are not evidence that tenant isol
 
 ## Development roadmap
 
-All phases below are **planned**. The existing Laravel scaffold is a starting point, not completion of Phase 1.
+The remaining product work is planned. Phase 1 is in progress; the foundation is not completion of the authentication, onboarding, and authorization workflows.
 
 | Phase | Planned scope | Status |
 | --- | --- | --- |
-| 1 | Laravel setup, authentication, organization onboarding, roles, tenant isolation, and base Filament dashboard | Planned; starter framework exists, product capabilities do not |
+| 1 | Laravel setup, authentication, organization onboarding, roles, tenant isolation, and base Filament dashboard | In progress; organization, branch, membership, role, and panel-access foundations are implemented |
 | 2 | Customers, service addresses, equipment, and assets | Planned |
 | 3 | Service requests, work orders, assignments, and technician workflows | Planned |
 | 4 | Scheduling, estimates, invoices, and payment records | Planned |
