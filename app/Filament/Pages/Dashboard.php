@@ -29,6 +29,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\AccountWidget;
+use Illuminate\Support\Carbon;
 
 class Dashboard extends BaseDashboard
 {
@@ -43,28 +44,85 @@ class Dashboard extends BaseDashboard
         $tenant = Filament::getTenant();
 
         return $schema
+            ->columns(1)
             ->components([
                 Section::make()
+                    ->columnSpanFull()
                     ->schema([
                         DatePicker::make('startDate')
-                            ->label('From')
+                            ->label('From Date')
+                            ->prefixIcon(Heroicon::OutlinedCalendarDays)
+                            ->native(false)
+                            ->displayFormat('Y-m-d')
+                            ->placeholder('YYYY-MM-DD')
+                            ->closeOnDateSelection()
+                            ->live()
                             ->default(now()->startOfMonth()->toDateString())
-                            ->maxDate(fn ($get) => $get('endDate')),
+                            ->maxDate(fn (Get $get): ?string => $get('endDate'))
+                            ->rules([
+                                'nullable',
+                                'date',
+                                fn (Get $get): \Closure => function (string $attribute, mixed $value, \Closure $fail) use ($get): void {
+                                    $endDate = $get('endDate');
+                                    if ($endDate && Carbon::parse($value)->toDateString() > Carbon::parse($endDate)->toDateString()) {
+                                        $fail('The From Date must be a date before or equal to To Date.');
+                                    }
+                                },
+                            ])
+                            ->columnSpan([
+                                'default' => 1,
+                                'md' => 1,
+                                'lg' => 2,
+                            ]),
                         DatePicker::make('endDate')
-                            ->label('To')
+                            ->label('To Date')
+                            ->prefixIcon(Heroicon::OutlinedCalendarDays)
+                            ->native(false)
+                            ->displayFormat('Y-m-d')
+                            ->placeholder('YYYY-MM-DD')
+                            ->closeOnDateSelection()
+                            ->live()
                             ->default(today()->addDays(30)->toDateString())
-                            ->minDate(fn ($get) => $get('startDate')),
+                            ->minDate(fn (Get $get): ?string => $get('startDate'))
+                            ->rules([
+                                'nullable',
+                                'date',
+                                fn (Get $get): \Closure => function (string $attribute, mixed $value, \Closure $fail) use ($get): void {
+                                    $startDate = $get('startDate');
+                                    if ($startDate && Carbon::parse($value)->toDateString() < Carbon::parse($startDate)->toDateString()) {
+                                        $fail('The To Date must be a date after or equal to From Date.');
+                                    }
+                                },
+                            ])
+                            ->columnSpan([
+                                'default' => 1,
+                                'md' => 1,
+                                'lg' => 2,
+                            ]),
                         Select::make('branchId')
                             ->label('Branch')
+                            ->prefixIcon(Heroicon::OutlinedBuildingOffice)
                             ->options(fn (): array => Branch::query()
                                 ->where('organization_id', $tenant instanceof Organization ? $tenant->getKey() : null)
                                 ->orderBy('name')
                                 ->pluck('name', 'id')
                                 ->all())
                             ->searchable()
-                            ->placeholder('All branches'),
+                            ->placeholder('All branches')
+                            ->columnSpan([
+                                'default' => 1,
+                                'md' => 2,
+                                'lg' => 3,
+                            ]),
                     ])
-                    ->columns(3),
+                    ->columns([
+                        'default' => 1,
+                        'md' => 2,
+                        'lg' => 7,
+                    ])
+                    ->extraAttributes([
+                        'class' => 'relative z-20 overflow-visible shadow-xs',
+                    ]),
             ]);
     }
 
@@ -74,6 +132,7 @@ class Dashboard extends BaseDashboard
             Action::make('newServiceRequest')
                 ->label('New service request')
                 ->icon(Heroicon::OutlinedPlus)
+                ->visible(fn (): bool => (bool) (auth()->user()?->isOrganizationAdmin() || auth()->user()?->isDispatcher()))
                 ->schema([
                     Select::make('customer_id')
                         ->label('Customer')

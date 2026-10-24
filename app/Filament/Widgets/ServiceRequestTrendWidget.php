@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Filament\Widgets\Concerns\InteractsWithServiceFlowFilters;
 use App\Models\ServiceRequest;
+use App\Models\User;
 use Filament\Widgets\ChartWidget;
 
 class ServiceRequestTrendWidget extends ChartWidget
@@ -16,6 +17,14 @@ class ServiceRequestTrendWidget extends ChartWidget
         'md' => 1,
         'xl' => 2,
     ];
+
+    public static function canView(): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+    }
 
     protected function getData(): array
     {

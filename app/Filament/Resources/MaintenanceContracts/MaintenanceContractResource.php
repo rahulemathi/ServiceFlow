@@ -7,6 +7,7 @@ use App\Filament\Resources\Support\FilamentOptions;
 use App\MaintenanceContractStatus;
 use App\MaintenanceFrequency;
 use App\Models\MaintenanceContract;
+use App\Models\User;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -32,6 +33,14 @@ class MaintenanceContractResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Service operations';
 
     protected static ?string $recordTitleAttribute = 'contract_number';
+
+    public static function canViewAny(): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -5,7 +5,7 @@ namespace App\Models;
 use App\MembershipStatus;
 use App\UserRole;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
+use Filament\Facades\Filament;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
@@ -32,7 +32,7 @@ use LogicException;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'must_change_password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser, HasTenants
 {
@@ -49,6 +49,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'must_change_password' => 'boolean',
         ];
     }
 
@@ -79,6 +80,58 @@ class User extends Authenticatable implements FilamentUser, HasTenants
             && $this->roleAssignments()->where('role', $role->value)->exists();
     }
 
+    public function currentMembership(?Organization $tenant = null): ?Membership
+    {
+        $tenant ??= Filament::getTenant();
+
+        if ($tenant instanceof Organization) {
+            return $this->memberships()
+                ->where('organization_id', $tenant->getKey())
+                ->where('status', MembershipStatus::Active->value)
+                ->first();
+        }
+
+        return $this->memberships()
+            ->where('status', MembershipStatus::Active->value)
+            ->first();
+    }
+
+    /**
+     * @param  UserRole|array<UserRole>  $roles
+     */
+    public function hasOrganizationRole(UserRole|array $roles, ?Organization $tenant = null): bool
+    {
+        if ($this->hasPlatformRole(UserRole::PlatformAdmin)) {
+            return true;
+        }
+
+        $roles = is_array($roles) ? $roles : [$roles];
+        $roleValues = collect($roles)->map(fn ($r) => $r instanceof UserRole ? $r->value : $r)->all();
+
+        $membership = $this->currentMembership($tenant);
+
+        if (! $membership) {
+            return false;
+        }
+
+        return $membership->roles()->whereIn('role', $roleValues)->exists();
+    }
+
+    public function isOrganizationAdmin(?Organization $tenant = null): bool
+    {
+        return $this->hasOrganizationRole([UserRole::OrganizationOwner, UserRole::Admin], $tenant);
+    }
+
+    public function isDispatcher(?Organization $tenant = null): bool
+    {
+        return $this->hasOrganizationRole(UserRole::Dispatcher, $tenant);
+    }
+
+    public function isTechnician(?Organization $tenant = null): bool
+    {
+        return $this->hasOrganizationRole(UserRole::Technician, $tenant);
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         if ($panel->getId() !== 'admin') {
@@ -89,10 +142,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
             || $this->memberships()
                 ->where('status', MembershipStatus::Active->value)
                 ->whereHas('roles', function (Builder $query): void {
-                    $query->whereIn('role', [
-                        UserRole::OrganizationOwner->value,
-                        UserRole::Admin->value,
-                    ]);
+                    $query->whereIn('role', UserRole::organizationRoleValues());
                 })
                 ->exists();
     }
@@ -110,10 +160,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return $this->memberships()
             ->where('status', MembershipStatus::Active->value)
             ->whereHas('roles', function (Builder $query): void {
-                $query->whereIn('role', [
-                    UserRole::OrganizationOwner->value,
-                    UserRole::Admin->value,
-                ]);
+                $query->whereIn('role', UserRole::organizationRoleValues());
             })
             ->with('organization')
             ->get()
@@ -133,10 +180,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
                 ->where('organization_id', $tenant->getKey())
                 ->where('status', MembershipStatus::Active->value)
                 ->whereHas('roles', function (Builder $query): void {
-                    $query->whereIn('role', [
-                        UserRole::OrganizationOwner->value,
-                        UserRole::Admin->value,
-                    ]);
+                    $query->whereIn('role', UserRole::organizationRoleValues());
                 })
                 ->exists();
     }

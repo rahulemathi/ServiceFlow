@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Filament\Widgets\Concerns\InteractsWithServiceFlowFilters;
 use App\Models\MaintenanceContract;
+use App\Models\User;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -15,6 +16,14 @@ class UpcomingMaintenanceWidget extends TableWidget
     protected static ?string $heading = 'Upcoming maintenance';
 
     protected int|string|array $columnSpan = 'full';
+
+    public static function canView(): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+    }
 
     public function table(Table $table): Table
     {

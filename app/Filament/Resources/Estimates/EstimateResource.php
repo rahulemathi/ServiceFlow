@@ -7,6 +7,7 @@ use App\Filament\Resources\Estimates\Pages\ManageEstimates;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Models\Estimate;
 use App\Models\Invoice;
+use App\Models\User;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -36,6 +37,14 @@ class EstimateResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Financials';
 
     protected static ?string $recordTitleAttribute = 'estimate_number';
+
+    public static function canViewAny(): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+    }
 
     public static function form(Schema $schema): Schema
     {

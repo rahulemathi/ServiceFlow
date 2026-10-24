@@ -7,6 +7,7 @@ use Filament\Facades\Filament;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -37,15 +38,25 @@ trait InteractsWithServiceFlowFilters
     {
         $tenant ??= $this->dashboardTenant();
 
-        return Validator::make($this->pageFilters ?? [], [
-            'startDate' => ['nullable', 'date_format:Y-m-d'],
-            'endDate' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:startDate'],
+        $validated = Validator::make($this->pageFilters ?? [], [
+            'startDate' => ['nullable', 'date'],
+            'endDate' => ['nullable', 'date', 'after_or_equal:startDate'],
             'branchId' => [
                 'nullable',
                 'integer',
                 Rule::exists('branches', 'id')->where('organization_id', $tenant->getKey()),
             ],
         ])->validate();
+
+        if (! empty($validated['startDate'])) {
+            $validated['startDate'] = Carbon::parse($validated['startDate'])->toDateString();
+        }
+
+        if (! empty($validated['endDate'])) {
+            $validated['endDate'] = Carbon::parse($validated['endDate'])->toDateString();
+        }
+
+        return $validated;
     }
 
     protected function dashboardTenant(): Organization

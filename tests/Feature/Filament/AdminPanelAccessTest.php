@@ -6,7 +6,7 @@ use App\Models\Organization;
 use App\Models\User;
 use App\UserRole;
 
-it('allows organization owners and admins to access the admin panel', function (UserRole $role) {
+it('allows active organization team members to access the admin panel', function (UserRole $role) {
     $organization = Organization::create([
         'name' => 'Acme Services',
         'slug' => 'acme-services',
@@ -16,6 +16,7 @@ it('allows organization owners and admins to access the admin panel', function (
     $membership = Membership::create([
         'organization_id' => $organization->id,
         'user_id' => $user->id,
+        'status' => MembershipStatus::Active,
     ]);
     $membership->assignRole($role);
 
@@ -25,6 +26,8 @@ it('allows organization owners and admins to access the admin panel', function (
 })->with([
     'organization owner' => UserRole::OrganizationOwner,
     'organization admin' => UserRole::Admin,
+    'dispatcher' => UserRole::Dispatcher,
+    'technician' => UserRole::Technician,
 ]);
 
 it('allows platform admins to access the admin panel', function () {
@@ -40,7 +43,7 @@ it('allows platform admins to access the admin panel', function () {
         ->assertOk();
 });
 
-it('denies admin panel access without an active administrative role', function (?UserRole $role, MembershipStatus $status) {
+it('denies admin panel access without an active organization role', function (?UserRole $role, MembershipStatus $status) {
     $organization = Organization::create([
         'name' => 'Acme Services',
         'slug' => 'acme-services',
@@ -61,8 +64,8 @@ it('denies admin panel access without an active administrative role', function (
         ->assertForbidden();
 })->with([
     'no organization membership' => [null, MembershipStatus::Active],
-    'dispatcher' => [UserRole::Dispatcher, MembershipStatus::Active],
-    'technician' => [UserRole::Technician, MembershipStatus::Active],
     'invited organization owner' => [UserRole::OrganizationOwner, MembershipStatus::Invited],
     'suspended organization admin' => [UserRole::Admin, MembershipStatus::Suspended],
+    'suspended technician' => [UserRole::Technician, MembershipStatus::Suspended],
+    'suspended dispatcher' => [UserRole::Dispatcher, MembershipStatus::Suspended],
 ]);

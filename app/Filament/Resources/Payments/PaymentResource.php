@@ -4,7 +4,9 @@ namespace App\Filament\Resources\Payments;
 
 use App\Filament\Resources\Payments\Pages\ManagePayments;
 use App\Models\Payment;
+use App\Models\User;
 use BackedEnum;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -19,6 +21,14 @@ class PaymentResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Financials';
 
     protected static ?string $recordTitleAttribute = 'reference';
+
+    public static function canViewAny(): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        return $user?->isOrganizationAdmin() ?? false;
+    }
 
     public static function table(Table $table): Table
     {

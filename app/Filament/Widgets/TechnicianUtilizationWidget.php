@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Filament\Widgets\Concerns\InteractsWithServiceFlowFilters;
 use App\Models\TechnicianAvailability;
+use App\Models\User;
 use App\Models\WorkOrder;
 use App\WorkOrderStatus;
 use Carbon\CarbonImmutable;
@@ -14,6 +15,14 @@ use Illuminate\Database\Eloquent\Builder;
 class TechnicianUtilizationWidget extends StatsOverviewWidget
 {
     use InteractsWithServiceFlowFilters;
+
+    public static function canView(): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+    }
 
     protected function getStats(): array
     {

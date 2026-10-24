@@ -4,11 +4,13 @@ namespace App\Filament\Resources\WorkOrders;
 
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Filament\Resources\WorkOrders\Pages\ManageWorkOrders;
+use App\Models\User;
 use App\Models\WorkOrder;
 use App\WorkOrderStatus;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -20,6 +22,8 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class WorkOrderResource extends Resource
 {
@@ -30,6 +34,35 @@ class WorkOrderResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Service operations';
 
     protected static ?string $recordTitleAttribute = 'work_order_number';
+
+    public static function canCreate(): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        if ($user && $user->isTechnician() && ! $user->isOrganizationAdmin() && ! $user->isDispatcher()) {
+            $query->where('assigned_to_user_id', $user->id);
+        }
+
+        return $query;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -43,7 +76,8 @@ class WorkOrderResource extends Resource
                     ->label('Technician')
                     ->options(FilamentOptions::technicians())
                     ->searchable()
-                    ->placeholder('Unassigned'),
+                    ->placeholder('Unassigned')
+                    ->disabled(fn (): bool => ! (Filament::auth()->user()?->isOrganizationAdmin() || Filament::auth()->user()?->isDispatcher())),
                 TextInput::make('title')->required()->maxLength(255),
                 Textarea::make('description')->rows(3)->columnSpanFull(),
                 DateTimePicker::make('scheduled_start_at')->seconds(false),

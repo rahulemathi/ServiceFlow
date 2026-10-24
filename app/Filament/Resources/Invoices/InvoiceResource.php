@@ -6,10 +6,12 @@ use App\CommercialStatus;
 use App\Filament\Resources\Invoices\Pages\ManageInvoices;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Models\Invoice;
+use App\Models\User;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -34,6 +36,14 @@ class InvoiceResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Financials';
 
     protected static ?string $recordTitleAttribute = 'invoice_number';
+
+    public static function canViewAny(): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        return $user?->isOrganizationAdmin() ?? false;
+    }
 
     public static function form(Schema $schema): Schema
     {

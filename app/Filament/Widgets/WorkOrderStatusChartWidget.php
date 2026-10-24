@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Widgets\Concerns\InteractsWithServiceFlowFilters;
+use App\Models\User;
 use App\Models\WorkOrder;
 use App\WorkOrderStatus;
 use Filament\Widgets\ChartWidget;
@@ -20,7 +21,16 @@ class WorkOrderStatusChartWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $counts = $this->dashboardQuery(WorkOrder::class, 'created_at')
+        $query = $this->dashboardQuery(WorkOrder::class, 'created_at');
+
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if ($user && $user->isTechnician() && ! $user->isOrganizationAdmin() && ! $user->isDispatcher()) {
+            $query->where('assigned_to_user_id', $user->id);
+        }
+
+        $counts = $query
             ->selectRaw('status, COUNT(*) as aggregate')
             ->groupBy('status')
             ->pluck('aggregate', 'status');

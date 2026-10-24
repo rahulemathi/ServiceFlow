@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Widgets\Concerns\InteractsWithServiceFlowFilters;
+use App\Models\User;
 use App\Models\WorkOrder;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -18,11 +19,20 @@ class UpcomingWorkOrdersWidget extends TableWidget
 
     public function table(Table $table): Table
     {
+        $query = $this->dashboardQuery(WorkOrder::class, 'scheduled_start_at')
+            ->whereNotNull('scheduled_start_at')
+            ->where('scheduled_start_at', '>=', now())
+            ->with(['customer:id,name', 'assignedTo:id,name']);
+
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if ($user && $user->isTechnician() && ! $user->isOrganizationAdmin() && ! $user->isDispatcher()) {
+            $query->where('assigned_to_user_id', $user->id);
+        }
+
         return $table
-            ->query($this->dashboardQuery(WorkOrder::class, 'scheduled_start_at')
-                ->whereNotNull('scheduled_start_at')
-                ->where('scheduled_start_at', '>=', now())
-                ->with(['customer:id,name', 'assignedTo:id,name']))
+            ->query($query)
             ->columns([
                 TextColumn::make('scheduled_start_at')->label('Start')->dateTime()->sortable(),
                 TextColumn::make('work_order_number')->searchable(),

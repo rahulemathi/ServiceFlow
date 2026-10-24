@@ -5,9 +5,11 @@ namespace App\Filament\Resources\Customers;
 use App\Filament\Resources\Customers\Pages\ManageCustomers;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Models\Customer;
+use App\Models\User;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -17,6 +19,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class CustomerResource extends Resource
 {
@@ -27,6 +30,22 @@ class CustomerResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Customers';
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function canCreate(): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+    }
 
     public static function form(Schema $schema): Schema
     {

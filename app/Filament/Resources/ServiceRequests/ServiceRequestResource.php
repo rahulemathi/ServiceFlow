@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ServiceRequests;
 use App\Filament\Resources\ServiceRequests\Pages\ManageServiceRequests;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Models\ServiceRequest;
+use App\Models\User;
 use App\Models\WorkOrder;
 use App\ServicePriority;
 use App\ServiceRequestStatus;
@@ -35,6 +36,14 @@ class ServiceRequestResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Service operations';
 
     protected static ?string $recordTitleAttribute = 'request_number';
+
+    public static function canViewAny(): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+    }
 
     public static function form(Schema $schema): Schema
     {
