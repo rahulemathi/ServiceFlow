@@ -7,12 +7,12 @@ test('home page returns successful response for guests', function () {
         ->assertOk();
 });
 
-test('home page redirects authenticated users to admin panel', function () {
+test('home page returns successful response for authenticated users', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
         ->get('/')
-        ->assertRedirect('/admin');
+        ->assertOk();
 });
 
 test('login route redirects to filament admin login', function () {

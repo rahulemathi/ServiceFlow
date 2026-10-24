@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <title>{{ __('Welcome') }} - {{ config('app.name', 'Laravel') }}</title>
+        <title>ServiceFlow — Field Service & Maintenance Management SaaS</title>
+        <meta name="description" content="Manage customer requests, work orders, technicians, maintenance contracts, and billing in one centralized platform.">
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -15,163 +15,1272 @@
         <!-- Styles / Scripts -->
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @else
-            <style>
-                @layer properties{@supports (((-webkit-hyphens:none)) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))){*,:before,:after,::backdrop{--tw-translate-x:0;--tw-translate-y:0;--tw-translate-z:0;--tw-rotate-x:initial;--tw-rotate-y:initial;--tw-rotate-z:initial;--tw-skew-x:initial;--tw-skew-y:initial;--tw-space-x-reverse:0;--tw-border-style:solid;--tw-leading:initial;--tw-font-weight:initial;--tw-shadow:0 0 #0000;--tw-shadow-color:initial;--tw-shadow-alpha:100%;--tw-inset-shadow:0 0 #0000;--tw-inset-shadow-color:initial;--tw-inset-shadow-alpha:100%;--tw-ring-color:initial;--tw-ring-shadow:0 0 #0000;--tw-inset-ring-color:initial;--tw-inset-ring-shadow:0 0 #0000;--tw-ring-inset:initial;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-offset-shadow:0 0 #0000;--tw-blur:initial;--tw-brightness:initial;--tw-contrast:initial;--tw-grayscale:initial;--tw-hue-rotate:initial;--tw-invert:initial;--tw-opacity:initial;--tw-saturate:initial;--tw-sepia:initial;--tw-drop-shadow:initial;--tw-drop-shadow-color:initial;--tw-drop-shadow-alpha:100%;--tw-drop-shadow-size:initial;--tw-duration:initial;--tw-content:""}}}@layer theme{:root,:host{--font-sans:"Instrument Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";--font-serif:ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;--font-mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;--color-red-50:oklch(97.1% .013 17.38);--color-red-100:oklch(93.6% .032 17.717);--color-red-200:oklch(88.5% .062 18.334);--color-red-300:oklch(80.8% .114 19.571);--color-red-400:oklch(70.4% .191 22.216);--color-red-500:oklch(63.7% .237 25.331);--color-red-600:oklch(57.7% .245 27.325);--color-red-700:oklch(50.5% .213 27.518);--color-red-800:oklch(44.4% .177 26.899);--color-red-900:oklch(39.6% .141 25.723);--color-red-950:oklch(25.8% .092 26.042);--color-orange-50:oklch(98% .016 73.684);--color-orange-100:oklch(95.4% .038 75.164);--color-orange-200:oklch(90.1% .076 70.697);--color-orange-300:oklch(83.7% .128 66.29);--color-orange-400:oklch(75% .183 55.934);--color-orange-500:oklch(70.5% .213 47.604);--color-orange-600:oklch(64.6% .222 41.116);--color-orange-700:oklch(55.3% .195 38.402);--color-orange-800:oklch(47% .157 37.304);--color-orange-900:oklch(40.8% .123 38.172);--color-orange-950:oklch(26.6% .079 36.259);--color-amber-50:oklch(98.7% .022 95.277);--color-amber-100:oklch(96.2% .059 95.617);--color-amber-200:oklch(92.4% .12 95.746);--color-amber-300:oklch(87.9% .169 91.605);--color-amber-400:oklch(82.8% .189 84.429);--color-amber-500:oklch(76.9% .188 70.08);--color-amber-600:oklch(66.6% .179 58.318);--color-amber-700:oklch(55.5% .163 48.998);--color-amber-800:oklch(47.3% .137 46.201);--color-amber-900:oklch(41.4% .112 45.904);--color-amber-950:oklch(27.9% .077 45.635);--color-yellow-50:oklch(98.7% .026 102.212);--color-yellow-100:oklch(97.3% .071 103.193);--color-yellow-200:oklch(94.5% .129 101.54);--color-yellow-300:oklch(90.5% .182 98.111);--color-yellow-400:oklch(85.2% .199 91.936);--color-yellow-500:oklch(79.5% .184 86.047);--color-yellow-600:oklch(68.1% .162 75.834);--color-yellow-700:oklch(55.4% .135 66.442);--color-yellow-800:oklch(47.6% .114 61.907);--color-yellow-900:oklch(42.1% .095 57.708);--color-yellow-950:oklch(28.6% .066 53.813);--color-lime-50:oklch(98.6% .031 120.757);--color-lime-100:oklch(96.7% .067 122.328);--color-lime-200:oklch(93.8% .127 124.321);--color-lime-300:oklch(89.7% .196 126.665);--color-lime-400:oklch(84.1% .238 128.85);--color-lime-500:oklch(76.8% .233 130.85);--color-lime-600:oklch(64.8% .2 131.684);--color-lime-700:oklch(53.2% .157 131.589);--color-lime-800:oklch(45.3% .124 130.933);--color-lime-900:oklch(40.5% .101 131.063);--color-lime-950:oklch(27.4% .072 132.109);--color-green-50:oklch(98.2% .018 155.826);--color-green-100:oklch(96.2% .044 156.743);--color-green-200:oklch(92.5% .084 155.995);--color-green-300:oklch(87.1% .15 154.449);--color-green-400:oklch(79.2% .209 151.711);--color-green-500:oklch(72.3% .219 149.579);--color-green-600:oklch(62.7% .194 149.214);--color-green-700:oklch(52.7% .154 150.069);--color-green-800:oklch(44.8% .119 151.328);--color-green-900:oklch(39.3% .095 152.535);--color-green-950:oklch(26.6% .065 152.934);--color-emerald-50:oklch(97.9% .021 166.113);--color-emerald-100:oklch(95% .052 163.051);--color-emerald-200:oklch(90.5% .093 164.15);--color-emerald-300:oklch(84.5% .143 164.978);--color-emerald-400:oklch(76.5% .177 163.223);--color-emerald-500:oklch(69.6% .17 162.48);--color-emerald-600:oklch(59.6% .145 163.225);--color-emerald-700:oklch(50.8% .118 165.612);--color-emerald-800:oklch(43.2% .095 166.913);--color-emerald-900:oklch(37.8% .077 168.94);--color-emerald-950:oklch(26.2% .051 172.552);--color-teal-50:oklch(98.4% .014 180.72);--color-teal-100:oklch(95.3% .051 180.801);--color-teal-200:oklch(91% .096 180.426);--color-teal-300:oklch(85.5% .138 181.071);--color-teal-400:oklch(77.7% .152 181.912);--color-teal-500:oklch(70.4% .14 182.503);--color-teal-600:oklch(60% .118 184.704);--color-teal-700:oklch(51.1% .096 186.391);--color-teal-800:oklch(43.7% .078 188.216);--color-teal-900:oklch(38.6% .063 188.416);--color-teal-950:oklch(27.7% .046 192.524);--color-cyan-50:oklch(98.4% .019 200.873);--color-cyan-100:oklch(95.6% .045 203.388);--color-cyan-200:oklch(91.7% .08 205.041);--color-cyan-300:oklch(86.5% .127 207.078);--color-cyan-400:oklch(78.9% .154 211.53);--color-cyan-500:oklch(71.5% .143 215.221);--color-cyan-600:oklch(60.9% .126 221.723);--color-cyan-700:oklch(52% .105 223.128);--color-cyan-800:oklch(45% .085 224.283);--color-cyan-900:oklch(39.8% .07 227.392);--color-cyan-950:oklch(30.2% .056 229.695);--color-sky-50:oklch(97.7% .013 236.62);--color-sky-100:oklch(95.1% .026 236.824);--color-sky-200:oklch(90.1% .058 230.902);--color-sky-300:oklch(82.8% .111 230.318);--color-sky-400:oklch(74.6% .16 232.661);--color-sky-500:oklch(68.5% .169 237.323);--color-sky-600:oklch(58.8% .158 241.966);--color-sky-700:oklch(50% .134 242.749);--color-sky-800:oklch(44.3% .11 240.79);--color-sky-900:oklch(39.1% .09 240.876);--color-sky-950:oklch(29.3% .066 243.157);--color-blue-50:oklch(97% .014 254.604);--color-blue-100:oklch(93.2% .032 255.585);--color-blue-200:oklch(88.2% .059 254.128);--color-blue-300:oklch(80.9% .105 251.813);--color-blue-400:oklch(70.7% .165 254.624);--color-blue-500:oklch(62.3% .214 259.815);--color-blue-600:oklch(54.6% .245 262.881);--color-blue-700:oklch(48.8% .243 264.376);--color-blue-800:oklch(42.4% .199 265.638);--color-blue-900:oklch(37.9% .146 265.522);--color-blue-950:oklch(28.2% .091 267.935);--color-indigo-50:oklch(96.2% .018 272.314);--color-indigo-100:oklch(93% .034 272.788);--color-indigo-200:oklch(87% .065 274.039);--color-indigo-300:oklch(78.5% .115 274.713);--color-indigo-400:oklch(67.3% .182 276.935);--color-indigo-500:oklch(58.5% .233 277.117);--color-indigo-600:oklch(51.1% .262 276.966);--color-indigo-700:oklch(45.7% .24 277.023);--color-indigo-800:oklch(39.8% .195 277.366);--color-indigo-900:oklch(35.9% .144 278.697);--color-indigo-950:oklch(25.7% .09 281.288);--color-violet-50:oklch(96.9% .016 293.756);--color-violet-100:oklch(94.3% .029 294.588);--color-violet-200:oklch(89.4% .057 293.283);--color-violet-300:oklch(81.1% .111 293.571);--color-violet-400:oklch(70.2% .183 293.541);--color-violet-500:oklch(60.6% .25 292.717);--color-violet-600:oklch(54.1% .281 293.009);--color-violet-700:oklch(49.1% .27 292.581);--color-violet-800:oklch(43.2% .232 292.759);--color-violet-900:oklch(38% .189 293.745);--color-violet-950:oklch(28.3% .141 291.089);--color-purple-50:oklch(97.7% .014 308.299);--color-purple-100:oklch(94.6% .033 307.174);--color-purple-200:oklch(90.2% .063 306.703);--color-purple-300:oklch(82.7% .119 306.383);--color-purple-400:oklch(71.4% .203 305.504);--color-purple-500:oklch(62.7% .265 303.9);--color-purple-600:oklch(55.8% .288 302.321);--color-purple-700:oklch(49.6% .265 301.924);--color-purple-800:oklch(43.8% .218 303.724);--color-purple-900:oklch(38.1% .176 304.987);--color-purple-950:oklch(29.1% .149 302.717);--color-fuchsia-50:oklch(97.7% .017 320.058);--color-fuchsia-100:oklch(95.2% .037 318.852);--color-fuchsia-200:oklch(90.3% .076 319.62);--color-fuchsia-300:oklch(83.3% .145 321.434);--color-fuchsia-400:oklch(74% .238 322.16);--color-fuchsia-500:oklch(66.7% .295 322.15);--color-fuchsia-600:oklch(59.1% .293 322.896);--color-fuchsia-700:oklch(51.8% .253 323.949);--color-fuchsia-800:oklch(45.2% .211 324.591);--color-fuchsia-900:oklch(40.1% .17 325.612);--color-fuchsia-950:oklch(29.3% .136 325.661);--color-pink-50:oklch(97.1% .014 343.198);--color-pink-100:oklch(94.8% .028 342.258);--color-pink-200:oklch(89.9% .061 343.231);--color-pink-300:oklch(82.3% .12 346.018);--color-pink-400:oklch(71.8% .202 349.761);--color-pink-500:oklch(65.6% .241 354.308);--color-pink-600:oklch(59.2% .249 .584);--color-pink-700:oklch(52.5% .223 3.958);--color-pink-800:oklch(45.9% .187 3.815);--color-pink-900:oklch(40.8% .153 2.432);--color-pink-950:oklch(28.4% .109 3.907);--color-rose-50:oklch(96.9% .015 12.422);--color-rose-100:oklch(94.1% .03 12.58);--color-rose-200:oklch(89.2% .058 10.001);--color-rose-300:oklch(81% .117 11.638);--color-rose-400:oklch(71.2% .194 13.428);--color-rose-500:oklch(64.5% .246 16.439);--color-rose-600:oklch(58.6% .253 17.585);--color-rose-700:oklch(51.4% .222 16.935);--color-rose-800:oklch(45.5% .188 13.697);--color-rose-900:oklch(41% .159 10.272);--color-rose-950:oklch(27.1% .105 12.094);--color-slate-50:oklch(98.4% .003 247.858);--color-slate-100:oklch(96.8% .007 247.896);--color-slate-200:oklch(92.9% .013 255.508);--color-slate-300:oklch(86.9% .022 252.894);--color-slate-400:oklch(70.4% .04 256.788);--color-slate-500:oklch(55.4% .046 257.417);--color-slate-600:oklch(44.6% .043 257.281);--color-slate-700:oklch(37.2% .044 257.287);--color-slate-800:oklch(27.9% .041 260.031);--color-slate-900:oklch(20.8% .042 265.755);--color-slate-950:oklch(12.9% .042 264.695);--color-gray-50:oklch(98.5% .002 247.839);--color-gray-100:oklch(96.7% .003 264.542);--color-gray-200:oklch(92.8% .006 264.531);--color-gray-300:oklch(87.2% .01 258.338);--color-gray-400:oklch(70.7% .022 261.325);--color-gray-500:oklch(55.1% .027 264.364);--color-gray-600:oklch(44.6% .03 256.802);--color-gray-700:oklch(37.3% .034 259.733);--color-gray-800:oklch(27.8% .033 256.848);--color-gray-900:oklch(21% .034 264.665);--color-gray-950:oklch(13% .028 261.692);--color-zinc-50:oklch(98.5% 0 0);--color-zinc-100:oklch(96.7% .001 286.375);--color-zinc-200:oklch(92% .004 286.32);--color-zinc-300:oklch(87.1% .006 286.286);--color-zinc-400:oklch(70.5% .015 286.067);--color-zinc-500:oklch(55.2% .016 285.938);--color-zinc-600:oklch(44.2% .017 285.786);--color-zinc-700:oklch(37% .013 285.805);--color-zinc-800:oklch(27.4% .006 286.033);--color-zinc-900:oklch(21% .006 285.885);--color-zinc-950:oklch(14.1% .005 285.823);--color-neutral-50:oklch(98.5% 0 0);--color-neutral-100:oklch(97% 0 0);--color-neutral-200:oklch(92.2% 0 0);--color-neutral-300:oklch(87% 0 0);--color-neutral-400:oklch(70.8% 0 0);--color-neutral-500:oklch(55.6% 0 0);--color-neutral-600:oklch(43.9% 0 0);--color-neutral-700:oklch(37.1% 0 0);--color-neutral-800:oklch(26.9% 0 0);--color-neutral-900:oklch(20.5% 0 0);--color-neutral-950:oklch(14.5% 0 0);--color-stone-50:oklch(98.5% .001 106.423);--color-stone-100:oklch(97% .001 106.424);--color-stone-200:oklch(92.3% .003 48.717);--color-stone-300:oklch(86.9% .005 56.366);--color-stone-400:oklch(70.9% .01 56.259);--color-stone-500:oklch(55.3% .013 58.071);--color-stone-600:oklch(44.4% .011 73.639);--color-stone-700:oklch(37.4% .01 67.558);--color-stone-800:oklch(26.8% .007 34.298);--color-stone-900:oklch(21.6% .006 56.043);--color-stone-950:oklch(14.7% .004 49.25);--color-black:#000;--color-white:#fff;--spacing:.25rem;--breakpoint-sm:40rem;--breakpoint-md:48rem;--breakpoint-lg:64rem;--breakpoint-xl:80rem;--breakpoint-2xl:96rem;--container-3xs:16rem;--container-2xs:18rem;--container-xs:20rem;--container-sm:24rem;--container-md:28rem;--container-lg:32rem;--container-xl:36rem;--container-2xl:42rem;--container-3xl:48rem;--container-4xl:56rem;--container-5xl:64rem;--container-6xl:72rem;--container-7xl:80rem;--text-xs:.75rem;--text-xs--line-height:calc(1 / .75);--text-sm:.875rem;--text-sm--line-height:calc(1.25 / .875);--text-base:1rem;--text-base--line-height: 1.5 ;--text-lg:1.125rem;--text-lg--line-height:calc(1.75 / 1.125);--text-xl:1.25rem;--text-xl--line-height:calc(1.75 / 1.25);--text-2xl:1.5rem;--text-2xl--line-height:calc(2 / 1.5);--text-3xl:1.875rem;--text-3xl--line-height: 1.2 ;--text-4xl:2.25rem;--text-4xl--line-height:calc(2.5 / 2.25);--text-5xl:3rem;--text-5xl--line-height:1;--text-6xl:3.75rem;--text-6xl--line-height:1;--text-7xl:4.5rem;--text-7xl--line-height:1;--text-8xl:6rem;--text-8xl--line-height:1;--text-9xl:8rem;--text-9xl--line-height:1;--font-weight-thin:100;--font-weight-extralight:200;--font-weight-light:300;--font-weight-normal:400;--font-weight-medium:500;--font-weight-semibold:600;--font-weight-bold:700;--font-weight-extrabold:800;--font-weight-black:900;--tracking-tighter:-.05em;--tracking-tight:-.025em;--tracking-normal:0em;--tracking-wide:.025em;--tracking-wider:.05em;--tracking-widest:.1em;--leading-tight:1.25;--leading-snug:1.375;--leading-normal:1.5;--leading-relaxed:1.625;--leading-loose:2;--radius-xs:.125rem;--radius-sm:.25rem;--radius-md:.375rem;--radius-lg:.5rem;--radius-xl:.75rem;--radius-2xl:1rem;--radius-3xl:1.5rem;--radius-4xl:2rem;--shadow-2xs:0 1px #0000000d;--shadow-xs:0 1px 2px 0 #0000000d;--shadow-sm:0 1px 3px 0 #0000001a, 0 1px 2px -1px #0000001a;--shadow-md:0 4px 6px -1px #0000001a, 0 2px 4px -2px #0000001a;--shadow-lg:0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a;--shadow-xl:0 20px 25px -5px #0000001a, 0 8px 10px -6px #0000001a;--shadow-2xl:0 25px 50px -12px #00000040;--inset-shadow-2xs:inset 0 1px #0000000d;--inset-shadow-xs:inset 0 1px 1px #0000000d;--inset-shadow-sm:inset 0 2px 4px #0000000d;--drop-shadow-xs:0 1px 1px #0000000d;--drop-shadow-sm:0 1px 2px #00000026;--drop-shadow-md:0 3px 3px #0000001f;--drop-shadow-lg:0 4px 4px #00000026;--drop-shadow-xl:0 9px 7px #0000001a;--drop-shadow-2xl:0 25px 25px #00000026;--ease-in:cubic-bezier(.4, 0, 1, 1);--ease-out:cubic-bezier(0, 0, .2, 1);--ease-in-out:cubic-bezier(.4, 0, .2, 1);--animate-spin:spin 1s linear infinite;--animate-ping:ping 1s cubic-bezier(0, 0, .2, 1) infinite;--animate-pulse:pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;--animate-bounce:bounce 1s infinite;--blur-xs:4px;--blur-sm:8px;--blur-md:12px;--blur-lg:16px;--blur-xl:24px;--blur-2xl:40px;--blur-3xl:64px;--perspective-dramatic:100px;--perspective-near:300px;--perspective-normal:500px;--perspective-midrange:800px;--perspective-distant:1200px;--aspect-video:16 / 9;--default-transition-duration:.15s;--default-transition-timing-function:cubic-bezier(.4, 0, .2, 1);--default-font-family:var(--font-sans);--default-mono-font-family:var(--font-mono)}}@layer base{*,:after,:before,::backdrop{box-sizing:border-box;border:0 solid;margin:0;padding:0}::file-selector-button{box-sizing:border-box;border:0 solid;margin:0;padding:0}html,:host{-webkit-text-size-adjust:100%;tab-size:4;line-height:1.5;font-family:var(--default-font-family,ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");font-feature-settings:var(--default-font-feature-settings,normal);font-variation-settings:var(--default-font-variation-settings,normal);-webkit-tap-highlight-color:transparent}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;-webkit-text-decoration:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:var(--default-mono-font-family,ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);font-feature-settings:var(--default-mono-font-feature-settings,normal);font-variation-settings:var(--default-mono-font-variation-settings,normal);font-size:1em}small{font-size:80%}sub,sup{vertical-align:baseline;font-size:75%;line-height:0;position:relative}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}:-moz-focusring{outline:auto}progress{vertical-align:baseline}summary{display:list-item}ol,ul,menu{list-style:none}img,svg,video,canvas,audio,iframe,embed,object{vertical-align:middle;display:block}img,video{max-width:100%;height:auto}button,input,select,optgroup,textarea{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}::file-selector-button{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}:where(select:is([multiple],[size])) optgroup{font-weight:bolder}:where(select:is([multiple],[size])) optgroup option{padding-inline-start:20px}::file-selector-button{margin-inline-end:4px}::placeholder{opacity:1}@supports (not ((-webkit-appearance:-apple-pay-button))) or (contain-intrinsic-size:1px){::placeholder{color:currentColor}@supports (color:color-mix(in lab,red,red)){::placeholder{color:color-mix(in oklab,currentcolor 50%,transparent)}}}textarea{resize:vertical}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-date-and-time-value{min-height:1lh;text-align:inherit}::-webkit-datetime-edit{display:inline-flex}::-webkit-datetime-edit-fields-wrapper{padding:0}::-webkit-datetime-edit{padding-block:0}::-webkit-datetime-edit-year-field{padding-block:0}::-webkit-datetime-edit-month-field{padding-block:0}::-webkit-datetime-edit-day-field{padding-block:0}::-webkit-datetime-edit-hour-field{padding-block:0}::-webkit-datetime-edit-minute-field{padding-block:0}::-webkit-datetime-edit-second-field{padding-block:0}::-webkit-datetime-edit-millisecond-field{padding-block:0}::-webkit-datetime-edit-meridiem-field{padding-block:0}::-webkit-calendar-picker-indicator{line-height:1}:-moz-ui-invalid{box-shadow:none}button,input:where([type=button],[type=reset],[type=submit]){appearance:button}::file-selector-button{appearance:button}::-webkit-inner-spin-button{height:auto}::-webkit-outer-spin-button{height:auto}[hidden]:where(:not([hidden=until-found])){display:none!important}}@layer components;@layer utilities{.absolute{position:absolute}.relative{position:relative}.static{position:static}.inset-0{inset:calc(var(--spacing) * 0)}.start{inset-inline-start:var(--spacing)}.ms-1{margin-inline-start:calc(var(--spacing) * 1)}.-mt-\[6\.6rem\]{margin-top:-6.6rem}.-mb-px{margin-bottom:-1px}.mb-1{margin-bottom:calc(var(--spacing) * 1)}.mb-2{margin-bottom:calc(var(--spacing) * 2)}.mb-4{margin-bottom:calc(var(--spacing) * 4)}.mb-6{margin-bottom:calc(var(--spacing) * 6)}.-ml-8{margin-left:calc(var(--spacing) * -8)}.contents{display:contents}.flex{display:flex}.hidden{display:none}.inline-block{display:inline-block}.inline-flex{display:inline-flex}.table{display:table}.aspect-\[335\/364\]{aspect-ratio:335/364}.h-1{height:calc(var(--spacing) * 1)}.h-1\.5{height:calc(var(--spacing) * 1.5)}.h-2{height:calc(var(--spacing) * 2)}.h-2\.5{height:calc(var(--spacing) * 2.5)}.h-3{height:calc(var(--spacing) * 3)}.h-3\.5{height:calc(var(--spacing) * 3.5)}.h-14{height:calc(var(--spacing) * 14)}.h-14\.5{height:calc(var(--spacing) * 14.5)}.min-h-screen{min-height:100vh}.w-1{width:calc(var(--spacing) * 1)}.w-1\.5{width:calc(var(--spacing) * 1.5)}.w-2{width:calc(var(--spacing) * 2)}.w-2\.5{width:calc(var(--spacing) * 2.5)}.w-3{width:calc(var(--spacing) * 3)}.w-3\.5{width:calc(var(--spacing) * 3.5)}.w-\[438px\]{width:438px}.w-full{width:100%}.max-w-\[335px\]{max-width:335px}.max-w-none{max-width:none}.flex-1{flex:1}.shrink-0{flex-shrink:0}.translate-y-0{--tw-translate-y:calc(var(--spacing) * 0);translate:var(--tw-translate-x) var(--tw-translate-y)}.transform{transform:var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,)}.flex-col{flex-direction:column}.flex-col-reverse{flex-direction:column-reverse}.items-center{align-items:center}.justify-center{justify-content:center}.justify-end{justify-content:flex-end}.gap-3{gap:calc(var(--spacing) * 3)}.gap-4{gap:calc(var(--spacing) * 4)}:where(.space-x-1>:not(:last-child)){--tw-space-x-reverse:0;margin-inline-start:calc(calc(var(--spacing) * 1) * var(--tw-space-x-reverse));margin-inline-end:calc(calc(var(--spacing) * 1) * calc(1 - var(--tw-space-x-reverse)))}.overflow-hidden{overflow:hidden}.rounded-full{border-radius:3.40282e38px}.rounded-sm{border-radius:var(--radius-sm)}.rounded-ee-lg{border-end-end-radius:var(--radius-lg)}.rounded-es-lg{border-end-start-radius:var(--radius-lg)}.rounded-t-lg{border-top-left-radius:var(--radius-lg);border-top-right-radius:var(--radius-lg)}.rounded-br-lg{border-bottom-right-radius:var(--radius-lg)}.rounded-bl-lg{border-bottom-left-radius:var(--radius-lg)}.border{border-style:var(--tw-border-style);border-width:1px}.border-\[\#19140035\]{border-color:#19140035}.border-\[\#e3e3e0\]{border-color:#e3e3e0}.border-black{border-color:var(--color-black)}.border-transparent{border-color:#0000}.bg-\[\#1b1b18\]{background-color:#1b1b18}.bg-\[\#FDFDFC\]{background-color:#fdfdfc}.bg-\[\#dbdbd7\]{background-color:#dbdbd7}.bg-\[\#fff2f2\]{background-color:#fff2f2}.bg-white{background-color:var(--color-white)}.p-6{padding:calc(var(--spacing) * 6)}.px-5{padding-inline:calc(var(--spacing) * 5)}.py-1{padding-block:calc(var(--spacing) * 1)}.py-1\.5{padding-block:calc(var(--spacing) * 1.5)}.py-2{padding-block:calc(var(--spacing) * 2)}.pb-12{padding-bottom:calc(var(--spacing) * 12)}.text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.text-\[13px\]{font-size:13px}.leading-\[20px\]{--tw-leading:20px;line-height:20px}.leading-normal{--tw-leading:var(--leading-normal);line-height:var(--leading-normal)}.font-medium{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.text-\[\#1B1B18\],.text-\[\#1b1b18\]{color:#1b1b18}.text-\[\#706f6c\]{color:#706f6c}.text-\[\#F3BEC7\]{color:#f3bec7}.text-\[\#F8B803\]{color:#f8b803}.text-\[\#F53003\],.text-\[\#f53003\]{color:#f53003}.text-white{color:var(--color-white)}.underline{text-decoration-line:underline}.underline-offset-4{text-underline-offset:4px}.opacity-100{opacity:1}.mix-blend-color{mix-blend-mode:color}.mix-blend-darken{mix-blend-mode:darken}.mix-blend-hard-light{mix-blend-mode:hard-light}.mix-blend-multiply{mix-blend-mode:multiply}.shadow-\[0px_0px_1px_0px_rgba\(0\,0\,0\,0\.03\)\,0px_1px_2px_0px_rgba\(0\,0\,0\,0\.06\)\]{--tw-shadow:0px 0px 1px 0px var(--tw-shadow-color,#00000008), 0px 1px 2px 0px var(--tw-shadow-color,#0000000f);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.shadow-\[inset_0px_0px_0px_1px_rgba\(26\,26\,0\,0\.16\)\]{--tw-shadow:inset 0px 0px 0px 1px var(--tw-shadow-color,#1a1a0029);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.filter{filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.transition-all{transition-property:all;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-opacity{transition-property:opacity;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.delay-300{transition-delay:.3s}.delay-400{transition-delay:.4s}.duration-750{--tw-duration:.75s;transition-duration:.75s}.\[--stroke-color\:\#1B1B18\]{--stroke-color:#1b1b18}.not-has-\[nav\]\:hidden:not(:has(:is(nav))){display:none}.before\:absolute:before{content:var(--tw-content);position:absolute}.before\:start-\[0\.4rem\]:before{content:var(--tw-content);inset-inline-start:.4rem}.before\:top-0:before{content:var(--tw-content);top:calc(var(--spacing) * 0)}.before\:top-1\/2:before{content:var(--tw-content);top:50%}.before\:bottom-0:before{content:var(--tw-content);bottom:calc(var(--spacing) * 0)}.before\:bottom-1\/2:before{content:var(--tw-content);bottom:50%}.before\:left-\[0\.4rem\]:before{content:var(--tw-content);left:.4rem}.before\:border-l:before{content:var(--tw-content);border-left-style:var(--tw-border-style);border-left-width:1px}.before\:border-\[\#e3e3e0\]:before{content:var(--tw-content);border-color:#e3e3e0}@media(hover:hover){.hover\:border-\[\#1915014a\]:hover{border-color:#1915014a}.hover\:border-\[\#19140035\]:hover{border-color:#19140035}.hover\:border-black:hover{border-color:var(--color-black)}.hover\:bg-black:hover{background-color:var(--color-black)}}@media(min-width:64rem){.lg\:mb-0{margin-bottom:calc(var(--spacing) * 0)}.lg\:mb-6{margin-bottom:calc(var(--spacing) * 6)}.lg\:-ml-px{margin-left:-1px}.lg\:ml-0{margin-left:calc(var(--spacing) * 0)}.lg\:block{display:block}.lg\:aspect-auto{aspect-ratio:auto}.lg\:w-\[438px\]{width:438px}.lg\:max-w-4xl{max-width:var(--container-4xl)}.lg\:grow{flex-grow:1}.lg\:flex-row{flex-direction:row}.lg\:justify-center{justify-content:center}.lg\:rounded-ss-lg{border-start-start-radius:var(--radius-lg)}.lg\:rounded-ee-none{border-end-end-radius:0}.lg\:rounded-t-none{border-top-left-radius:0;border-top-right-radius:0}.lg\:rounded-r-lg{border-top-right-radius:var(--radius-lg);border-bottom-right-radius:var(--radius-lg)}.lg\:p-8{padding:calc(var(--spacing) * 8)}.lg\:p-20{padding:calc(var(--spacing) * 20)}}@media(prefers-color-scheme:dark){.dark\:border-\[\#3E3E3A\]{border-color:#3e3e3a}.dark\:border-\[\#eeeeec\]{border-color:#eeeeec}.dark\:bg-\[\#0a0a0a\]{background-color:#0a0a0a}.dark\:bg-\[\#1D0002\]{background-color:#1d0002}.dark\:bg-\[\#3E3E3A\]{background-color:#3e3e3a}.dark\:bg-\[\#161615\]{background-color:#161615}.dark\:bg-\[\#eeeeec\]{background-color:#eeeeec}.dark\:text-\[\#1C1C1A\]{color:#1c1c1a}.dark\:text-\[\#4B0600\]{color:#4b0600}.dark\:text-\[\#391800\]{color:#391800}.dark\:text-\[\#733000\]{color:#733000}.dark\:text-\[\#A1A09A\]{color:#a1a09a}.dark\:text-\[\#EDEDEC\]{color:#ededec}.dark\:text-\[\#F61500\]{color:#f61500}.dark\:text-\[\#FF4433\]{color:#f43}.dark\:text-black{color:var(--color-black)}.dark\:mix-blend-hard-light{mix-blend-mode:hard-light}.dark\:mix-blend-normal{mix-blend-mode:normal}.dark\:shadow-\[inset_0px_0px_0px_1px_\#fffaed2d\]{--tw-shadow:inset 0px 0px 0px 1px var(--tw-shadow-color,#fffaed2d);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.dark\:\[--stroke-color\:\#FF750F\]{--stroke-color:#ff750f}.dark\:before\:border-\[\#3E3E3A\]:before{content:var(--tw-content);border-color:#3e3e3a}@media(hover:hover){.dark\:hover\:border-\[\#3E3E3A\]:hover{border-color:#3e3e3a}.dark\:hover\:border-\[\#62605b\]:hover{border-color:#62605b}.dark\:hover\:border-white:hover{border-color:var(--color-white)}.dark\:hover\:bg-white:hover{background-color:var(--color-white)}}}@starting-style{.starting\:opacity-0{opacity:0}}@media(prefers-reduced-motion:no-preference){@starting-style{.motion-safe\:starting\:-translate-x-\[26px\]{--tw-translate-x: -26px ;translate:var(--tw-translate-x) var(--tw-translate-y)}}@starting-style{.motion-safe\:starting\:-translate-x-\[51px\]{--tw-translate-x: -51px ;translate:var(--tw-translate-x) var(--tw-translate-y)}}@starting-style{.motion-safe\:starting\:-translate-x-\[78px\]{--tw-translate-x: -78px ;translate:var(--tw-translate-x) var(--tw-translate-y)}}@starting-style{.motion-safe\:starting\:-translate-x-\[102px\]{--tw-translate-x: -102px ;translate:var(--tw-translate-x) var(--tw-translate-y)}}@starting-style{.motion-safe\:starting\:translate-y-6{--tw-translate-y:calc(var(--spacing) * 6);translate:var(--tw-translate-x) var(--tw-translate-y)}}}}@property --tw-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-y{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-z{syntax:"*";inherits:false;initial-value:0}@property --tw-rotate-x{syntax:"*";inherits:false}@property --tw-rotate-y{syntax:"*";inherits:false}@property --tw-rotate-z{syntax:"*";inherits:false}@property --tw-skew-x{syntax:"*";inherits:false}@property --tw-skew-y{syntax:"*";inherits:false}@property --tw-space-x-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-leading{syntax:"*";inherits:false}@property --tw-font-weight{syntax:"*";inherits:false}@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-shadow-color{syntax:"*";inherits:false}@property --tw-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-shadow-color{syntax:"*";inherits:false}@property --tw-inset-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-ring-color{syntax:"*";inherits:false}@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-ring-color{syntax:"*";inherits:false}@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-ring-inset{syntax:"*";inherits:false}@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-blur{syntax:"*";inherits:false}@property --tw-brightness{syntax:"*";inherits:false}@property --tw-contrast{syntax:"*";inherits:false}@property --tw-grayscale{syntax:"*";inherits:false}@property --tw-hue-rotate{syntax:"*";inherits:false}@property --tw-invert{syntax:"*";inherits:false}@property --tw-opacity{syntax:"*";inherits:false}@property --tw-saturate{syntax:"*";inherits:false}@property --tw-sepia{syntax:"*";inherits:false}@property --tw-drop-shadow{syntax:"*";inherits:false}@property --tw-drop-shadow-color{syntax:"*";inherits:false}@property --tw-drop-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-drop-shadow-size{syntax:"*";inherits:false}@property --tw-duration{syntax:"*";inherits:false}@property --tw-content{syntax:"*";inherits:false;initial-value:""}@keyframes spin{to{transform:rotate(360deg)}}@keyframes ping{75%,to{opacity:0;transform:scale(2)}}@keyframes pulse{50%{opacity:.5}}@keyframes bounce{0%,to{animation-timing-function:cubic-bezier(.8,0,1,1);transform:translateY(-25%)}50%{animation-timing-function:cubic-bezier(0,0,.2,1);transform:none}}
-            </style>
         @endif
     </head>
-    <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
-        <div class="flex items-center justify-center w-full transition-opacity opacity-100 duration-750 lg:grow starting:opacity-0">
-            <main class="flex max-w-[335px] w-full flex-col-reverse lg:max-w-4xl lg:flex-row">
-                <div class="text-[13px] leading-[20px] flex-1 p-6 pb-12 lg:p-20 bg-white dark:bg-[#161615] dark:text-[#EDEDEC] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d] rounded-es-lg rounded-ee-lg lg:rounded-ss-lg lg:rounded-ee-none">
-                    <h1 class="mb-1 font-medium">Let's get started</h1>
-                    <p class="mb-2 text-[#706f6c] dark:text-[#A1A09A]">Laravel has an incredibly rich ecosystem. <br>We suggest starting with the following.</p>
-                    <ul class="flex flex-col mb-4 lg:mb-6">
-                        <li class="flex items-center gap-4 py-2 relative before:border-l before:border-[#e3e3e0] dark:before:border-[#3E3E3A] before:top-1/2 before:bottom-0 before:left-[0.4rem] before:absolute">
-                            <span class="relative py-1 bg-white dark:bg-[#161615]">
-                                <span class="flex items-center justify-center rounded-full bg-[#FDFDFC] dark:bg-[#161615] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] w-3.5 h-3.5 border dark:border-[#3E3E3A] border-[#e3e3e0]">
-                                    <span class="rounded-full bg-[#dbdbd7] dark:bg-[#3E3E3A] w-1.5 h-1.5"></span>
-                                </span>
+    <body class="min-h-screen bg-slate-50 text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white">
+        <!-- Accessibility Skip Link -->
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Skip to main content
+        </a>
+
+        <!-- 3. Navigation Bar -->
+        <header class="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+                    <!-- Left: Brand Logo & Name -->
+                    <div class="flex items-center gap-3">
+                        <a href="#home" class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-xl p-1" aria-label="ServiceFlow Home">
+                            <!-- Logo Brand Mark -->
+                            <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-600/25 group-hover:bg-blue-700 transition-colors">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                                    <path d="M5 19l4-4" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <span class="text-xl font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
+                                Service<span class="text-blue-600">Flow</span>
                             </span>
-                            <span>
-                                Read the
-                                <a href="https://laravel.com/docs" target="_blank" class="inline-flex items-center space-x-1 font-medium underline underline-offset-4 text-[#f53003] dark:text-[#FF4433] ms-1">
-                                    <span>Documentation</span>
-                                    <svg
-                                        width="10"
-                                        height="11"
-                                        viewBox="0 0 10 11"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="w-2.5 h-2.5"
-                                    >
-                                        <path
-                                            d="M7.70833 6.95834V2.79167H3.54167M2.5 8L7.5 3.00001"
-                                            stroke="currentColor"
-                                            stroke-linecap="square"
-                                        />
-                                    </svg>
-                                </a>
-                            </span>
-                        </li>
-                        <li class="flex items-center gap-4 py-2 relative before:border-l before:border-[#e3e3e0] dark:before:border-[#3E3E3A] before:bottom-1/2 before:top-0 before:start-[0.4rem] before:absolute">
-                            <span class="relative py-1 bg-white dark:bg-[#161615]">
-                                <span class="flex items-center justify-center rounded-full bg-[#FDFDFC] dark:bg-[#161615] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] w-3.5 h-3.5 border dark:border-[#3E3E3A] border-[#e3e3e0]">
-                                    <span class="rounded-full bg-[#dbdbd7] dark:bg-[#3E3E3A] w-1.5 h-1.5"></span>
-                                </span>
-                            </span>
-                            <span>
-                                Watch video tutorials at
-                                <a href="https://laracasts.com" target="_blank" class="inline-flex items-center space-x-1 font-medium underline underline-offset-4 text-[#f53003] dark:text-[#FF4433] ms-1">
-                                    <span>Laracasts</span>
-                                    <svg
-                                        width="10"
-                                        height="11"
-                                        viewBox="0 0 10 11"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="w-2.5 h-2.5"
-                                    >
-                                        <path
-                                            d="M7.70833 6.95834V2.79167H3.54167M2.5 8L7.5 3.00001"
-                                            stroke="currentColor"
-                                            stroke-linecap="square"
-                                        />
-                                    </svg>
-                                </a>
-                            </span>
-                        </li>
-                    </ul>
-                    <ul class="flex gap-3 text-sm leading-normal">
-                        <li>
-                            <a href="https://cloud.laravel.com" target="_blank" class="inline-block dark:bg-[#eeeeec] dark:border-[#eeeeec] dark:text-[#1C1C1A] dark:hover:bg-white dark:hover:border-white hover:bg-black hover:border-black px-5 py-1.5 bg-[#1b1b18] rounded-sm border border-black text-white text-sm leading-normal">
-                                Deploy now
+                        </a>
+                    </div>
+
+                    <!-- Center: Navigation Links -->
+                    <nav class="hidden md:flex items-center gap-8" aria-label="Main Navigation">
+                        <a href="#home" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Home</a>
+                        <a href="#features" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Features</a>
+                        <a href="#how-it-works" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">How It Works</a>
+                        <a href="#pricing" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Pricing</a>
+                        <a href="#about" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">About</a>
+                        <a href="#contact" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Contact</a>
+                    </nav>
+
+                    <!-- Right: Auth & Primary Action -->
+                    <div class="hidden sm:flex items-center gap-3">
+                        @auth
+                            <a href="{{ url('/admin') }}" class="text-sm font-semibold text-slate-700 hover:text-blue-600 px-4 py-2.5 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                Dashboard
                             </a>
-                        </li>
-                    </ul>
+                            <a href="{{ url('/admin') }}" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-600/30 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:scale-[0.98]">
+                                Open Portal
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="text-sm font-semibold text-slate-700 hover:text-blue-600 px-4 py-2.5 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                Log In
+                            </a>
+                            <a href="{{ route('login') }}" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-600/30 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:scale-[0.98]">
+                                Get Started
+                            </a>
+                        @endauth
+                    </div>
+
+                    <!-- Mobile Hamburger Button -->
+                    <div class="flex sm:hidden">
+                        <button type="button" id="mobile-menu-toggle" class="p-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-controls="mobile-menu" aria-expanded="false" aria-label="Toggle navigation menu">
+                            <svg id="hamburger-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                            <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-                <div class="bg-[#fff2f2] dark:bg-[#1D0002] relative lg:-ml-px -mb-px lg:mb-0 rounded-t-lg lg:rounded-t-none lg:rounded-r-lg aspect-[335/364] lg:aspect-auto w-full lg:w-[438px] shrink-0 overflow-hidden">
-                    {{-- Laravel Logo --}}
-                    <svg class="w-full text-[#F53003] dark:text-[#F61500] transition-all translate-y-0 opacity-100 max-w-none duration-750 starting:opacity-0 motion-safe:starting:translate-y-6" viewBox="0 0 438 104" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17.2036 -3H0V102.197H49.5189V86.7187H17.2036V-3Z" fill="currentColor" />
-                        <path d="M110.256 41.6337C108.061 38.1275 104.945 35.3731 100.905 33.3681C96.8667 31.3647 92.8016 30.3618 88.7131 30.3618C83.4247 30.3618 78.5885 31.3389 74.201 33.2923C69.8111 35.2456 66.0474 37.928 62.9059 41.3333C59.7643 44.7401 57.3198 48.6726 55.5754 53.1293C53.8287 57.589 52.9572 62.274 52.9572 67.1813C52.9572 72.1925 53.8287 76.8995 55.5754 81.3069C57.3191 85.7173 59.7636 89.6241 62.9059 93.0293C66.0474 96.4361 69.8119 99.1155 74.201 101.069C78.5885 103.022 83.4247 103.999 88.7131 103.999C92.8016 103.999 96.8667 102.997 100.905 100.994C104.945 98.9911 108.061 96.2359 110.256 92.7282V102.195H126.563V32.1642H110.256V41.6337ZM108.76 75.7472C107.762 78.4531 106.366 80.8078 104.572 82.8112C102.776 84.8161 100.606 86.4183 98.0637 87.6206C95.5202 88.823 92.7004 89.4238 89.6103 89.4238C86.5178 89.4238 83.7252 88.823 81.2324 87.6206C78.7388 86.4183 76.5949 84.8161 74.7998 82.8112C73.004 80.8078 71.6319 78.4531 70.6856 75.7472C69.7356 73.0421 69.2644 70.1868 69.2644 67.1821C69.2644 64.1758 69.7356 61.3205 70.6856 58.6154C71.6319 55.9102 73.004 53.5571 74.7998 51.5522C76.5949 49.5495 78.738 47.9451 81.2324 46.7427C83.7252 45.5404 86.5178 44.9396 89.6103 44.9396C92.7012 44.9396 95.5202 45.5404 98.0637 46.7427C100.606 47.9451 102.776 49.5487 104.572 51.5522C106.367 53.5571 107.762 55.9102 108.76 58.6154C109.756 61.3205 110.256 64.1758 110.256 67.1821C110.256 70.1868 109.756 73.0421 108.76 75.7472Z" fill="currentColor" />
-                        <path d="M242.805 41.6337C240.611 38.1275 237.494 35.3731 233.455 33.3681C229.416 31.3647 225.351 30.3618 221.262 30.3618C215.974 30.3618 211.138 31.3389 206.75 33.2923C202.36 35.2456 198.597 37.928 195.455 41.3333C192.314 44.7401 189.869 48.6726 188.125 53.1293C186.378 57.589 185.507 62.274 185.507 67.1813C185.507 72.1925 186.378 76.8995 188.125 81.3069C189.868 85.7173 192.313 89.6241 195.455 93.0293C198.597 96.4361 202.361 99.1155 206.75 101.069C211.138 103.022 215.974 103.999 221.262 103.999C225.351 103.999 229.416 102.997 233.455 100.994C237.494 98.9911 240.611 96.2359 242.805 92.7282V102.195H259.112V32.1642H242.805V41.6337ZM241.31 75.7472C240.312 78.4531 238.916 80.8078 237.122 82.8112C235.326 84.8161 233.156 86.4183 230.614 87.6206C228.07 88.823 225.251 89.4238 222.16 89.4238C219.068 89.4238 216.275 88.823 213.782 87.6206C211.289 86.4183 209.145 84.8161 207.35 82.8112C205.554 80.8078 204.182 78.4531 203.236 75.7472C202.286 73.0421 201.814 70.1868 201.814 67.1821C201.814 64.1758 202.286 61.3205 203.236 58.6154C204.182 55.9102 205.554 53.5571 207.35 51.5522C209.145 49.5495 211.288 47.9451 213.782 46.7427C216.275 45.5404 219.068 44.9396 222.16 44.9396C225.251 44.9396 228.07 45.5404 230.614 46.7427C233.156 47.9451 235.326 49.5487 237.122 51.5522C238.917 53.5571 240.312 55.9102 241.31 58.6154C242.306 61.3205 242.806 64.1758 242.806 67.1821C242.805 70.1868 242.305 73.0421 241.31 75.7472Z" fill="currentColor" />
-                        <path d="M438 -3H421.694V102.197H438V-3Z" fill="currentColor" />
-                        <path d="M139.43 102.197H155.735V48.2834H183.712V32.1665H139.43V102.197Z" fill="currentColor" />
-                        <path d="M324.49 32.1665L303.995 85.794L283.498 32.1665H266.983L293.748 102.197H314.242L341.006 32.1665H324.49Z" fill="currentColor" />
-                        <path d="M376.571 30.3656C356.603 30.3656 340.797 46.8497 340.797 67.1828C340.797 89.6597 356.094 104 378.661 104C391.29 104 399.354 99.1488 409.206 88.5848L398.189 80.0226C398.183 80.031 389.874 90.9895 377.468 90.9895C363.048 90.9895 356.977 79.3111 356.977 73.269H411.075C413.917 50.1328 398.775 30.3656 376.571 30.3656ZM357.02 61.0967C357.145 59.7487 359.023 43.3761 376.442 43.3761C393.861 43.3761 395.978 59.7464 396.099 61.0967H357.02Z" fill="currentColor" />
-                    </svg>
+            </div>
 
-                    {{-- 13 --}}
-                    <svg class="w-[438px] max-w-none relative -mt-[6.6rem] -ml-8 lg:ml-0 [--stroke-color:#1B1B18] dark:[--stroke-color:#FF750F]" viewBox="0 0 440 392" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g class="mix-blend-darken dark:mix-blend-normal transition-all delay-300 opacity-100 duration-750 starting:opacity-0 text-[#1B1B18] dark:text-black">
-                            <mask id="path-1-mask" maskUnits="userSpaceOnUse" x="-0.328613" y="103" width="338" height="299" fill="black">
-                                <rect fill="white" x="-0.328613" y="103" width="338" height="299"/>
-                                <path d="M234.936 400.8C204.136 400.8 178.936 392.4 159.336 375.6C140.136 358.8 130.536 337 130.536 310.2H200.736C200.736 318.2 203.736 324.8 209.736 330C215.736 335.2 223.736 337.8 233.736 337.8C243.336 337.8 251.136 335 257.136 329.4C263.536 323.8 266.736 316.6 266.736 307.8C266.736 299.8 263.936 293.2 258.336 288C252.736 282.8 245.536 280.2 236.736 280.2H199.536V218.4H236.736C243.536 218.4 249.336 216 254.136 211.2C258.936 206.4 261.336 200.4 261.336 193.2C261.336 184.8 258.736 178.2 253.536 173.4C248.336 168.6 241.736 166.2 233.736 166.2C226.536 166.2 220.336 168.4 215.136 172.8C210.336 177.2 207.936 182.8 207.936 189.6H141.336C141.336 164.8 150.136 144.6 167.736 129C185.336 113 207.936 105 235.536 105C263.136 105 285.536 112.2 302.736 126.6C320.336 141 329.136 160 329.136 183.6C329.136 200.8 324.536 214.8 315.336 225.6C306.136 236 294.336 243.2 279.936 247.2C297.136 252 310.736 260.2 320.736 271.8C331.136 283.4 336.336 298 336.336 315.6C336.336 340.4 326.936 360.8 308.136 376.8C289.336 392.8 264.936 400.8 234.936 400.8Z"/>
-                                <path d="M26.8714 167.6H1.67139V105.2H94.6714V400.2H26.8714V167.6Z"/>
-                            </mask>
-                            <path d="M234.936 400.8C204.136 400.8 178.936 392.4 159.336 375.6C140.136 358.8 130.536 337 130.536 310.2H200.736C200.736 318.2 203.736 324.8 209.736 330C215.736 335.2 223.736 337.8 233.736 337.8C243.336 337.8 251.136 335 257.136 329.4C263.536 323.8 266.736 316.6 266.736 307.8C266.736 299.8 263.936 293.2 258.336 288C252.736 282.8 245.536 280.2 236.736 280.2H199.536V218.4H236.736C243.536 218.4 249.336 216 254.136 211.2C258.936 206.4 261.336 200.4 261.336 193.2C261.336 184.8 258.736 178.2 253.536 173.4C248.336 168.6 241.736 166.2 233.736 166.2C226.536 166.2 220.336 168.4 215.136 172.8C210.336 177.2 207.936 182.8 207.936 189.6H141.336C141.336 164.8 150.136 144.6 167.736 129C185.336 113 207.936 105 235.536 105C263.136 105 285.536 112.2 302.736 126.6C320.336 141 329.136 160 329.136 183.6C329.136 200.8 324.536 214.8 315.336 225.6C306.136 236 294.336 243.2 279.936 247.2C297.136 252 310.736 260.2 320.736 271.8C331.136 283.4 336.336 298 336.336 315.6C336.336 340.4 326.936 360.8 308.136 376.8C289.336 392.8 264.936 400.8 234.936 400.8Z" fill="currentColor"/>
-                            <path d="M26.8714 167.6H1.67139V105.2H94.6714V400.2H26.8714V167.6Z" fill="currentColor"/>
-                            <path d="M234.936 400.8C204.136 400.8 178.936 392.4 159.336 375.6C140.136 358.8 130.536 337 130.536 310.2H200.736C200.736 318.2 203.736 324.8 209.736 330C215.736 335.2 223.736 337.8 233.736 337.8C243.336 337.8 251.136 335 257.136 329.4C263.536 323.8 266.736 316.6 266.736 307.8C266.736 299.8 263.936 293.2 258.336 288C252.736 282.8 245.536 280.2 236.736 280.2H199.536V218.4H236.736C243.536 218.4 249.336 216 254.136 211.2C258.936 206.4 261.336 200.4 261.336 193.2C261.336 184.8 258.736 178.2 253.536 173.4C248.336 168.6 241.736 166.2 233.736 166.2C226.536 166.2 220.336 168.4 215.136 172.8C210.336 177.2 207.936 182.8 207.936 189.6H141.336C141.336 164.8 150.136 144.6 167.736 129C185.336 113 207.936 105 235.536 105C263.136 105 285.536 112.2 302.736 126.6C320.336 141 329.136 160 329.136 183.6C329.136 200.8 324.536 214.8 315.336 225.6C306.136 236 294.336 243.2 279.936 247.2C297.136 252 310.736 260.2 320.736 271.8C331.136 283.4 336.336 298 336.336 315.6C336.336 340.4 326.936 360.8 308.136 376.8C289.336 392.8 264.936 400.8 234.936 400.8Z" stroke="var(--stroke-color)" stroke-width="2.4" mask="url(#path-1-mask)"/>
-                            <path d="M26.8714 167.6H1.67139V105.2H94.6714V400.2H26.8714V167.6Z" stroke="var(--stroke-color)" stroke-width="2.4" mask="url(#path-1-mask)"/>
-                        </g>
-
-                        <g class="transition-all delay-400 opacity-100 duration-750 starting:opacity-0 motion-safe:starting:-translate-x-[26px] text-[#F3BEC7] dark:text-[#4B0600]">
-                            <mask id="path-2-mask" maskUnits="userSpaceOnUse" x="25.3357" y="103" width="338" height="299" fill="black">
-                                <rect fill="white" x="25.3357" y="103" width="338" height="299"/>
-                                <path d="M260.6 400.8C229.8 400.8 204.6 392.4 185 375.6C165.8 358.8 156.2 337 156.2 310.2H226.4C226.4 318.2 229.4 324.8 235.4 330C241.4 335.2 249.4 337.8 259.4 337.8C269 337.8 276.8 335 282.8 329.4C289.2 323.8 292.4 316.6 292.4 307.8C292.4 299.8 289.6 293.2 284 288C278.4 282.8 271.2 280.2 262.4 280.2H225.2V218.4H262.4C269.2 218.4 275 216 279.8 211.2C284.6 206.4 287 200.4 287 193.2C287 184.8 284.4 178.2 279.2 173.4C274 168.6 267.4 166.2 259.4 166.2C252.2 166.2 246 168.4 240.8 172.8C236 177.2 233.6 182.8 233.6 189.6H167C167 164.8 175.8 144.6 193.4 129C211 113 233.6 105 261.2 105C288.8 105 311.2 112.2 328.4 126.6C346 141 354.8 160 354.8 183.6C354.8 200.8 350.2 214.8 341 225.6C331.8 236 320 243.2 305.6 247.2C322.8 252 336.4 260.2 346.4 271.8C356.8 283.4 362 298 362 315.6C362 340.4 352.6 360.8 333.8 376.8C315 392.8 290.6 400.8 260.6 400.8Z"/>
-                                <path d="M52.5357 167.6H27.3357V105.2H120.336V400.2H52.5357V167.6Z"/>
-                            </mask>
-                            <path d="M260.6 400.8C229.8 400.8 204.6 392.4 185 375.6C165.8 358.8 156.2 337 156.2 310.2H226.4C226.4 318.2 229.4 324.8 235.4 330C241.4 335.2 249.4 337.8 259.4 337.8C269 337.8 276.8 335 282.8 329.4C289.2 323.8 292.4 316.6 292.4 307.8C292.4 299.8 289.6 293.2 284 288C278.4 282.8 271.2 280.2 262.4 280.2H225.2V218.4H262.4C269.2 218.4 275 216 279.8 211.2C284.6 206.4 287 200.4 287 193.2C287 184.8 284.4 178.2 279.2 173.4C274 168.6 267.4 166.2 259.4 166.2C252.2 166.2 246 168.4 240.8 172.8C236 177.2 233.6 182.8 233.6 189.6H167C167 164.8 175.8 144.6 193.4 129C211 113 233.6 105 261.2 105C288.8 105 311.2 112.2 328.4 126.6C346 141 354.8 160 354.8 183.6C354.8 200.8 350.2 214.8 341 225.6C331.8 236 320 243.2 305.6 247.2C322.8 252 336.4 260.2 346.4 271.8C356.8 283.4 362 298 362 315.6C362 340.4 352.6 360.8 333.8 376.8C315 392.8 290.6 400.8 260.6 400.8Z" fill="currentColor"/>
-                            <path d="M52.5357 167.6H27.3357V105.2H120.336V400.2H52.5357V167.6Z" fill="currentColor"/>
-                            <path d="M260.6 400.8C229.8 400.8 204.6 392.4 185 375.6C165.8 358.8 156.2 337 156.2 310.2H226.4C226.4 318.2 229.4 324.8 235.4 330C241.4 335.2 249.4 337.8 259.4 337.8C269 337.8 276.8 335 282.8 329.4C289.2 323.8 292.4 316.6 292.4 307.8C292.4 299.8 289.6 293.2 284 288C278.4 282.8 271.2 280.2 262.4 280.2H225.2V218.4H262.4C269.2 218.4 275 216 279.8 211.2C284.6 206.4 287 200.4 287 193.2C287 184.8 284.4 178.2 279.2 173.4C274 168.6 267.4 166.2 259.4 166.2C252.2 166.2 246 168.4 240.8 172.8C236 177.2 233.6 182.8 233.6 189.6H167C167 164.8 175.8 144.6 193.4 129C211 113 233.6 105 261.2 105C288.8 105 311.2 112.2 328.4 126.6C346 141 354.8 160 354.8 183.6C354.8 200.8 350.2 214.8 341 225.6C331.8 236 320 243.2 305.6 247.2C322.8 252 336.4 260.2 346.4 271.8C356.8 283.4 362 298 362 315.6C362 340.4 352.6 360.8 333.8 376.8C315 392.8 290.6 400.8 260.6 400.8Z" stroke="var(--stroke-color)" stroke-width="2.4" mask="url(#path-2-mask)"/>
-                            <path d="M52.5357 167.6H27.3357V105.2H120.336V400.2H52.5357V167.6Z" stroke="var(--stroke-color)" stroke-width="2.4" mask="url(#path-2-mask)"/>
-                        </g>
-
-                        <g class="mix-blend-color dark:mix-blend-hard-light transition-all delay-400 opacity-100 duration-750 starting:opacity-0 motion-safe:starting:-translate-x-[51px] text-[#F8B803] dark:text-[#391800]">
-                            <mask id="path-3-mask" maskUnits="userSpaceOnUse" x="51" y="103" width="338" height="299" fill="black">
-                                <rect fill="white" x="51" y="103" width="338" height="299"/>
-                                <path d="M286.264 400.8C255.464 400.8 230.264 392.4 210.664 375.6C191.464 358.8 181.864 337 181.864 310.2H252.064C252.064 318.2 255.064 324.8 261.064 330C267.064 335.2 275.064 337.8 285.064 337.8C294.664 337.8 302.464 335 308.464 329.4C314.864 323.8 318.064 316.6 318.064 307.8C318.064 299.8 315.264 293.2 309.664 288C304.064 282.8 296.864 280.2 288.064 280.2H250.864V218.4H288.064C294.864 218.4 300.664 216 305.464 211.2C310.264 206.4 312.664 200.4 312.664 193.2C312.664 184.8 310.064 178.2 304.864 173.4C299.664 168.6 293.064 166.2 285.064 166.2C277.864 166.2 271.664 168.4 266.464 172.8C261.664 177.2 259.264 182.8 259.264 189.6H192.664C192.664 164.8 201.464 144.6 219.064 129C236.664 113 259.264 105 286.864 105C314.464 105 336.864 112.2 354.064 126.6C371.664 141 380.464 160 380.464 183.6C380.464 200.8 375.864 214.8 366.664 225.6C357.464 236 345.664 243.2 331.264 247.2C348.464 252 362.064 260.2 372.064 271.8C382.464 283.4 387.664 298 387.664 315.6C387.664 340.4 378.264 360.8 359.464 376.8C340.664 392.8 316.264 400.8 286.264 400.8Z"/>
-                                <path d="M78.2 167.6H53V105.2H146V400.2H78.2V167.6Z"/>
-                            </mask>
-                            <path d="M286.264 400.8C255.464 400.8 230.264 392.4 210.664 375.6C191.464 358.8 181.864 337 181.864 310.2H252.064C252.064 318.2 255.064 324.8 261.064 330C267.064 335.2 275.064 337.8 285.064 337.8C294.664 337.8 302.464 335 308.464 329.4C314.864 323.8 318.064 316.6 318.064 307.8C318.064 299.8 315.264 293.2 309.664 288C304.064 282.8 296.864 280.2 288.064 280.2H250.864V218.4H288.064C294.864 218.4 300.664 216 305.464 211.2C310.264 206.4 312.664 200.4 312.664 193.2C312.664 184.8 310.064 178.2 304.864 173.4C299.664 168.6 293.064 166.2 285.064 166.2C277.864 166.2 271.664 168.4 266.464 172.8C261.664 177.2 259.264 182.8 259.264 189.6H192.664C192.664 164.8 201.464 144.6 219.064 129C236.664 113 259.264 105 286.864 105C314.464 105 336.864 112.2 354.064 126.6C371.664 141 380.464 160 380.464 183.6C380.464 200.8 375.864 214.8 366.664 225.6C357.464 236 345.664 243.2 331.264 247.2C348.464 252 362.064 260.2 372.064 271.8C382.464 283.4 387.664 298 387.664 315.6C387.664 340.4 378.264 360.8 359.464 376.8C340.664 392.8 316.264 400.8 286.264 400.8Z" fill="currentColor"/>
-                            <path d="M78.2 167.6H53V105.2H146V400.2H78.2V167.6Z" fill="currentColor"/>
-                            <path d="M286.264 400.8C255.464 400.8 230.264 392.4 210.664 375.6C191.464 358.8 181.864 337 181.864 310.2H252.064C252.064 318.2 255.064 324.8 261.064 330C267.064 335.2 275.064 337.8 285.064 337.8C294.664 337.8 302.464 335 308.464 329.4C314.864 323.8 318.064 316.6 318.064 307.8C318.064 299.8 315.264 293.2 309.664 288C304.064 282.8 296.864 280.2 288.064 280.2H250.864V218.4H288.064C294.864 218.4 300.664 216 305.464 211.2C310.264 206.4 312.664 200.4 312.664 193.2C312.664 184.8 310.064 178.2 304.864 173.4C299.664 168.6 293.064 166.2 285.064 166.2C277.864 166.2 271.664 168.4 266.464 172.8C261.664 177.2 259.264 182.8 259.264 189.6H192.664C192.664 164.8 201.464 144.6 219.064 129C236.664 113 259.264 105 286.864 105C314.464 105 336.864 112.2 354.064 126.6C371.664 141 380.464 160 380.464 183.6C380.464 200.8 375.864 214.8 366.664 225.6C357.464 236 345.664 243.2 331.264 247.2C348.464 252 362.064 260.2 372.064 271.8C382.464 283.4 387.664 298 387.664 315.6C387.664 340.4 378.264 360.8 359.464 376.8C340.664 392.8 316.264 400.8 286.264 400.8Z" stroke="var(--stroke-color)" stroke-width="2.4" mask="url(#path-3-mask)"/>
-                            <path d="M78.2 167.6H53V105.2H146V400.2H78.2V167.6Z" stroke="var(--stroke-color)" stroke-width="2.4" mask="url(#path-3-mask)"/>
-                        </g>
-
-                        <g class="mix-blend-multiply dark:mix-blend-normal transition-all delay-400 opacity-100 duration-750 starting:opacity-0 motion-safe:starting:-translate-x-[78px] text-[#F3BEC7] dark:text-[#733000]">
-                            <mask id="path-4-mask" maskUnits="userSpaceOnUse" x="76.6643" y="103" width="338" height="299" fill="black">
-                                <rect fill="white" x="76.6643" y="103" width="338" height="299"/>
-                                <path d="M311.929 400.8C281.129 400.8 255.929 392.4 236.329 375.6C217.129 358.8 207.529 337 207.529 310.2H277.729C277.729 318.2 280.729 324.8 286.729 330C292.729 335.2 300.729 337.8 310.729 337.8C320.329 337.8 328.129 335 334.129 329.4C340.529 323.8 343.729 316.6 343.729 307.8C343.729 299.8 340.929 293.2 335.329 288C329.729 282.8 322.529 280.2 313.729 280.2H276.529V218.4H313.729C320.529 218.4 326.329 216 331.129 211.2C335.929 206.4 338.329 200.4 338.329 193.2C338.329 184.8 335.729 178.2 330.529 173.4C325.329 168.6 318.729 166.2 310.729 166.2C303.529 166.2 297.329 168.4 292.129 172.8C287.329 177.2 284.929 182.8 284.929 189.6H218.329C218.329 164.8 227.129 144.6 244.729 129C262.329 113 284.929 105 312.529 105C340.129 105 362.529 112.2 379.729 126.6C397.329 141 406.129 160 406.129 183.6C406.129 200.8 401.529 214.8 392.329 225.6C383.129 236 371.329 243.2 356.929 247.2C374.129 252 387.729 260.2 397.729 271.8C408.129 283.4 413.329 298 413.329 315.6C413.329 340.4 403.929 360.8 385.129 376.8C366.329 392.8 341.929 400.8 311.929 400.8Z"/>
-                                <path d="M103.864 167.6H78.6643V105.2H171.664V400.2H103.864V167.6Z"/>
-                            </mask>
-                            <path d="M311.929 400.8C281.129 400.8 255.929 392.4 236.329 375.6C217.129 358.8 207.529 337 207.529 310.2H277.729C277.729 318.2 280.729 324.8 286.729 330C292.729 335.2 300.729 337.8 310.729 337.8C320.329 337.8 328.129 335 334.129 329.4C340.529 323.8 343.729 316.6 343.729 307.8C343.729 299.8 340.929 293.2 335.329 288C329.729 282.8 322.529 280.2 313.729 280.2H276.529V218.4H313.729C320.529 218.4 326.329 216 331.129 211.2C335.929 206.4 338.329 200.4 338.329 193.2C338.329 184.8 335.729 178.2 330.529 173.4C325.329 168.6 318.729 166.2 310.729 166.2C303.529 166.2 297.329 168.4 292.129 172.8C287.329 177.2 284.929 182.8 284.929 189.6H218.329C218.329 164.8 227.129 144.6 244.729 129C262.329 113 284.929 105 312.529 105C340.129 105 362.529 112.2 379.729 126.6C397.329 141 406.129 160 406.129 183.6C406.129 200.8 401.529 214.8 392.329 225.6C383.129 236 371.329 243.2 356.929 247.2C374.129 252 387.729 260.2 397.729 271.8C408.129 283.4 413.329 298 413.329 315.6C413.329 340.4 403.929 360.8 385.129 376.8C366.329 392.8 341.929 400.8 311.929 400.8Z" fill="currentColor"/>
-                            <path d="M103.864 167.6H78.6643V105.2H171.664V400.2H103.864V167.6Z" fill="currentColor"/>
-                            <path d="M311.929 400.8C281.129 400.8 255.929 392.4 236.329 375.6C217.129 358.8 207.529 337 207.529 310.2H277.729C277.729 318.2 280.729 324.8 286.729 330C292.729 335.2 300.729 337.8 310.729 337.8C320.329 337.8 328.129 335 334.129 329.4C340.529 323.8 343.729 316.6 343.729 307.8C343.729 299.8 340.929 293.2 335.329 288C329.729 282.8 322.529 280.2 313.729 280.2H276.529V218.4H313.729C320.529 218.4 326.329 216 331.129 211.2C335.929 206.4 338.329 200.4 338.329 193.2C338.329 184.8 335.729 178.2 330.529 173.4C325.329 168.6 318.729 166.2 310.729 166.2C303.529 166.2 297.329 168.4 292.129 172.8C287.329 177.2 284.929 182.8 284.929 189.6H218.329C218.329 164.8 227.129 144.6 244.729 129C262.329 113 284.929 105 312.529 105C340.129 105 362.529 112.2 379.729 126.6C397.329 141 406.129 160 406.129 183.6C406.129 200.8 401.529 214.8 392.329 225.6C383.129 236 371.329 243.2 356.929 247.2C374.129 252 387.729 260.2 397.729 271.8C408.129 283.4 413.329 298 413.329 315.6C413.329 340.4 403.929 360.8 385.129 376.8C366.329 392.8 341.929 400.8 311.929 400.8Z" stroke="var(--stroke-color)" stroke-width="2.4" mask="url(#path-4-mask)"/>
-                            <path d="M103.864 167.6H78.6643V105.2H171.664V400.2H103.864V167.6Z" stroke="var(--stroke-color)" stroke-width="2.4" mask="url(#path-4-mask)"/>
-                        </g>
-
-                        <g class="mix-blend-hard-light transition-all delay-400 opacity-100 duration-750 starting:opacity-0 motion-safe:starting:-translate-x-[102px] text-[#F3BEC7] dark:text-[#4B0600]">
-                            <mask id="path-5-mask" maskUnits="userSpaceOnUse" x="102.329" y="103" width="338" height="299" fill="black">
-                                <rect fill="white" x="102.329" y="103" width="338" height="299"/>
-                                <path d="M337.593 400.8C306.793 400.8 281.593 392.4 261.993 375.6C242.793 358.8 233.193 337 233.193 310.2H303.393C303.393 318.2 306.393 324.8 312.393 330C318.393 335.2 326.393 337.8 336.393 337.8C345.993 337.8 353.793 335 359.793 329.4C366.193 323.8 369.393 316.6 369.393 307.8C369.393 299.8 366.593 293.2 360.993 288C355.393 282.8 348.193 280.2 339.393 280.2H302.193V218.4H339.393C346.193 218.4 351.993 216 356.793 211.2C361.593 206.4 363.993 200.4 363.993 193.2C363.993 184.8 361.393 178.2 356.193 173.4C350.993 168.6 344.393 166.2 336.393 166.2C329.193 166.2 322.993 168.4 317.793 172.8C312.993 177.2 310.593 182.8 310.593 189.6H243.993C243.993 164.8 252.793 144.6 270.393 129C287.993 113 310.593 105 338.193 105C365.793 105 388.193 112.2 405.393 126.6C422.993 141 431.793 160 431.793 183.6C431.793 200.8 427.193 214.8 417.993 225.6C408.793 236 396.993 243.2 382.593 247.2C399.793 252 413.393 260.2 423.393 271.8C433.793 283.4 438.993 298 438.993 315.6C438.993 340.4 429.593 360.8 410.793 376.8C391.993 392.8 367.593 400.8 337.593 400.8Z"/>
-                                <path d="M129.529 167.6H104.329V105.2H197.329V400.2H129.529V167.6Z"/>
-                            </mask>
-                            <path d="M337.593 400.8C306.793 400.8 281.593 392.4 261.993 375.6C242.793 358.8 233.193 337 233.193 310.2H303.393C303.393 318.2 306.393 324.8 312.393 330C318.393 335.2 326.393 337.8 336.393 337.8C345.993 337.8 353.793 335 359.793 329.4C366.193 323.8 369.393 316.6 369.393 307.8C369.393 299.8 366.593 293.2 360.993 288C355.393 282.8 348.193 280.2 339.393 280.2H302.193V218.4H339.393C346.193 218.4 351.993 216 356.793 211.2C361.593 206.4 363.993 200.4 363.993 193.2C363.993 184.8 361.393 178.2 356.193 173.4C350.993 168.6 344.393 166.2 336.393 166.2C329.193 166.2 322.993 168.4 317.793 172.8C312.993 177.2 310.593 182.8 310.593 189.6H243.993C243.993 164.8 252.793 144.6 270.393 129C287.993 113 310.593 105 338.193 105C365.793 105 388.193 112.2 405.393 126.6C422.993 141 431.793 160 431.793 183.6C431.793 200.8 427.193 214.8 417.993 225.6C408.793 236 396.993 243.2 382.593 247.2C399.793 252 413.393 260.2 423.393 271.8C433.793 283.4 438.993 298 438.993 315.6C438.993 340.4 429.593 360.8 410.793 376.8C391.993 392.8 367.593 400.8 337.593 400.8Z" fill="currentColor"/>
-                            <path d="M129.529 167.6H104.329V105.2H197.329V400.2H129.529V167.6Z" fill="currentColor"/>
-                            <path d="M337.593 400.8C306.793 400.8 281.593 392.4 261.993 375.6C242.793 358.8 233.193 337 233.193 310.2H303.393C303.393 318.2 306.393 324.8 312.393 330C318.393 335.2 326.393 337.8 336.393 337.8C345.993 337.8 353.793 335 359.793 329.4C366.193 323.8 369.393 316.6 369.393 307.8C369.393 299.8 366.593 293.2 360.993 288C355.393 282.8 348.193 280.2 339.393 280.2H302.193V218.4H339.393C346.193 218.4 351.993 216 356.793 211.2C361.593 206.4 363.993 200.4 363.993 193.2C363.993 184.8 361.393 178.2 356.193 173.4C350.993 168.6 344.393 166.2 336.393 166.2C329.193 166.2 322.993 168.4 317.793 172.8C312.993 177.2 310.593 182.8 310.593 189.6H243.993C243.993 164.8 252.793 144.6 270.393 129C287.993 113 310.593 105 338.193 105C365.793 105 388.193 112.2 405.393 126.6C422.993 141 431.793 160 431.793 183.6C431.793 200.8 427.193 214.8 417.993 225.6C408.793 236 396.993 243.2 382.593 247.2C399.793 252 413.393 260.2 423.393 271.8C433.793 283.4 438.993 298 438.993 315.6C438.993 340.4 429.593 360.8 410.793 376.8C391.993 392.8 367.593 400.8 337.593 400.8Z" stroke="var(--stroke-color)" stroke-width="2.4" mask="url(#path-5-mask)"/>
-                            <path d="M129.529 167.6H104.329V105.2H197.329V400.2H129.529V167.6Z" stroke="var(--stroke-color)" stroke-width="2.4" mask="url(#path-5-mask)"/>
-                        </g>
-                    </svg>
-                    <div class="absolute inset-0 rounded-t-lg lg:rounded-t-none lg:rounded-r-lg shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"></div>
+            <!-- Mobile Navigation Drawer -->
+            <div id="mobile-menu" class="hidden sm:hidden border-t border-slate-200/80 bg-white px-4 pt-3 pb-6 space-y-3 shadow-xl">
+                <nav class="flex flex-col space-y-1">
+                    <a href="#home" class="mobile-nav-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">Home</a>
+                    <a href="#features" class="mobile-nav-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">Features</a>
+                    <a href="#how-it-works" class="mobile-nav-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">How It Works</a>
+                    <a href="#pricing" class="mobile-nav-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">Pricing</a>
+                    <a href="#about" class="mobile-nav-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">About</a>
+                    <a href="#contact" class="mobile-nav-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">Contact</a>
+                </nav>
+                <div class="pt-4 border-t border-slate-100 flex flex-col gap-2.5">
+                    @auth
+                        <a href="{{ url('/admin') }}" class="w-full text-center px-4 py-2.5 rounded-xl text-base font-semibold text-slate-700 hover:bg-slate-100 transition-colors">
+                            Dashboard
+                        </a>
+                        <a href="{{ url('/admin') }}" class="w-full text-center px-5 py-3 rounded-xl text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/30 transition-all">
+                            Open Portal
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="w-full text-center px-4 py-2.5 rounded-xl text-base font-semibold text-slate-700 hover:bg-slate-100 transition-colors">
+                            Log In
+                        </a>
+                        <a href="{{ route('login') }}" class="w-full text-center px-5 py-3 rounded-xl text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/30 transition-all">
+                            Get Started
+                        </a>
+                    @endauth
                 </div>
-            </main>
+            </div>
+        </header>
+
+        <main id="main-content">
+            <!-- 4. Hero Section -->
+            <section id="home" class="relative overflow-hidden bg-gradient-to-b from-blue-50/70 via-slate-50/40 to-slate-50 pt-12 pb-20 lg:pt-20 lg:pb-28">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                        <!-- Left Column: Copy & Actions -->
+                        <div class="lg:col-span-6 xl:col-span-6 flex flex-col items-start text-left">
+                            <!-- Badge -->
+                            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-100/70 text-blue-700 border border-blue-200/80 mb-6 shadow-2xs">
+                                <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                                Field Service Management Made Simple
+                            </div>
+
+                            <!-- Main Headline -->
+                            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+                                Manage Your Service Operations <span class="text-blue-600">in One Place</span>
+                            </h1>
+
+                            <!-- Supporting Description -->
+                            <p class="mt-6 text-lg sm:text-xl text-slate-600 leading-relaxed max-w-xl">
+                                ServiceFlow helps service businesses manage customers, work orders, technicians, maintenance contracts, and billing with a powerful and easy-to-use platform.
+                            </p>
+
+                            <!-- CTAs -->
+                            <div class="mt-8 flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                                <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/25 transition-all duration-150 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    <span>Get Started Free</span>
+                                    <x-heroicon-o-arrow-right class="w-5 h-5" />
+                                </a>
+                                <button type="button" id="btn-open-demo-modal" class="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl text-base font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 shadow-sm transition-all duration-150 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <div class="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                                        <x-heroicon-s-play class="w-3.5 h-3.5 ml-0.5" />
+                                    </div>
+                                    <span>Watch Demo</span>
+                                </button>
+                            </div>
+
+                            <!-- Trust Statements -->
+                            <div class="mt-10 pt-6 border-t border-slate-200/80 w-full flex flex-wrap items-center gap-y-3 gap-x-6 text-sm font-medium text-slate-600">
+                                <div class="flex items-center gap-2">
+                                    <x-heroicon-s-check-circle class="w-5 h-5 text-emerald-500 shrink-0" />
+                                    <span>No credit card required</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <x-heroicon-s-check-circle class="w-5 h-5 text-emerald-500 shrink-0" />
+                                    <span>Easy setup</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <x-heroicon-s-check-circle class="w-5 h-5 text-emerald-500 shrink-0" />
+                                    <span>Built for growing businesses</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Visual Placeholder Composition -->
+                        <div class="lg:col-span-6 xl:col-span-6 relative">
+                            <!-- Background Accent Glow -->
+                            <div class="absolute -inset-4 bg-gradient-to-tr from-blue-200/40 via-blue-100/30 to-indigo-100/40 rounded-3xl blur-2xl -z-10" aria-hidden="true"></div>
+
+                            <!-- Composition Container -->
+                            <div class="relative rounded-2xl bg-slate-900/5 p-2 sm:p-4 border border-slate-200/80 shadow-2xl backdrop-blur-sm">
+
+                                <!-- [IMAGE PLACEHOLDER: Main Dashboard Screenshot] -->
+                                <!-- Replace this mockup skeleton with your actual dashboard screenshot: -->
+                                <!-- <img src="/images/dashboard-mockup.png" alt="ServiceFlow Operations Dashboard" class="w-full h-auto rounded-xl object-cover shadow-sm"> -->
+                                <div class="w-full bg-white rounded-xl border border-slate-200 shadow-md overflow-hidden" aria-label="Interactive Dashboard Preview">
+                                    <!-- Window Header / Browser Frame -->
+                                    <div class="bg-slate-100/90 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-3 h-3 rounded-full bg-rose-400"></span>
+                                            <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                                            <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                                        </div>
+                                        <div class="flex items-center gap-2 px-3 py-1 bg-white rounded-md border border-slate-200 text-xs text-slate-500 font-mono">
+                                            <x-heroicon-o-lock-closed class="w-3 h-3 text-emerald-600" />
+                                            <span>app.serviceflow.io/admin</span>
+                                        </div>
+                                        <div class="w-10"></div>
+                                    </div>
+
+                                    <!-- Mockup Dashboard Interior -->
+                                    <div class="p-4 sm:p-5 bg-slate-50/50 space-y-4">
+                                        <!-- Top Summary KPI Row -->
+                                        <div class="grid grid-cols-3 gap-3">
+                                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs">
+                                                <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Active Jobs</div>
+                                                <div class="mt-1 flex items-baseline gap-2">
+                                                    <span class="text-xl font-bold text-slate-900">28</span>
+                                                    <span class="text-[11px] font-semibold text-emerald-600">+12%</span>
+                                                </div>
+                                            </div>
+                                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs">
+                                                <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Today's Visits</div>
+                                                <div class="mt-1 flex items-baseline gap-2">
+                                                    <span class="text-xl font-bold text-slate-900">14</span>
+                                                    <span class="text-[11px] font-semibold text-blue-600">On Track</span>
+                                                </div>
+                                            </div>
+                                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs">
+                                                <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Tech Utilization</div>
+                                                <div class="mt-1 flex items-baseline gap-2">
+                                                    <span class="text-xl font-bold text-slate-900">88%</span>
+                                                    <span class="text-[11px] font-semibold text-emerald-600">Optimal</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Work Order Dispatch List Skeleton -->
+                                        <div class="bg-white rounded-lg border border-slate-200 shadow-2xs p-3.5 space-y-2.5">
+                                            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                                                <span class="text-xs font-bold text-slate-800">Dispatch Queue & Service Orders</span>
+                                                <span class="text-[11px] text-blue-600 font-semibold cursor-pointer">Live Updates • 4 Active</span>
+                                            </div>
+
+                                            <!-- Row 1 -->
+                                            <div class="flex items-center justify-between text-xs p-2 rounded-md bg-slate-50 border border-slate-100">
+                                                <div class="flex items-center gap-2.5">
+                                                    <div class="w-7 h-7 rounded-md bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-[10px]">
+                                                        WO
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-semibold text-slate-900">#1042 — AC Compressor Replacement</div>
+                                                        <div class="text-[11px] text-slate-500">Metro Plaza • Alex Rivera</div>
+                                                    </div>
+                                                </div>
+                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">
+                                                    In Progress
+                                                </span>
+                                            </div>
+
+                                            <!-- Row 2 -->
+                                            <div class="flex items-center justify-between text-xs p-2 rounded-md bg-slate-50 border border-slate-100">
+                                                <div class="flex items-center gap-2.5">
+                                                    <div class="w-7 h-7 rounded-md bg-amber-100 text-amber-700 font-bold flex items-center justify-center text-[10px]">
+                                                        WO
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-semibold text-slate-900">#1043 — Electrical Panel Safety Audit</div>
+                                                        <div class="text-[11px] text-slate-500">Summit Health Center • David K.</div>
+                                                    </div>
+                                                </div>
+                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800">
+                                                    Dispatched
+                                                </span>
+                                            </div>
+
+                                            <!-- Row 3 -->
+                                            <div class="flex items-center justify-between text-xs p-2 rounded-md bg-slate-50 border border-slate-100">
+                                                <div class="flex items-center gap-2.5">
+                                                    <div class="w-7 h-7 rounded-md bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center text-[10px]">
+                                                        WO
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-semibold text-slate-900">#1041 — Chiller Preventive Maintenance</div>
+                                                        <div class="text-[11px] text-slate-500">Apex Logistic Hub • Sarah T.</div>
+                                                    </div>
+                                                </div>
+                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
+                                                    Completed
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- [/IMAGE PLACEHOLDER: Main Dashboard Screenshot] -->
+
+                                <!-- [IMAGE PLACEHOLDER: Technician Mobile App Mockup] -->
+                                <!-- Positioned overlapping bottom-left -->
+                                <!-- Replace with: <img src="/images/technician-mobile-app.png" alt="Mobile App for Field Technicians" class="w-full h-auto rounded-2xl"> -->
+                                <div class="hidden sm:block absolute -bottom-6 -left-6 w-60 rounded-2xl bg-slate-900 text-white p-3 shadow-2xl border-2 border-slate-700 transform -rotate-1 hover:rotate-0 transition-transform">
+                                    <div class="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-2.5"></div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-[11px] font-bold text-slate-200">Technician App</span>
+                                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                    </div>
+                                    <div class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 space-y-1.5 text-left">
+                                        <div class="text-[10px] uppercase font-semibold tracking-wider text-blue-400">Current Assigned Job</div>
+                                        <div class="text-xs font-bold text-white">WO #1042 — AC Service</div>
+                                        <div class="text-[10px] text-slate-400">10:30 AM • Metro Plaza Suite 4B</div>
+                                        <div class="pt-1 flex items-center justify-between">
+                                            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-medium">On Site</span>
+                                            <span class="text-[10px] text-blue-400 font-semibold cursor-pointer">Open Work Order &rarr;</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- [/IMAGE PLACEHOLDER: Technician Mobile App Mockup] -->
+
+                                <!-- [IMAGE PLACEHOLDER: Technician Photo / Field Specialist Badge] -->
+                                <!-- Positioned on the right / top-right -->
+                                <!-- Replace with: <img src="/images/technician-avatar.jpg" alt="Certified Field Technician" class="w-full h-full object-cover rounded-xl"> -->
+                                <div class="hidden sm:flex absolute -top-5 -right-5 items-center gap-3 bg-white/95 backdrop-blur-md p-2.5 pr-4 rounded-2xl border border-slate-200 shadow-xl">
+                                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
+                                        <x-heroicon-o-wrench-screwdriver class="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-bold text-slate-900">Alex Rivera</div>
+                                        <div class="text-[11px] text-slate-500">Lead HVAC Specialist</div>
+                                        <div class="text-[10px] text-amber-500 font-semibold">★ 4.9 (142 Jobs)</div>
+                                    </div>
+                                </div>
+                                <!-- [/IMAGE PLACEHOLDER: Technician Photo] -->
+
+                                <!-- Floating Feature Label 1: Jobs & Schedules -->
+                                <div class="absolute -top-3 left-10 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-200 shadow-md flex items-center gap-1.5 text-xs font-semibold text-slate-800">
+                                    <x-heroicon-o-calendar-days class="w-4 h-4 text-blue-600" />
+                                    <span>Jobs & Schedules</span>
+                                </div>
+
+                                <!-- Floating Feature Label 2: Mobile App for Technicians -->
+                                <div class="absolute -bottom-3 right-8 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-200 shadow-md flex items-center gap-1.5 text-xs font-semibold text-slate-800">
+                                    <x-heroicon-o-device-phone-mobile class="w-4 h-4 text-blue-600" />
+                                    <span>Mobile App for Technicians</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Benefits Section -->
+            <section class="bg-white py-16 border-y border-slate-200/80">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <!-- Benefit 1 -->
+                        <div class="flex items-start gap-4 p-2">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+                                <x-heroicon-o-bolt class="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900">Increase Productivity</h3>
+                                <p class="mt-1 text-sm text-slate-600 leading-relaxed">Streamline operations and reduce manual work.</p>
+                            </div>
+                        </div>
+
+                        <!-- Benefit 2 -->
+                        <div class="flex items-start gap-4 p-2">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+                                <x-heroicon-o-face-smile class="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900">Improve Customer Satisfaction</h3>
+                                <p class="mt-1 text-sm text-slate-600 leading-relaxed">Deliver faster and better service.</p>
+                            </div>
+                        </div>
+
+                        <!-- Benefit 3 -->
+                        <div class="flex items-start gap-4 p-2">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100">
+                                <x-heroicon-o-currency-dollar class="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900">Reduce Operational Costs</h3>
+                                <p class="mt-1 text-sm text-slate-600 leading-relaxed">Optimize resources and prevent downtime.</p>
+                            </div>
+                        </div>
+
+                        <!-- Benefit 4 -->
+                        <div class="flex items-start gap-4 p-2">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+                                <x-heroicon-o-arrow-trending-up class="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900">Grow Your Business</h3>
+                                <p class="mt-1 text-sm text-slate-600 leading-relaxed">Scale your service operations as your team grows.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Features Section -->
+            <section id="features" class="py-24 bg-slate-50/70">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <!-- Section Header -->
+                    <div class="text-center max-w-3xl mx-auto mb-16">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100/70 text-blue-700 border border-blue-200/60 mb-3">
+                            Complete Operations Suite
+                        </div>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                            Everything You Need to Run Your Service Business
+                        </h2>
+                        <p class="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
+                            From service requests to invoices, ServiceFlow provides all the tools you need to manage your field operations efficiently.
+                        </p>
+                    </div>
+
+                    <!-- 10 Feature Cards Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- 1. Service Requests -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-300 hover:-translate-y-0.5 transition-all duration-200 group">
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <x-heroicon-o-inbox-arrow-down class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Service Requests</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Capture and manage customer requests easily with priority classification and seamless work-order conversion.</p>
+                        </div>
+
+                        <!-- 2. Work Orders -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-300 hover:-translate-y-0.5 transition-all duration-200 group">
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <x-heroicon-o-clipboard-document-check class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Work Orders</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Assign, schedule, and track jobs with full state transitions, work logs, and completion verification.</p>
+                        </div>
+
+                        <!-- 3. Customer Management -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-300 hover:-translate-y-0.5 transition-all duration-200 group">
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <x-heroicon-o-user-group class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Customer Management</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Keep customer profiles, service addresses, and contact points organized in one secure place.</p>
+                        </div>
+
+                        <!-- 4. Equipment Tracking -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-300 hover:-translate-y-0.5 transition-all duration-200 group">
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <x-heroicon-o-cog-6-tooth class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Equipment Tracking</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Manage customer machinery, serial numbers, warranty dates, location records, and maintenance logs.</p>
+                        </div>
+
+                        <!-- 5. Maintenance Contracts -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-300 hover:-translate-y-0.5 transition-all duration-200 group">
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <x-heroicon-o-calendar-days class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Maintenance Contracts</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Automate recurring maintenance schedules, prevent equipment downtime, and retain service agreements.</p>
+                        </div>
+
+                        <!-- 6. Technician Management -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-300 hover:-translate-y-0.5 transition-all duration-200 group">
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <x-heroicon-o-wrench-screwdriver class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Technician Management</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Manage job assignments, weekly availability schedules, workloads, and real-time technician utilization.</p>
+                        </div>
+
+                        <!-- 7. Scheduling & Dispatch -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-300 hover:-translate-y-0.5 transition-all duration-200 group">
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <x-heroicon-o-clock class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Scheduling & Dispatch</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Coordinate technicians and on-site visits with calendar-based scheduling and conflict prevention.</p>
+                        </div>
+
+                        <!-- 8. Estimates & Invoicing -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-300 hover:-translate-y-0.5 transition-all duration-200 group">
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <x-heroicon-o-document-text class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Estimates & Invoicing</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Generate estimates, convert them directly into customer invoices upon approval, and track sent statuses.</p>
+                        </div>
+
+                        <!-- 9. Payments -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-300 hover:-translate-y-0.5 transition-all duration-200 group">
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <x-heroicon-o-banknotes class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Payments</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Track payment records, multiple payment methods, partial payments, and outstanding invoice balances.</p>
+                        </div>
+
+                        <!-- 10. Reports & Analytics (Spans across or neatly styled) -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-300 hover:-translate-y-0.5 transition-all duration-200 group md:col-span-2 lg:col-span-3">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                        <x-heroicon-o-presentation-chart-line class="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-slate-900">Reports & Operational Analytics</h3>
+                                        <p class="mt-1 text-sm text-slate-600 max-w-2xl leading-relaxed">Understand business performance with real-time KPI metrics for open requests, active work orders, technician availability, and revenue collection.</p>
+                                    </div>
+                                </div>
+                                <a href="#how-it-works" class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 shrink-0">
+                                    <span>Explore All Features</span>
+                                    <x-heroicon-o-arrow-right class="w-4 h-4" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. How It Works Section -->
+            <section id="how-it-works" class="py-24 bg-white border-t border-slate-200/80">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <!-- Section Header -->
+                    <div class="text-center max-w-2xl mx-auto mb-16">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100/70 text-blue-700 border border-blue-200/60 mb-3">
+                            Simple 3-Step Process
+                        </div>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                            How ServiceFlow Works
+                        </h2>
+                        <p class="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
+                            Designed to get your entire service team coordinated without complicated training or lengthy setups.
+                        </p>
+                    </div>
+
+                    <!-- 3 Connected Steps -->
+                    <div class="relative">
+                        <!-- Desktop Connecting Line -->
+                        <div class="hidden lg:block absolute top-1/2 left-0 w-full h-0.5 bg-blue-100 -translate-y-12 z-0" aria-hidden="true"></div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
+                            <!-- Step 1 -->
+                            <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200/80 shadow-sm flex flex-col items-center text-center">
+                                <div class="w-14 h-14 rounded-2xl bg-blue-600 text-white font-extrabold text-xl flex items-center justify-center shadow-lg shadow-blue-600/25 mb-6">
+                                    01
+                                </div>
+                                <h3 class="text-xl font-bold text-slate-900">Create Your Workspace</h3>
+                                <p class="mt-3 text-sm text-slate-600 leading-relaxed">
+                                    Set up your organization, configure branch locations, and invite your team members with role-based access.
+                                </p>
+                                <div class="mt-6 w-full pt-4 border-t border-slate-200/60 flex items-center justify-center gap-2 text-xs font-medium text-slate-500">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-blue-500"></span>
+                                    <span>Tenant-isolated security</span>
+                                </div>
+                            </div>
+
+                            <!-- Step 2 -->
+                            <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200/80 shadow-sm flex flex-col items-center text-center">
+                                <div class="w-14 h-14 rounded-2xl bg-blue-600 text-white font-extrabold text-xl flex items-center justify-center shadow-lg shadow-blue-600/25 mb-6">
+                                    02
+                                </div>
+                                <h3 class="text-xl font-bold text-slate-900">Manage Your Operations</h3>
+                                <p class="mt-3 text-sm text-slate-600 leading-relaxed">
+                                    Handle customer profiles, service requests, technician assignments, and dispatch schedules with zero friction.
+                                </p>
+                                <div class="mt-6 w-full pt-4 border-t border-slate-200/60 flex items-center justify-center gap-2 text-xs font-medium text-slate-500">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    <span>Real-time dispatch coordination</span>
+                                </div>
+                            </div>
+
+                            <!-- Step 3 -->
+                            <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200/80 shadow-sm flex flex-col items-center text-center">
+                                <div class="w-14 h-14 rounded-2xl bg-blue-600 text-white font-extrabold text-xl flex items-center justify-center shadow-lg shadow-blue-600/25 mb-6">
+                                    03
+                                </div>
+                                <h3 class="text-xl font-bold text-slate-900">Track and Grow</h3>
+                                <p class="mt-3 text-sm text-slate-600 leading-relaxed">
+                                    Monitor job completion, automate preventive maintenance, issue invoices, and track payments to scale your business.
+                                </p>
+                                <div class="mt-6 w-full pt-4 border-t border-slate-200/60 flex items-center justify-center gap-2 text-xs font-medium text-slate-500">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-indigo-500"></span>
+                                    <span>Automated contract renewals</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. Audience / Use Cases Section -->
+            <section id="use-cases" class="py-24 bg-slate-50/70">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <!-- Section Header -->
+                    <div class="text-center max-w-2xl mx-auto mb-16">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100/70 text-blue-700 border border-blue-200/60 mb-3">
+                            Target Industries
+                        </div>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                            Built for Service & Maintenance Businesses
+                        </h2>
+                        <p class="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
+                            Tailored workflows built specifically for the day-to-day realities of field service and maintenance teams.
+                        </p>
+                    </div>
+
+                    <!-- 5 Audience Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Use Case 1 -->
+                        <div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md transition-shadow">
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5">
+                                <x-heroicon-o-sun class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">AC & Refrigeration Maintenance</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Coordinate seasonal inspections, refrigerant leak checks, compressor replacements, and cooling performance contracts.</p>
+                        </div>
+
+                        <!-- Use Case 2 -->
+                        <div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md transition-shadow">
+                            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-5">
+                                <x-heroicon-o-bolt class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Electrical & Equipment Repair</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Manage urgent diagnostic calls, circuit breaker audits, machinery repairs, safety certifications, and emergency dispatches.</p>
+                        </div>
+
+                        <!-- Use Case 3 -->
+                        <div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md transition-shadow">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-5">
+                                <x-heroicon-o-truck class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Field Service Providers</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Dispatch mobile field technicians with clarity on location, customer history, required parts, and on-site job scopes.</p>
+                        </div>
+
+                        <!-- Use Case 4 -->
+                        <div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md transition-shadow">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-5">
+                                <x-heroicon-o-building-office-2 class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Commercial Maintenance Teams</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Fulfill multi-facility service level agreements (SLAs), tenant service tickets, and scheduled preventive upkeep.</p>
+                        </div>
+
+                        <!-- Use Case 5 -->
+                        <div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md transition-shadow md:col-span-2 lg:col-span-2">
+                            <div class="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center mb-5">
+                                <x-heroicon-o-chart-bar-square class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Small and Medium-Sized Service Businesses</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">Replace disjointed paper records, text messages, and messy spreadsheets with a professional operations portal that gives your team total visibility.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. Pricing Section -->
+            <section id="pricing" class="py-24 bg-white border-t border-slate-200/80">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <!-- Section Header -->
+                    <div class="text-center max-w-2xl mx-auto mb-16">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100/70 text-blue-700 border border-blue-200/60 mb-3">
+                            Illustrative Plans
+                        </div>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                            Plans Designed for Every Team Size
+                        </h2>
+                        <p class="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
+                            Simple, scalable plans. Contact our team for customized pricing tailored to your business needs and technician count.
+                        </p>
+                    </div>
+
+                    <!-- 3 Pricing Cards -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+                        <!-- Plan 1: Starter -->
+                        <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col justify-between hover:border-slate-300 transition-colors">
+                            <div>
+                                <div class="text-lg font-bold text-slate-900">Starter</div>
+                                <p class="mt-1 text-sm text-slate-500">For small service teams getting started</p>
+                                <div class="mt-6 mb-8 pb-6 border-b border-slate-100">
+                                    <span class="text-3xl font-extrabold text-slate-900">Contact</span>
+                                    <span class="text-sm font-medium text-slate-500">/ for pricing</span>
+                                    <div class="text-xs text-slate-400 mt-1">Illustrative plan</div>
+                                </div>
+                                <ul class="space-y-3.5 text-sm text-slate-600">
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Up to 3 technicians</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Customer & equipment tracking</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Service request conversion</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Work orders & dispatch</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Standard email support</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="mt-8">
+                                <a href="#contact" class="w-full inline-flex items-center justify-center px-6 py-3.5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+                                    Contact for Pricing
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Plan 2: Professional (Featured) -->
+                        <div class="bg-white rounded-3xl p-8 border-2 border-blue-600 shadow-xl flex flex-col justify-between relative">
+                            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-blue-600 text-white shadow-sm">
+                                Most Popular
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-slate-900">Professional</div>
+                                <p class="mt-1 text-sm text-slate-500">For expanding field service and maintenance businesses</p>
+                                <div class="mt-6 mb-8 pb-6 border-b border-slate-100">
+                                    <span class="text-3xl font-extrabold text-slate-900">Contact</span>
+                                    <span class="text-sm font-medium text-slate-500">/ for pricing</span>
+                                    <div class="text-xs text-blue-600 font-semibold mt-1">Illustrative plan</div>
+                                </div>
+                                <ul class="space-y-3.5 text-sm text-slate-600">
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span class="font-medium text-slate-900">Up to 15 technicians</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Everything in Starter</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Maintenance contracts & recurring schedules</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Estimates, invoicing & payments</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Weekly technician availability</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Priority customer support</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="mt-8">
+                                <a href="#contact" class="w-full inline-flex items-center justify-center px-6 py-3.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/30 transition-all">
+                                    Contact for Pricing
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Plan 3: Business -->
+                        <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col justify-between hover:border-slate-300 transition-colors">
+                            <div>
+                                <div class="text-lg font-bold text-slate-900">Business</div>
+                                <p class="mt-1 text-sm text-slate-500">For multi-branch and commercial service contractors</p>
+                                <div class="mt-6 mb-8 pb-6 border-b border-slate-100">
+                                    <span class="text-3xl font-extrabold text-slate-900">Contact</span>
+                                    <span class="text-sm font-medium text-slate-500">/ for pricing</span>
+                                    <div class="text-xs text-slate-400 mt-1">Illustrative plan</div>
+                                </div>
+                                <ul class="space-y-3.5 text-sm text-slate-600">
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span class="font-medium text-slate-900">Unlimited technicians & branches</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Everything in Professional</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Multi-branch tenant data isolation</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Advanced operational analytics</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <span>Dedicated onboarding specialist</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="mt-8">
+                                <a href="#contact" class="w-full inline-flex items-center justify-center px-6 py-3.5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+                                    Contact for Pricing
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. About / Why ServiceFlow Section -->
+            <section id="about" class="py-24 bg-gradient-to-b from-slate-50 to-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                        <!-- Left: Core Philosophy -->
+                        <div class="lg:col-span-7">
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100/70 text-blue-700 border border-blue-200/60 mb-3">
+                                Why ServiceFlow
+                            </div>
+                            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                                Bringing Service Operations Together in One Centralized System
+                            </h2>
+                            <p class="mt-6 text-lg text-slate-600 leading-relaxed">
+                                ServiceFlow brings your service operations together in one place, helping teams coordinate work, maintain equipment, manage customer relationships, and keep track of billing.
+                            </p>
+
+                            <!-- 4 Key Pillars -->
+                            <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+                                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm mb-3">
+                                        1
+                                    </div>
+                                    <h4 class="text-base font-bold text-slate-900">Centralized Operations</h4>
+                                    <p class="mt-1 text-sm text-slate-600">Connect dispatchers, managers, and field staff around a single source of truth.</p>
+                                </div>
+
+                                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+                                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm mb-3">
+                                        2
+                                    </div>
+                                    <h4 class="text-base font-bold text-slate-900">Improved Visibility</h4>
+                                    <p class="mt-1 text-sm text-slate-600">Monitor real-time progress from incoming customer requests to job completion and sign-off.</p>
+                                </div>
+
+                                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+                                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm mb-3">
+                                        3
+                                    </div>
+                                    <h4 class="text-base font-bold text-slate-900">Organized Scheduling</h4>
+                                    <p class="mt-1 text-sm text-slate-600">Eliminate dispatch bottlenecks and double-booking with technician availability calendars.</p>
+                                </div>
+
+                                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+                                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm mb-3">
+                                        4
+                                    </div>
+                                    <h4 class="text-base font-bold text-slate-900">Scalable Workflows</h4>
+                                    <p class="mt-1 text-sm text-slate-600">Multi-tenant architecture engineered to scale smoothly from a single crew to multi-branch operations.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Architectural Workflow Card -->
+                        <div class="lg:col-span-5">
+                            <div class="bg-slate-900 text-white rounded-3xl p-8 border border-slate-800 shadow-2xl relative overflow-hidden">
+                                <div class="text-xs uppercase tracking-wider font-semibold text-blue-400 mb-2">Operational Workflow</div>
+                                <h3 class="text-xl font-bold mb-6">The ServiceFlow Lifecycle</h3>
+
+                                <div class="space-y-4">
+                                    <div class="flex items-center gap-4 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
+                                        <span class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">01</span>
+                                        <div>
+                                            <div class="text-sm font-semibold">Service Request Logged</div>
+                                            <div class="text-xs text-slate-400">Captured via portal with customer & equipment link</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-4 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
+                                        <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">02</span>
+                                        <div>
+                                            <div class="text-sm font-semibold">Work Order Dispatched</div>
+                                            <div class="text-xs text-slate-400">Assigned based on availability and branch location</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-4 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
+                                        <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs shrink-0">03</span>
+                                        <div>
+                                            <div class="text-sm font-semibold">Job Executed & Verified</div>
+                                            <div class="text-xs text-slate-400">Technician logs work entries and completion details</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-4 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
+                                        <span class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs shrink-0">04</span>
+                                        <div>
+                                            <div class="text-sm font-semibold">Invoiced & Paid</div>
+                                            <div class="text-xs text-slate-400">Direct invoice generation and payment tracking</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 11. Final Call-to-Action Section -->
+            <section class="py-20 bg-slate-50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="rounded-3xl bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white p-10 sm:p-16 shadow-2xl relative overflow-hidden text-center sm:text-left">
+                        <!-- Decorative background circle -->
+                        <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-white/10 blur-2xl pointer-events-none" aria-hidden="true"></div>
+
+                        <div class="relative z-10 max-w-3xl">
+                            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
+                                Ready to Simplify Your Service Operations?
+                            </h2>
+                            <p class="mt-4 text-base sm:text-xl text-blue-100 max-w-2xl leading-relaxed">
+                                Bring your team, customers, and service workflows together with ServiceFlow.
+                            </p>
+                            <div class="mt-8 flex flex-wrap items-center justify-center sm:justify-start gap-4">
+                                <a href="{{ route('login') }}" class="inline-flex items-center justify-center px-8 py-4 rounded-xl text-base font-bold text-blue-700 bg-white hover:bg-blue-50 shadow-lg shadow-black/10 transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-white">
+                                    Get Started
+                                </a>
+                                <a href="#contact" class="inline-flex items-center justify-center px-8 py-4 rounded-xl text-base font-semibold text-white bg-blue-800/60 hover:bg-blue-800 border border-blue-400/40 transition-all focus:outline-none focus:ring-2 focus:ring-white">
+                                    Contact Us
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contact" class="py-20 bg-white border-t border-slate-200/80">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                        <!-- Contact Info -->
+                        <div class="lg:col-span-5">
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100/70 text-blue-700 border border-blue-200/60 mb-3">
+                                Get In Touch
+                            </div>
+                            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+                                Talk with Our Team
+                            </h2>
+                            <p class="mt-3 text-base text-slate-600 leading-relaxed">
+                                Have questions about how ServiceFlow fits your field service business? We are happy to demonstrate how our platform helps your team work faster.
+                            </p>
+
+                            <div class="mt-8 space-y-4">
+                                <div class="flex items-center gap-3.5 text-sm text-slate-600">
+                                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                        <x-heroicon-o-envelope class="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-slate-900">Email Inquiries</div>
+                                        <a href="mailto:support@serviceflow.io" class="text-blue-600 hover:underline">support@serviceflow.io</a>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3.5 text-sm text-slate-600">
+                                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                        <x-heroicon-o-clock class="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-slate-900">Support Hours</div>
+                                        <span>Monday – Friday, 8:00 AM – 6:00 PM EST</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Inquiry Form -->
+                        <div class="lg:col-span-7 bg-slate-50 p-8 rounded-3xl border border-slate-200/80 shadow-sm">
+                            <form id="contact-form" class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="contact-name" class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Your Name *</label>
+                                        <input type="text" id="contact-name" required placeholder="Alex Morgan" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label for="contact-email" class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Work Email *</label>
+                                        <input type="email" id="contact-email" required placeholder="alex@company.com" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="contact-company" class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Business Name</label>
+                                        <input type="text" id="contact-company" placeholder="Morgan HVAC Services" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label for="contact-industry" class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Industry / Trade</label>
+                                        <select id="contact-industry" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <option value="hvac">AC & Refrigeration</option>
+                                            <option value="electrical">Electrical Repair</option>
+                                            <option value="equipment">Commercial Equipment Maintenance</option>
+                                            <option value="field_service">General Field Service</option>
+                                            <option value="other">Other Service Business</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="contact-message" class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Message / Requirements *</label>
+                                    <textarea id="contact-message" rows="3" required placeholder="Tell us about your team size, current challenges, and workflows you want to manage..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                                </div>
+                                <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/30 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    Send Message
+                                </button>
+                                <div id="form-success" class="hidden p-3.5 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200">
+                                    Thank you! Your inquiry has been received. Our team will contact you shortly.
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 12. Footer -->
+        <footer class="bg-slate-900 text-slate-400 py-16 border-t border-slate-800" aria-label="Site Footer">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+                    <!-- Brand Area -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-600/30">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                                    <path d="M5 19l4-4" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <span class="text-xl font-bold tracking-tight text-white">
+                                Service<span class="text-blue-500">Flow</span>
+                            </span>
+                        </div>
+                        <p class="text-sm text-slate-400 max-w-sm leading-relaxed">
+                            Field service and maintenance management SaaS built to streamline customer requests, technician scheduling, contracts, and billing in one unified platform.
+                        </p>
+                        <!-- Placeholder Social Links -->
+                        <div class="flex items-center gap-3 pt-2 text-slate-400">
+                            <a href="#home" class="p-2 rounded-lg bg-slate-800 hover:text-white hover:bg-slate-700 transition-colors" aria-label="ServiceFlow Twitter">
+                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                            </a>
+                            <a href="#home" class="p-2 rounded-lg bg-slate-800 hover:text-white hover:bg-slate-700 transition-colors" aria-label="ServiceFlow LinkedIn">
+                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                            </a>
+                            <a href="#home" class="p-2 rounded-lg bg-slate-800 hover:text-white hover:bg-slate-700 transition-colors" aria-label="ServiceFlow GitHub">
+                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Product Links -->
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-white mb-4">Product</h4>
+                        <ul class="space-y-2.5 text-sm">
+                            <li><a href="#features" class="hover:text-white transition-colors">Features</a></li>
+                            <li><a href="#how-it-works" class="hover:text-white transition-colors">How It Works</a></li>
+                            <li><a href="#pricing" class="hover:text-white transition-colors">Pricing</a></li>
+                            <li><a href="#use-cases" class="hover:text-white transition-colors">Use Cases</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Company Links -->
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-white mb-4">Company</h4>
+                        <ul class="space-y-2.5 text-sm">
+                            <li><a href="#about" class="hover:text-white transition-colors">About</a></li>
+                            <li><a href="#contact" class="hover:text-white transition-colors">Contact</a></li>
+                            <li><a href="{{ route('login') }}" class="hover:text-white transition-colors">Admin Panel</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Account & Legal Links -->
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-white mb-4">Account & Legal</h4>
+                        <ul class="space-y-2.5 text-sm">
+                            <li><a href="{{ route('login') }}" class="hover:text-white transition-colors">Log In</a></li>
+                            <li><a href="{{ route('login') }}" class="hover:text-white transition-colors">Get Started</a></li>
+                            <li><button type="button" id="btn-open-privacy" class="hover:text-white transition-colors text-left">Privacy Policy</button></li>
+                            <li><button type="button" id="btn-open-terms" class="hover:text-white transition-colors text-left">Terms of Service</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Bottom Copyright Bar -->
+                <div class="mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+                    <p>&copy; {{ date('Y') }} ServiceFlow. All rights reserved.</p>
+                    <p class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span>Field Service & Maintenance Management SaaS</span>
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Demo Video Modal -->
+        <div id="demo-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="demo-modal-title">
+            <div class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm transition-opacity" id="demo-modal-backdrop"></div>
+            <div class="flex min-h-screen items-center justify-center p-4">
+                <div class="relative w-full max-w-3xl rounded-3xl bg-slate-900 text-white p-6 sm:p-8 shadow-2xl border border-slate-800">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                            <h3 id="demo-modal-title" class="text-lg font-bold text-white">ServiceFlow Overview Walkthrough</h3>
+                        </div>
+                        <button type="button" id="btn-close-demo-modal" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800" aria-label="Close demo modal">
+                            <x-heroicon-o-x-mark class="w-6 h-6" />
+                        </button>
+                    </div>
+
+                    <!-- Video Placeholder Container -->
+                    <div class="mt-6 aspect-video rounded-2xl bg-slate-950 border border-slate-800 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
+                        <div class="w-16 h-16 rounded-full bg-blue-600/90 text-white flex items-center justify-center shadow-lg shadow-blue-600/30 mb-4 cursor-pointer hover:scale-105 transition-transform">
+                            <x-heroicon-s-play class="w-8 h-8 ml-1" />
+                        </div>
+                        <h4 class="text-base font-bold text-white">Interactive Walkthrough & Feature Tour</h4>
+                        <p class="mt-1.5 text-xs text-slate-400 max-w-md">
+                            See how dispatchers schedule work orders, how technicians update status on-site, and how invoices generate automatically upon job completion.
+                        </p>
+                        <div class="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-400">
+                            <span class="px-2.5 py-1 rounded bg-slate-800">1. Customer Requests</span>
+                            <span class="px-2.5 py-1 rounded bg-slate-800">2. Dispatch Scheduling</span>
+                            <span class="px-2.5 py-1 rounded bg-slate-800">3. Work Orders</span>
+                            <span class="px-2.5 py-1 rounded bg-slate-800">4. Billing & Payments</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex items-center justify-end gap-3">
+                        <a href="{{ route('login') }}" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                            Get Started Free
+                        </a>
+                        <button type="button" id="btn-close-demo-modal-2" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-800 transition-colors">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        @if (Route::has('login'))
-            <div class="h-14.5 hidden lg:block"></div>
-        @endif
+        <!-- Privacy Policy Modal -->
+        <div id="privacy-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title">
+            <div class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm" id="privacy-modal-backdrop"></div>
+            <div class="flex min-h-screen items-center justify-center p-4">
+                <div class="relative w-full max-w-2xl rounded-3xl bg-white text-slate-800 p-6 sm:p-8 shadow-2xl border border-slate-200">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+                        <h3 id="privacy-modal-title" class="text-lg font-bold text-slate-900">Privacy Policy</h3>
+                        <button type="button" id="btn-close-privacy" class="p-1 rounded-lg text-slate-400 hover:text-slate-600" aria-label="Close modal">
+                            <x-heroicon-o-x-mark class="w-6 h-6" />
+                        </button>
+                    </div>
+                    <div class="mt-4 space-y-3 text-sm text-slate-600 max-h-96 overflow-y-auto pr-2">
+                        <p><strong>1. Data Isolation & Security:</strong> ServiceFlow implements tenant-scoped database isolation to ensure your customer records, work orders, contracts, and financial records are strictly isolated to your authorized organization.</p>
+                        <p><strong>2. Information Collection:</strong> Information provided during onboarding and operational workflows is used solely to provide and support field service operations within your workspace.</p>
+                        <p><strong>3. Role-Based Access:</strong> Access to sensitive operational records is restricted according to assigned organization roles (Admin, Dispatcher, Technician).</p>
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button type="button" id="btn-close-privacy-2" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700">
+                            Understood
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terms of Service Modal -->
+        <div id="terms-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title">
+            <div class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm" id="terms-modal-backdrop"></div>
+            <div class="flex min-h-screen items-center justify-center p-4">
+                <div class="relative w-full max-w-2xl rounded-3xl bg-white text-slate-800 p-6 sm:p-8 shadow-2xl border border-slate-200">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+                        <h3 id="terms-modal-title" class="text-lg font-bold text-slate-900">Terms of Service</h3>
+                        <button type="button" id="btn-close-terms" class="p-1 rounded-lg text-slate-400 hover:text-slate-600" aria-label="Close modal">
+                            <x-heroicon-o-x-mark class="w-6 h-6" />
+                        </button>
+                    </div>
+                    <div class="mt-4 space-y-3 text-sm text-slate-600 max-h-96 overflow-y-auto pr-2">
+                        <p><strong>1. Service Provision:</strong> ServiceFlow provides multi-tenant field service management tooling for organizations and their authorized members.</p>
+                        <p><strong>2. Account Security:</strong> You are responsible for maintaining the confidentiality of your workspace credentials and ensuring only authorized technicians and dispatchers access operational resources.</p>
+                        <p><strong>3. Usage Limits:</strong> Workspace resources and technician allocations correspond to selected plan parameters and service agreements.</p>
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button type="button" id="btn-close-terms-2" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lightweight Client Interaction Script -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Mobile Menu Toggle
+                const menuToggle = document.getElementById('mobile-menu-toggle');
+                const mobileMenu = document.getElementById('mobile-menu');
+                const hamburgerIcon = document.getElementById('hamburger-icon');
+                const closeIcon = document.getElementById('close-icon');
+
+                if (menuToggle && mobileMenu) {
+                    menuToggle.addEventListener('click', function () {
+                        const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+                        menuToggle.setAttribute('aria-expanded', !isExpanded);
+                        mobileMenu.classList.toggle('hidden');
+                        if (hamburgerIcon && closeIcon) {
+                            hamburgerIcon.classList.toggle('hidden');
+                            closeIcon.classList.toggle('hidden');
+                        }
+                    });
+
+                    // Close mobile menu on anchor click
+                    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                        link.addEventListener('click', () => {
+                            mobileMenu.classList.add('hidden');
+                            menuToggle.setAttribute('aria-expanded', 'false');
+                            if (hamburgerIcon && closeIcon) {
+                                hamburgerIcon.classList.remove('hidden');
+                                closeIcon.classList.add('hidden');
+                            }
+                        });
+                    });
+                }
+
+                // Modal Utilities
+                function toggleModal(modalId, show) {
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        if (show) {
+                            modal.classList.remove('hidden');
+                            document.body.classList.add('overflow-hidden');
+                        } else {
+                            modal.classList.add('hidden');
+                            document.body.classList.remove('overflow-hidden');
+                        }
+                    }
+                }
+
+                // Demo Modal Handlers
+                const openDemoBtn = document.getElementById('btn-open-demo-modal');
+                const closeDemoBtn = document.getElementById('btn-close-demo-modal');
+                const closeDemoBtn2 = document.getElementById('btn-close-demo-modal-2');
+                const demoBackdrop = document.getElementById('demo-modal-backdrop');
+
+                if (openDemoBtn) openDemoBtn.addEventListener('click', () => toggleModal('demo-modal', true));
+                if (closeDemoBtn) closeDemoBtn.addEventListener('click', () => toggleModal('demo-modal', false));
+                if (closeDemoBtn2) closeDemoBtn2.addEventListener('click', () => toggleModal('demo-modal', false));
+                if (demoBackdrop) demoBackdrop.addEventListener('click', () => toggleModal('demo-modal', false));
+
+                // Privacy Modal Handlers
+                const openPrivacyBtn = document.getElementById('btn-open-privacy');
+                const closePrivacyBtn = document.getElementById('btn-close-privacy');
+                const closePrivacyBtn2 = document.getElementById('btn-close-privacy-2');
+                const privacyBackdrop = document.getElementById('privacy-modal-backdrop');
+
+                if (openPrivacyBtn) openPrivacyBtn.addEventListener('click', () => toggleModal('privacy-modal', true));
+                if (closePrivacyBtn) closePrivacyBtn.addEventListener('click', () => toggleModal('privacy-modal', false));
+                if (closePrivacyBtn2) closePrivacyBtn2.addEventListener('click', () => toggleModal('privacy-modal', false));
+                if (privacyBackdrop) privacyBackdrop.addEventListener('click', () => toggleModal('privacy-modal', false));
+
+                // Terms Modal Handlers
+                const openTermsBtn = document.getElementById('btn-open-terms');
+                const closeTermsBtn = document.getElementById('btn-close-terms');
+                const closeTermsBtn2 = document.getElementById('btn-close-terms-2');
+                const termsBackdrop = document.getElementById('terms-modal-backdrop');
+
+                if (openTermsBtn) openTermsBtn.addEventListener('click', () => toggleModal('terms-modal', true));
+                if (closeTermsBtn) closeTermsBtn.addEventListener('click', () => toggleModal('terms-modal', false));
+                if (closeTermsBtn2) closeTermsBtn2.addEventListener('click', () => toggleModal('terms-modal', false));
+                if (termsBackdrop) termsBackdrop.addEventListener('click', () => toggleModal('terms-modal', false));
+
+                // ESC key closes any open modal or menu
+                window.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape') {
+                        toggleModal('demo-modal', false);
+                        toggleModal('privacy-modal', false);
+                        toggleModal('terms-modal', false);
+                        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.add('hidden');
+                            menuToggle?.setAttribute('aria-expanded', 'false');
+                            hamburgerIcon?.classList.remove('hidden');
+                            closeIcon?.classList.add('hidden');
+                        }
+                    }
+                });
+
+                // Contact Form Submission (Client validation & feedback)
+                const contactForm = document.getElementById('contact-form');
+                const formSuccess = document.getElementById('form-success');
+                if (contactForm && formSuccess) {
+                    contactForm.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        formSuccess.classList.remove('hidden');
+                        contactForm.reset();
+                        setTimeout(() => {
+                            formSuccess.classList.add('hidden');
+                        }, 6000);
+                    });
+                }
+            });
+        </script>
     </body>
 </html>
