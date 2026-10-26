@@ -8,6 +8,7 @@ use App\Filament\Resources\Support\FilamentOptions;
 use App\Models\Estimate;
 use App\Models\Invoice;
 use App\Models\User;
+use App\UserRole;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -43,7 +44,7 @@ class EstimateResource extends Resource
         /** @var User|null $user */
         $user = Filament::auth()->user();
 
-        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->isAccountant() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
     public static function form(Schema $schema): Schema

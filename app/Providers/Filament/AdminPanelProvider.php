@@ -2,12 +2,12 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard as ServiceFlowDashboard;
 use App\Http\Controllers\Auth\ForceChangePasswordController;
 use App\Http\Middleware\EnsurePasswordIsChanged;
 use App\Models\Organization;
 use Filament\Facades\Filament;
-use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -34,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName('ServiceFlow')
-            ->login()
+            ->login(Login::class)
             ->tenant(Organization::class, slugAttribute: 'slug', ownershipRelationship: 'organization')
             ->colors([
                 'primary' => Color::Blue,
@@ -73,7 +73,7 @@ class AdminPanelProvider extends PanelProvider
                     ->name('password.update');
             })
             ->authMiddleware([
-                Authenticate::class,
+                \App\Http\Middleware\Authenticate::class,
                 EnsurePasswordIsChanged::class,
             ]);
     }

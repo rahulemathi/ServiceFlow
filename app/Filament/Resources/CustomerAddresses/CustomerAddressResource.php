@@ -6,6 +6,7 @@ use App\Filament\Resources\CustomerAddresses\Pages\ManageCustomerAddresses;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Models\CustomerAddress;
 use App\Models\User;
+use App\UserRole;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -31,12 +32,20 @@ class CustomerAddressResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'address_line_1';
 
+    public static function canViewAny(): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->isAccountant() || $user->hasPlatformRole(UserRole::PlatformAdmin));
+    }
+
     public static function canCreate(): bool
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
 
-        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->isAccountant() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
     public static function canDelete(Model $record): bool
@@ -44,7 +53,7 @@ class CustomerAddressResource extends Resource
         /** @var User|null $user */
         $user = Filament::auth()->user();
 
-        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+        return $user && ($user->isOrganizationAdmin() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
     public static function form(Schema $schema): Schema

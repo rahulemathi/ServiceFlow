@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Filament\Widgets\Concerns\InteractsWithServiceFlowFilters;
 use App\Models\User;
 use App\Models\WorkOrder;
+use App\UserRole;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -16,6 +17,14 @@ class UpcomingWorkOrdersWidget extends TableWidget
     protected static ?string $heading = 'Upcoming schedule';
 
     protected int|string|array $columnSpan = 'full';
+
+    public static function canView(): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->hasPlatformRole(UserRole::PlatformAdmin));
+    }
 
     public function table(Table $table): Table
     {

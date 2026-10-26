@@ -9,6 +9,7 @@ use App\Models\ServiceRequest;
 use App\Models\User;
 use App\Models\WorkOrder;
 use App\ServiceRequestStatus;
+use App\UserRole;
 use App\WorkOrderStatus;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -16,6 +17,14 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 class ServiceOverviewWidget extends StatsOverviewWidget
 {
     use InteractsWithServiceFlowFilters;
+
+    public static function canView(): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->hasPlatformRole(UserRole::PlatformAdmin));
+    }
 
     protected function getStats(): array
     {

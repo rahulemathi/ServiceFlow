@@ -22,9 +22,10 @@ class EnsurePasswordIsChanged
             return $next($request);
         }
 
-        $changePasswordRouteName = 'filament.admin.password.change';
-        $changePasswordRoutePattern = 'filament.admin.password.*';
-        $logoutRouteName = 'filament.admin.auth.logout';
+        $panelId = Filament::getCurrentOrDefaultPanel()?->getId() ?? 'admin';
+        $changePasswordRouteName = "filament.{$panelId}.password.change";
+        $changePasswordRoutePattern = "filament.{$panelId}.password.*";
+        $logoutRouteName = "filament.{$panelId}.auth.logout";
 
         $isChangePasswordRoute = $request->routeIs($changePasswordRoutePattern);
         $isLogoutRoute = $request->routeIs($logoutRouteName);

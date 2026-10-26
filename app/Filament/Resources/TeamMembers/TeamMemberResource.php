@@ -26,6 +26,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class TeamMemberResource extends Resource
 {
@@ -103,14 +104,26 @@ class TeamMemberResource extends Resource
                             ->label('Roles')
                             ->multiple()
                             ->required()
-                            ->options([
-                                UserRole::Technician->value => 'Technician',
-                                UserRole::Dispatcher->value => 'Dispatcher',
-                                UserRole::Admin->value => 'Admin',
-                                UserRole::OrganizationOwner->value => 'Organization Owner',
-                            ])
+                            ->options(function (): array {
+                                /** @var User|null $currentUser */
+                                $currentUser = auth()->user();
+
+                                $options = [
+                                    UserRole::Technician->value => 'Technician',
+                                    UserRole::Dispatcher->value => 'Dispatcher',
+                                    UserRole::ServiceManager->value => 'Service Manager',
+                                    UserRole::Accountant->value => 'Accountant',
+                                    UserRole::Admin->value => 'Admin',
+                                ];
+
+                                if ($currentUser && ($currentUser->isOrganizationOwner() || $currentUser->hasPlatformRole(UserRole::PlatformAdmin))) {
+                                    $options[UserRole::OrganizationOwner->value] = 'Organization Owner';
+                                }
+
+                                return $options;
+                            })
                             ->default([UserRole::Technician->value])
-                            ->helperText('Select "Technician" so this user can be assigned work orders and availability schedules.'),
+                            ->helperText('Select assigned organization roles.'),
                         Select::make('status')
                             ->label('Membership status')
                             ->options([
@@ -152,6 +165,8 @@ class TeamMemberResource extends Resource
                     ->formatStateUsing(fn ($state): string => match ($state instanceof UserRole ? $state->value : (string) $state) {
                         UserRole::Technician->value => 'Technician',
                         UserRole::Dispatcher->value => 'Dispatcher',
+                        UserRole::ServiceManager->value => 'Service Manager',
+                        UserRole::Accountant->value => 'Accountant',
                         UserRole::Admin->value => 'Admin',
                         UserRole::OrganizationOwner->value => 'Organization Owner',
                         default => (string) $state,
@@ -160,6 +175,8 @@ class TeamMemberResource extends Resource
                         UserRole::Technician->value => 'info',
                         UserRole::Admin->value => 'primary',
                         UserRole::Dispatcher->value => 'warning',
+                        UserRole::ServiceManager->value => 'purple',
+                        UserRole::Accountant->value => 'emerald',
                         UserRole::OrganizationOwner->value => 'success',
                         default => 'gray',
                     }),
@@ -193,6 +210,8 @@ class TeamMemberResource extends Resource
                     ->options([
                         UserRole::Technician->value => 'Technician',
                         UserRole::Dispatcher->value => 'Dispatcher',
+                        UserRole::ServiceManager->value => 'Service Manager',
+                        UserRole::Accountant->value => 'Accountant',
                         UserRole::Admin->value => 'Admin',
                         UserRole::OrganizationOwner->value => 'Organization Owner',
                     ])
@@ -209,6 +228,20 @@ class TeamMemberResource extends Resource
             ])
             ->recordActions([
                 EditAction::make()
+                    ->visible(function (Membership $record): bool {
+                        /** @var User|null $currentUser */
+                        $currentUser = auth()->user();
+                        if (! $currentUser) {
+                            return false;
+                        }
+
+                        if ($currentUser->isOrganizationOwner() || $currentUser->hasPlatformRole(UserRole::PlatformAdmin)) {
+                            return true;
+                        }
+
+                        // Admins cannot edit an owner's membership
+                        return ! $record->roles()->where('role', UserRole::OrganizationOwner->value)->exists();
+                    })
                     ->mutateRecordDataUsing(function (Membership $record): array {
                         return [
                             'name' => $record->user?->name,
@@ -220,6 +253,41 @@ class TeamMemberResource extends Resource
                         ];
                     })
                     ->using(function (Membership $record, array $data): Membership {
+                        /** @var User|null $currentUser */
+                        $currentUser = auth()->user();
+
+                        $selectedRoles = collect($data['roles'] ?? [])
+                            ->map(fn ($r) => is_string($r) ? UserRole::tryFrom($r) : $r)
+                            ->filter();
+
+                        $canAssignOwner = $currentUser && ($currentUser->isOrganizationOwner() || $currentUser->hasPlatformRole(UserRole::PlatformAdmin));
+
+                        // Privilege escalation check
+                        if (! $canAssignOwner && $selectedRoles->contains(fn ($r) => $r === UserRole::OrganizationOwner)) {
+                            throw ValidationException::withMessages([
+                                'roles' => 'You do not have permission to grant Organization Owner privileges.',
+                            ]);
+                        }
+
+                        // Protect final owner from having owner role removed
+                        $hadOwner = $record->roles()->where('role', UserRole::OrganizationOwner->value)->exists();
+                        $willHaveOwner = $selectedRoles->contains(fn ($r) => $r === UserRole::OrganizationOwner);
+
+                        if ($hadOwner && ! $willHaveOwner) {
+                            $remainingOwners = Membership::query()
+                                ->where('organization_id', $record->organization_id)
+                                ->where('id', '!=', $record->id)
+                                ->where('status', MembershipStatus::Active)
+                                ->whereHas('roles', fn ($q) => $q->where('role', UserRole::OrganizationOwner->value))
+                                ->count();
+
+                            if ($remainingOwners === 0) {
+                                throw ValidationException::withMessages([
+                                    'roles' => 'Cannot remove the Organization Owner role from the final active owner.',
+                                ]);
+                            }
+                        }
+
                         if ($record->user) {
                             $userUpdates = [
                                 'name' => $data['name'],
@@ -238,10 +306,6 @@ class TeamMemberResource extends Resource
                             'status' => $data['status'] ?? $record->status,
                         ]);
 
-                        $selectedRoles = collect($data['roles'] ?? [])
-                            ->map(fn ($r) => is_string($r) ? UserRole::tryFrom($r) : $r)
-                            ->filter();
-
                         $record->roles()->whereNotIn('role', $selectedRoles->pluck('value'))->delete();
 
                         foreach ($selectedRoles as $role) {
@@ -259,6 +323,20 @@ class TeamMemberResource extends Resource
                         return $record;
                     }),
                 DeleteAction::make()
+                    ->visible(function (Membership $record): bool {
+                        /** @var User|null $currentUser */
+                        $currentUser = auth()->user();
+                        if (! $currentUser) {
+                            return false;
+                        }
+
+                        if ($currentUser->isOrganizationOwner() || $currentUser->hasPlatformRole(UserRole::PlatformAdmin)) {
+                            return true;
+                        }
+
+                        // Admins cannot delete an owner's membership
+                        return ! $record->roles()->where('role', UserRole::OrganizationOwner->value)->exists();
+                    })
                     ->before(function (Membership $record, DeleteAction $action): void {
                         if ($record->user_id === auth()->id()) {
                             Notification::make()
@@ -267,6 +345,30 @@ class TeamMemberResource extends Resource
                                 ->send();
 
                             $action->cancel();
+
+                            return;
+                        }
+
+                        $isOwner = $record->roles()->where('role', UserRole::OrganizationOwner->value)->exists();
+                        if ($isOwner) {
+                            $remainingOwners = Membership::query()
+                                ->where('organization_id', $record->organization_id)
+                                ->where('id', '!=', $record->id)
+                                ->where('status', MembershipStatus::Active)
+                                ->whereHas('roles', fn ($q) => $q->where('role', UserRole::OrganizationOwner->value))
+                                ->count();
+
+                            if ($remainingOwners === 0) {
+                                Notification::make()
+                                    ->danger()
+                                    ->title('Action prohibited')
+                                    ->body('Cannot delete the final organization owner.')
+                                    ->send();
+
+                                $action->cancel();
+
+                                return;
+                            }
                         }
                     }),
             ])

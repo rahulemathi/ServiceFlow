@@ -6,6 +6,7 @@ use App\Filament\Resources\Equipment\Pages\ManageEquipment;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Models\Equipment;
 use App\Models\User;
+use App\UserRole;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -32,12 +33,20 @@ class EquipmentResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function canViewAny(): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->hasPlatformRole(UserRole::PlatformAdmin));
+    }
+
     public static function canCreate(): bool
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
 
-        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
     public static function canDelete(Model $record): bool
@@ -45,7 +54,7 @@ class EquipmentResource extends Resource
         /** @var User|null $user */
         $user = Filament::auth()->user();
 
-        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+        return $user && ($user->isOrganizationAdmin() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
     public static function form(Schema $schema): Schema

@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\WorkOrder;
 use App\ServicePriority;
 use App\ServiceRequestStatus;
+use App\UserRole;
 use App\WorkOrderStatus;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -42,7 +43,7 @@ class ServiceRequestResource extends Resource
         /** @var User|null $user */
         $user = Filament::auth()->user();
 
-        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
     public static function form(Schema $schema): Schema

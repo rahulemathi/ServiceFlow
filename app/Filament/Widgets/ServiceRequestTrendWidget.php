@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Filament\Widgets\Concerns\InteractsWithServiceFlowFilters;
 use App\Models\ServiceRequest;
 use App\Models\User;
+use App\UserRole;
 use Filament\Widgets\ChartWidget;
 
 class ServiceRequestTrendWidget extends ChartWidget
@@ -23,7 +24,7 @@ class ServiceRequestTrendWidget extends ChartWidget
         /** @var User|null $user */
         $user = auth()->user();
 
-        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
     protected function getData(): array

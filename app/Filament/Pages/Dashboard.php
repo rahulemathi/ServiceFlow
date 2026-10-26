@@ -3,18 +3,25 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Resources\Support\FilamentOptions;
+use App\Filament\Resources\WorkOrders\WorkOrderResource;
+use App\Filament\Widgets\FinanceOverviewWidget;
+use App\Filament\Widgets\PlatformOverviewWidget;
+use App\Filament\Widgets\RecentPaymentsWidget;
 use App\Filament\Widgets\RecentServiceRequestsWidget;
 use App\Filament\Widgets\ServiceOverviewWidget;
 use App\Filament\Widgets\ServiceRequestTrendWidget;
 use App\Filament\Widgets\TechnicianUtilizationWidget;
+use App\Filament\Widgets\UnassignedWorkOrdersWidget;
 use App\Filament\Widgets\UpcomingMaintenanceWidget;
 use App\Filament\Widgets\UpcomingWorkOrdersWidget;
 use App\Filament\Widgets\WorkOrderStatusChartWidget;
 use App\Models\Branch;
 use App\Models\Organization;
 use App\Models\ServiceRequest;
+use App\Models\User;
 use App\ServicePriority;
 use App\ServiceRequestStatus;
+use App\UserRole;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
@@ -37,7 +44,59 @@ class Dashboard extends BaseDashboard
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedHome;
 
-    protected static ?string $title = 'Dashboard';
+    public function getTitle(): string
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if (! $user) {
+            return 'Dashboard';
+        }
+
+        if ($user->hasPlatformRole(UserRole::PlatformAdmin)) {
+            return 'Platform Administration Dashboard';
+        }
+
+        if ($user->isOrganizationOwner()) {
+            return 'Organization Owner Dashboard';
+        }
+
+        if ($user->isAccountant() && ! $user->isOrganizationAdmin()) {
+            return 'Finance Dashboard';
+        }
+
+        if ($user->isServiceManager() && ! $user->isOrganizationAdmin()) {
+            return 'Service Operations Management Dashboard';
+        }
+
+        if ($user->isDispatcher() && ! $user->isOrganizationAdmin()) {
+            return 'Dispatch and Scheduling Dashboard';
+        }
+
+        return 'Organization Operations Dashboard';
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        if ($user && $user->isTechnician() && ! $user->isOrganizationAdmin() && ! $user->isDispatcher()) {
+            return false;
+        }
+
+        return parent::shouldRegisterNavigation();
+    }
+
+    public function mount(): void
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        if ($user && $user->isTechnician() && ! $user->isOrganizationAdmin() && ! $user->isDispatcher()) {
+            redirect()->to(WorkOrderResource::getUrl());
+        }
+    }
 
     public function filtersForm(Schema $schema): Schema
     {
@@ -132,7 +191,7 @@ class Dashboard extends BaseDashboard
             Action::make('newServiceRequest')
                 ->label('New service request')
                 ->icon(Heroicon::OutlinedPlus)
-                ->visible(fn (): bool => (bool) (auth()->user()?->isOrganizationAdmin() || auth()->user()?->isDispatcher()))
+                ->visible(fn (): bool => (bool) (auth()->user()?->isOrganizationAdmin() || auth()->user()?->isDispatcher() || auth()->user()?->isServiceManager()))
                 ->schema([
                     Select::make('customer_id')
                         ->label('Customer')
@@ -180,7 +239,11 @@ class Dashboard extends BaseDashboard
     public function getWidgets(): array
     {
         return [
+            PlatformOverviewWidget::class,
+            FinanceOverviewWidget::class,
+            RecentPaymentsWidget::class,
             ServiceOverviewWidget::class,
+            UnassignedWorkOrdersWidget::class,
             ServiceRequestTrendWidget::class,
             WorkOrderStatusChartWidget::class,
             TechnicianUtilizationWidget::class,

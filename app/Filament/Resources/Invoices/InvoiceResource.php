@@ -7,6 +7,7 @@ use App\Filament\Resources\Invoices\Pages\ManageInvoices;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Models\Invoice;
 use App\Models\User;
+use App\UserRole;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -42,7 +43,7 @@ class InvoiceResource extends Resource
         /** @var User|null $user */
         $user = Filament::auth()->user();
 
-        return $user?->isOrganizationAdmin() ?? false;
+        return $user && ($user->isOrganizationAdmin() || $user->isAccountant() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
     public static function form(Schema $schema): Schema

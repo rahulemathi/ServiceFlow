@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Filament\Widgets\Concerns\InteractsWithServiceFlowFilters;
 use App\Models\MaintenanceContract;
 use App\Models\User;
+use App\UserRole;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -22,7 +23,7 @@ class UpcomingMaintenanceWidget extends TableWidget
         /** @var User|null $user */
         $user = auth()->user();
 
-        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
     public function table(Table $table): Table

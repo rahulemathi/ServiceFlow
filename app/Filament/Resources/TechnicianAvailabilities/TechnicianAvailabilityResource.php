@@ -6,6 +6,7 @@ use App\Filament\Resources\Support\FilamentOptions;
 use App\Filament\Resources\TechnicianAvailabilities\Pages\ManageTechnicianAvailabilities;
 use App\Models\TechnicianAvailability;
 use App\Models\User;
+use App\UserRole;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -28,6 +29,14 @@ class TechnicianAvailabilityResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Organization';
 
     protected static ?string $recordTitleAttribute = 'technician.name';
+
+    public static function canViewAny(): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->hasPlatformRole(UserRole::PlatformAdmin));
+    }
 
     public static function getEloquentQuery(): Builder
     {

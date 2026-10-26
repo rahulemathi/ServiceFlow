@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Payments;
 use App\Filament\Resources\Payments\Pages\ManagePayments;
 use App\Models\Payment;
 use App\Models\User;
+use App\UserRole;
 use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
@@ -27,7 +28,7 @@ class PaymentResource extends Resource
         /** @var User|null $user */
         $user = Filament::auth()->user();
 
-        return $user?->isOrganizationAdmin() ?? false;
+        return $user && ($user->isOrganizationAdmin() || $user->isAccountant() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
     public static function table(Table $table): Table

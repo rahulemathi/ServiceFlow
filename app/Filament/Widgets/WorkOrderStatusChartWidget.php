@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Filament\Widgets\Concerns\InteractsWithServiceFlowFilters;
 use App\Models\User;
 use App\Models\WorkOrder;
+use App\UserRole;
 use App\WorkOrderStatus;
 use Filament\Widgets\ChartWidget;
 
@@ -18,6 +19,14 @@ class WorkOrderStatusChartWidget extends ChartWidget
         'md' => 1,
         'xl' => 2,
     ];
+
+    public static function canView(): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->hasPlatformRole(UserRole::PlatformAdmin));
+    }
 
     protected function getData(): array
     {

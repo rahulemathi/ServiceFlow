@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Technician\TechnicianWorkspace;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,3 +23,8 @@ Route::get('/', function () {
 
 Route::redirect('/login', '/admin/login')->name('login');
 Route::redirect('/dashboard', '/admin')->name('dashboard');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/technician', TechnicianWorkspace::class)->name('technician.workspace');
+    Route::get('/technician/{workOrder}', TechnicianWorkspace::class)->name('technician.workspace.show');
+});

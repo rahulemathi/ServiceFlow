@@ -6,6 +6,7 @@ use App\Filament\Resources\Support\FilamentOptions;
 use App\Filament\Resources\WorkOrders\Pages\ManageWorkOrders;
 use App\Models\User;
 use App\Models\WorkOrder;
+use App\UserRole;
 use App\WorkOrderStatus;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -35,12 +36,20 @@ class WorkOrderResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'work_order_number';
 
+    public static function canViewAny(): bool
+    {
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->hasPlatformRole(UserRole::PlatformAdmin));
+    }
+
     public static function canCreate(): bool
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
 
-        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
     public static function canDelete(Model $record): bool
@@ -48,7 +57,7 @@ class WorkOrderResource extends Resource
         /** @var User|null $user */
         $user = Filament::auth()->user();
 
-        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+        return $user && ($user->isOrganizationAdmin() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
     public static function getEloquentQuery(): Builder
@@ -57,8 +66,19 @@ class WorkOrderResource extends Resource
         /** @var User|null $user */
         $user = Filament::auth()->user();
 
-        if ($user && $user->isTechnician() && ! $user->isOrganizationAdmin() && ! $user->isDispatcher()) {
+        if (! $user) {
+            return $query;
+        }
+
+        if ($user->isTechnician() && ! $user->isOrganizationAdmin() && ! $user->isDispatcher() && ! $user->isServiceManager()) {
             $query->where('assigned_to_user_id', $user->id);
+        }
+
+        $permittedBranches = $user->permittedBranchIds();
+        if (! empty($permittedBranches) && ! $user->isOrganizationAdmin() && ! $user->hasPlatformRole(UserRole::PlatformAdmin)) {
+            $query->where(function (Builder $b) use ($permittedBranches): void {
+                $b->whereIn('branch_id', $permittedBranches)->orWhereNull('branch_id');
+            });
         }
 
         return $query;

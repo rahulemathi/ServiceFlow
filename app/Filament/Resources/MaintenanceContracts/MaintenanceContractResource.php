@@ -8,6 +8,7 @@ use App\MaintenanceContractStatus;
 use App\MaintenanceFrequency;
 use App\Models\MaintenanceContract;
 use App\Models\User;
+use App\UserRole;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -39,7 +40,7 @@ class MaintenanceContractResource extends Resource
         /** @var User|null $user */
         $user = Filament::auth()->user();
 
-        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher());
+        return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
     public static function form(Schema $schema): Schema

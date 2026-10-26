@@ -117,6 +117,11 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return $membership->roles()->whereIn('role', $roleValues)->exists();
     }
 
+    public function isOrganizationOwner(?Organization $tenant = null): bool
+    {
+        return $this->hasOrganizationRole(UserRole::OrganizationOwner, $tenant);
+    }
+
     public function isOrganizationAdmin(?Organization $tenant = null): bool
     {
         return $this->hasOrganizationRole([UserRole::OrganizationOwner, UserRole::Admin], $tenant);
@@ -127,9 +132,44 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return $this->hasOrganizationRole(UserRole::Dispatcher, $tenant);
     }
 
+    public function isServiceManager(?Organization $tenant = null): bool
+    {
+        return $this->hasOrganizationRole(UserRole::ServiceManager, $tenant);
+    }
+
     public function isTechnician(?Organization $tenant = null): bool
     {
         return $this->hasOrganizationRole(UserRole::Technician, $tenant);
+    }
+
+    public function isAccountant(?Organization $tenant = null): bool
+    {
+        return $this->hasOrganizationRole(UserRole::Accountant, $tenant);
+    }
+
+    public function permittedBranchIds(?Organization $tenant = null): array
+    {
+        $membership = $this->currentMembership($tenant);
+        if (! $membership) {
+            return [];
+        }
+
+        return $membership->branches()->pluck('branches.id')->all();
+    }
+
+    public function hasBranchAccess(int|string|null $branchId, ?Organization $tenant = null): bool
+    {
+        if ($branchId === null) {
+            return true;
+        }
+
+        if ($this->hasPlatformRole(UserRole::PlatformAdmin) || $this->isOrganizationAdmin($tenant)) {
+            return true;
+        }
+
+        $permitted = $this->permittedBranchIds($tenant);
+
+        return empty($permitted) || in_array((int) $branchId, $permitted, true);
     }
 
     public function canAccessPanel(Panel $panel): bool
@@ -138,13 +178,24 @@ class User extends Authenticatable implements FilamentUser, HasTenants
             return false;
         }
 
-        return $this->hasPlatformRole(UserRole::PlatformAdmin)
-            || $this->memberships()
-                ->where('status', MembershipStatus::Active->value)
-                ->whereHas('roles', function (Builder $query): void {
-                    $query->whereIn('role', UserRole::organizationRoleValues());
-                })
-                ->exists();
+        if ($this->hasPlatformRole(UserRole::PlatformAdmin)) {
+            return true;
+        }
+
+        $activeMembership = $this->currentMembership();
+        if (! $activeMembership) {
+            return false;
+        }
+
+        $adminRoles = [
+            UserRole::OrganizationOwner->value,
+            UserRole::Admin->value,
+            UserRole::ServiceManager->value,
+            UserRole::Dispatcher->value,
+            UserRole::Accountant->value,
+        ];
+
+        return $activeMembership->roles()->whereIn('role', $adminRoles)->exists();
     }
 
     public function getTenants(Panel $panel): array|Collection
@@ -157,10 +208,18 @@ class User extends Authenticatable implements FilamentUser, HasTenants
             return Organization::query()->orderBy('name')->get();
         }
 
+        $adminRoles = [
+            UserRole::OrganizationOwner->value,
+            UserRole::Admin->value,
+            UserRole::ServiceManager->value,
+            UserRole::Dispatcher->value,
+            UserRole::Accountant->value,
+        ];
+
         return $this->memberships()
             ->where('status', MembershipStatus::Active->value)
-            ->whereHas('roles', function (Builder $query): void {
-                $query->whereIn('role', UserRole::organizationRoleValues());
+            ->whereHas('roles', function (Builder $query) use ($adminRoles): void {
+                $query->whereIn('role', $adminRoles);
             })
             ->with('organization')
             ->get()
@@ -175,14 +234,25 @@ class User extends Authenticatable implements FilamentUser, HasTenants
             return false;
         }
 
-        return $this->hasPlatformRole(UserRole::PlatformAdmin)
-            || $this->memberships()
-                ->where('organization_id', $tenant->getKey())
-                ->where('status', MembershipStatus::Active->value)
-                ->whereHas('roles', function (Builder $query): void {
-                    $query->whereIn('role', UserRole::organizationRoleValues());
-                })
-                ->exists();
+        if ($this->hasPlatformRole(UserRole::PlatformAdmin)) {
+            return true;
+        }
+
+        $adminRoles = [
+            UserRole::OrganizationOwner->value,
+            UserRole::Admin->value,
+            UserRole::ServiceManager->value,
+            UserRole::Dispatcher->value,
+            UserRole::Accountant->value,
+        ];
+
+        return $this->memberships()
+            ->where('organization_id', $tenant->getKey())
+            ->where('status', MembershipStatus::Active->value)
+            ->whereHas('roles', function (Builder $query) use ($adminRoles): void {
+                $query->whereIn('role', $adminRoles);
+            })
+            ->exists();
     }
 
     /**

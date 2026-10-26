@@ -12,6 +12,7 @@ use Filament\Facades\Filament;
 use Filament\Resources\Pages\ManageRecords;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class ManageTeamMembers extends ManageRecords
 {
@@ -73,6 +74,16 @@ class ManageTeamMembers extends ManageRecords
                     $selectedRoles = collect($data['roles'] ?? [UserRole::Technician->value])
                         ->map(fn ($r) => is_string($r) ? UserRole::tryFrom($r) : $r)
                         ->filter();
+
+                    /** @var User|null $currentUser */
+                    $currentUser = auth()->user();
+                    $canAssignOwner = $currentUser && ($currentUser->isOrganizationOwner() || $currentUser->hasPlatformRole(UserRole::PlatformAdmin));
+
+                    if (! $canAssignOwner && $selectedRoles->contains(fn ($r) => $r === UserRole::OrganizationOwner)) {
+                        throw ValidationException::withMessages([
+                            'roles' => 'You do not have permission to grant Organization Owner privileges.',
+                        ]);
+                    }
 
                     $membership->roles()->whereNotIn('role', $selectedRoles->pluck('value'))->delete();
 
