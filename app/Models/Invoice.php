@@ -62,9 +62,9 @@ class Invoice extends Model
         }
 
         $paid = (float) $this->payments()->sum('amount');
-        $balance = max(0, round((float) $this->total - $paid, 2));
+        $balance = max(0.0, round((float) $this->total - $paid, 2));
         $status = match (true) {
-            $balance === 0.0 => CommercialStatus::Paid,
+            $balance <= 0 => CommercialStatus::Paid,
             $this->due_at !== null && $this->due_at->isBefore(today()) => CommercialStatus::Overdue,
             $paid > 0 => CommercialStatus::PartiallyPaid,
             default => CommercialStatus::Sent,

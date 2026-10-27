@@ -649,14 +649,15 @@
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <!-- Section Header -->
                     <div class="text-center max-w-2xl mx-auto mb-16">
-                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100/70 text-blue-700 border border-blue-200/60 mb-3">
-                            Illustrative Plans
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100/80 text-emerald-800 border border-emerald-200/70 mb-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                            100% Free Self-Hosted • Open Source
                         </div>
                         <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
                             Plans Designed for Every Team Size
                         </h2>
                         <p class="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
-                            Simple, scalable plans. Contact our team for customized pricing tailored to your business needs and technician count.
+                            ServiceFlow is 100% free and open-source to self-host on your own infrastructure. This web instance is an interactive live demo to explore every feature with zero license fees.
                         </p>
                     </div>
 
@@ -665,39 +666,44 @@
                         <!-- Plan 1: Starter -->
                         <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col justify-between hover:border-slate-300 transition-colors">
                             <div>
-                                <div class="text-lg font-bold text-slate-900">Starter</div>
+                                <div class="flex items-center justify-between">
+                                    <div class="text-lg font-bold text-slate-900">Starter</div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">Self-Hosted</span>
+                                </div>
                                 <p class="mt-1 text-sm text-slate-500">For small service teams getting started</p>
                                 <div class="mt-6 mb-8 pb-6 border-b border-slate-100">
-                                    <span class="text-3xl font-extrabold text-slate-900">Contact</span>
-                                    <span class="text-sm font-medium text-slate-500">/ for pricing</span>
-                                    <div class="text-xs text-slate-400 mt-1">Illustrative plan</div>
+                                    <div class="flex items-baseline gap-2">
+                                        <span class="text-3xl sm:text-4xl font-extrabold text-slate-900">Free</span>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">Open Source</span>
+                                    </div>
+                                    <div class="text-xs text-slate-500 mt-1.5 font-medium">Free to self-host for your own use • Web is demo only</div>
                                 </div>
                                 <ul class="space-y-3.5 text-sm text-slate-600">
                                     <li class="flex items-center gap-3">
-                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
-                                        <span>Up to 3 technicians</span>
+                                        <x-heroicon-s-check class="w-5 h-5 text-emerald-600 shrink-0" />
+                                        <span class="font-medium text-slate-900">Recommended for up to 3 technicians</span>
                                     </li>
                                     <li class="flex items-center gap-3">
-                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <x-heroicon-s-check class="w-5 h-5 text-emerald-600 shrink-0" />
                                         <span>Customer & equipment tracking</span>
                                     </li>
                                     <li class="flex items-center gap-3">
-                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <x-heroicon-s-check class="w-5 h-5 text-emerald-600 shrink-0" />
                                         <span>Service request conversion</span>
                                     </li>
                                     <li class="flex items-center gap-3">
-                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <x-heroicon-s-check class="w-5 h-5 text-emerald-600 shrink-0" />
                                         <span>Work orders & dispatch</span>
                                     </li>
                                     <li class="flex items-center gap-3">
-                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
-                                        <span>Standard email support</span>
+                                        <x-heroicon-s-check class="w-5 h-5 text-emerald-600 shrink-0" />
+                                        <span>Community documentation & guides</span>
                                     </li>
                                 </ul>
                             </div>
                             <div class="mt-8">
-                                <a href="#contact" class="w-full inline-flex items-center justify-center px-6 py-3.5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
-                                    Contact for Pricing
+                                <a href="{{ route('login') }}" class="w-full inline-flex items-center justify-center px-6 py-3.5 rounded-xl text-sm font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200 transition-colors">
+                                    Try Live Demo
                                 </a>
                             </div>
                         </div>
@@ -705,20 +711,25 @@
                         <!-- Plan 2: Professional (Featured) -->
                         <div class="bg-white rounded-3xl p-8 border-2 border-blue-600 shadow-xl flex flex-col justify-between relative">
                             <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-blue-600 text-white shadow-sm">
-                                Most Popular
+                                Most Popular • Free Self-Hosted
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-slate-900">Professional</div>
+                                <div class="flex items-center justify-between">
+                                    <div class="text-lg font-bold text-slate-900">Professional</div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">Self-Hosted</span>
+                                </div>
                                 <p class="mt-1 text-sm text-slate-500">For expanding field service and maintenance businesses</p>
                                 <div class="mt-6 mb-8 pb-6 border-b border-slate-100">
-                                    <span class="text-3xl font-extrabold text-slate-900">Contact</span>
-                                    <span class="text-sm font-medium text-slate-500">/ for pricing</span>
-                                    <div class="text-xs text-blue-600 font-semibold mt-1">Illustrative plan</div>
+                                    <div class="flex items-baseline gap-2">
+                                        <span class="text-3xl sm:text-4xl font-extrabold text-slate-900">Free</span>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-800">Open Source</span>
+                                    </div>
+                                    <div class="text-xs text-blue-600 font-semibold mt-1.5">Zero licensing fees for self-hosters • Web is demo only</div>
                                 </div>
                                 <ul class="space-y-3.5 text-sm text-slate-600">
                                     <li class="flex items-center gap-3">
                                         <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
-                                        <span class="font-medium text-slate-900">Up to 15 technicians</span>
+                                        <span class="font-bold text-slate-900">Optimized for up to 15 technicians</span>
                                     </li>
                                     <li class="flex items-center gap-3">
                                         <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
@@ -738,13 +749,13 @@
                                     </li>
                                     <li class="flex items-center gap-3">
                                         <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
-                                        <span>Priority customer support</span>
+                                        <span>Full technician mobile workspace portal</span>
                                     </li>
                                 </ul>
                             </div>
                             <div class="mt-8">
-                                <a href="#contact" class="w-full inline-flex items-center justify-center px-6 py-3.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/30 transition-all">
-                                    Contact for Pricing
+                                <a href="{{ route('login') }}" class="w-full inline-flex items-center justify-center px-6 py-3.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/30 transition-all">
+                                    Try Live Demo
                                 </a>
                             </div>
                         </div>
@@ -752,41 +763,66 @@
                         <!-- Plan 3: Business -->
                         <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col justify-between hover:border-slate-300 transition-colors">
                             <div>
-                                <div class="text-lg font-bold text-slate-900">Business</div>
+                                <div class="flex items-center justify-between">
+                                    <div class="text-lg font-bold text-slate-900">Business</div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">Self-Hosted</span>
+                                </div>
                                 <p class="mt-1 text-sm text-slate-500">For multi-branch and commercial service contractors</p>
                                 <div class="mt-6 mb-8 pb-6 border-b border-slate-100">
-                                    <span class="text-3xl font-extrabold text-slate-900">Contact</span>
-                                    <span class="text-sm font-medium text-slate-500">/ for pricing</span>
-                                    <div class="text-xs text-slate-400 mt-1">Illustrative plan</div>
+                                    <div class="flex items-baseline gap-2">
+                                        <span class="text-3xl sm:text-4xl font-extrabold text-slate-900">Free</span>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">Open Source</span>
+                                    </div>
+                                    <div class="text-xs text-slate-500 mt-1.5 font-medium">Unlimited scale on private cloud • Web is demo only</div>
                                 </div>
                                 <ul class="space-y-3.5 text-sm text-slate-600">
                                     <li class="flex items-center gap-3">
-                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
-                                        <span class="font-medium text-slate-900">Unlimited technicians & branches</span>
+                                        <x-heroicon-s-check class="w-5 h-5 text-emerald-600 shrink-0" />
+                                        <span class="font-bold text-slate-900">Unlimited technicians & branches</span>
                                     </li>
                                     <li class="flex items-center gap-3">
-                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <x-heroicon-s-check class="w-5 h-5 text-emerald-600 shrink-0" />
                                         <span>Everything in Professional</span>
                                     </li>
                                     <li class="flex items-center gap-3">
-                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
+                                        <x-heroicon-s-check class="w-5 h-5 text-emerald-600 shrink-0" />
                                         <span>Multi-branch tenant data isolation</span>
                                     </li>
                                     <li class="flex items-center gap-3">
-                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
-                                        <span>Advanced operational analytics</span>
+                                        <x-heroicon-s-check class="w-5 h-5 text-emerald-600 shrink-0" />
+                                        <span>Advanced operational analytics & reporting</span>
                                     </li>
                                     <li class="flex items-center gap-3">
-                                        <x-heroicon-s-check class="w-5 h-5 text-blue-600 shrink-0" />
-                                        <span>Dedicated onboarding specialist</span>
+                                        <x-heroicon-s-check class="w-5 h-5 text-emerald-600 shrink-0" />
+                                        <span>Zero vendor lock-in • Modify any feature</span>
                                     </li>
                                 </ul>
                             </div>
                             <div class="mt-8">
-                                <a href="#contact" class="w-full inline-flex items-center justify-center px-6 py-3.5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
-                                    Contact for Pricing
+                                <a href="{{ route('login') }}" class="w-full inline-flex items-center justify-center px-6 py-3.5 rounded-xl text-sm font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200 transition-colors">
+                                    Try Live Demo
                                 </a>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Open Source Banner below cards -->
+                    <div class="mt-12 bg-slate-50 border border-slate-200/90 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-base font-bold text-slate-900">100% Free Self-Hosted • Live Demo Online</h4>
+                                <p class="mt-1 text-sm text-slate-600">The online version is provided as a live demonstration environment. All plans are completely free to self-host and customize on your own infrastructure with zero license or per-seat costs.</p>
+                            </div>
+                        </div>
+                        <div class="shrink-0 flex items-center gap-3">
+                            <a href="{{ route('login') }}" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-sm">
+                                Explore Live Demo
+                            </a>
                         </div>
                     </div>
                 </div>

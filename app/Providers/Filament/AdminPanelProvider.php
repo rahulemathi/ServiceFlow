@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard as ServiceFlowDashboard;
 use App\Http\Controllers\Auth\ForceChangePasswordController;
+use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\EnsurePasswordIsChanged;
 use App\Models\Organization;
 use Filament\Facades\Filament;
@@ -46,6 +47,13 @@ class AdminPanelProvider extends PanelProvider
                     ->color('danger')
                     ->postAction(fn (): string => Filament::getLogoutUrl()),
             ])
+            ->navigationGroups([
+                'Customers',
+                'Service operations',
+                'System settings',
+                'Financials',
+                'Organization',
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -73,7 +81,7 @@ class AdminPanelProvider extends PanelProvider
                     ->name('password.update');
             })
             ->authMiddleware([
-                \App\Http\Middleware\Authenticate::class,
+                Authenticate::class,
                 EnsurePasswordIsChanged::class,
             ]);
     }

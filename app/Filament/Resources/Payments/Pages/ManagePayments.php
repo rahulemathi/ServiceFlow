@@ -13,6 +13,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ManageRecords;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
 
 class ManagePayments extends ManageRecords
@@ -26,8 +27,30 @@ class ManagePayments extends ManageRecords
                 ->label('Record payment')
                 ->icon(Heroicon::OutlinedBanknotes)
                 ->schema([
-                    Select::make('invoice_id')->options(FilamentOptions::payableInvoices())->searchable()->required(),
-                    TextInput::make('amount')->numeric()->minValue(0.01)->step(0.01)->required(),
+                    Select::make('invoice_id')
+                        ->options(FilamentOptions::payableInvoices())
+                        ->searchable()
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(function (?int $state, Set $set): void {
+                            if (! $state) {
+                                $set('amount', null);
+
+                                return;
+                            }
+
+                            $invoice = Invoice::query()
+                                ->where('organization_id', Filament::getTenant()?->getKey())
+                                ->find($state);
+
+                            $set('amount', $invoice?->balance);
+                        }),
+                    TextInput::make('amount')
+                        ->numeric()
+                        ->minValue(0.01)
+                        ->step(0.01)
+                        ->readOnly()
+                        ->required(),
                     DatePicker::make('received_at')->default(today())->required(),
                     Select::make('method')
                         ->options([
@@ -45,6 +68,8 @@ class ManagePayments extends ManageRecords
                     $invoice = Invoice::query()
                         ->where('organization_id', Filament::getTenant()?->getKey())
                         ->findOrFail($data['invoice_id']);
+
+                    $data['amount'] = $data['amount'] ?? $invoice->balance;
 
                     Payment::recordAgainstInvoice($invoice, $data);
                 })
