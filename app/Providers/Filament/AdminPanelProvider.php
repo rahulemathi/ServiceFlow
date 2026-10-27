@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\ForceChangePasswordController;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\EnsurePasswordIsChanged;
 use App\Models\Organization;
+use App\Models\SystemSetting;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -15,7 +16,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -34,11 +34,14 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->brandName('ServiceFlow')
+            ->brandName(fn (): string => (string) (SystemSetting::get('brand_name') ?: config('app.name', 'ServiceFlow')))
+            ->brandLogo(fn (): string => SystemSetting::getLogoUrl())
+            ->brandLogoHeight(fn (): string => (string) (SystemSetting::get('brand_logo_height') ?: '2.25rem'))
+            ->favicon(fn (): string => SystemSetting::getFaviconUrl())
             ->login(Login::class)
             ->tenant(Organization::class, slugAttribute: 'slug', ownershipRelationship: 'organization')
-            ->colors([
-                'primary' => Color::Blue,
+            ->colors(fn (): array => [
+                'primary' => SystemSetting::getPrimaryColor(),
             ])
             ->userMenuItems([
                 'logout' => MenuItem::make()
