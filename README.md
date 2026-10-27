@@ -28,6 +28,79 @@ The implemented panel is an initial operations MVP, not a complete ServiceFlow p
 | Tests | Feature coverage for role and tenant access, tenant resource pages and data isolation, invoice totals, payment recording and limits, work-order transitions, estimate conversion, and technician availability | Broader workflow, authorization, and production-database coverage |
 | Product modules | Customer and equipment CRUD, service request conversion, work-order scheduling and status actions, maintenance contracts, estimate approval/invoice generation, marking invoices as sent, and payment recording | Recurring work-order generation, notifications, reports, and complete lifecycle workflows |
 
+## Demo User Roles & Credentials
+
+The seed data provisions pre-configured accounts across all supported user roles under the demo organization **ServiceFlow HQ** (`slug: serviceflow-hq`) and branch **Main Branch** (`code: MAIN`).
+
+> **Default Password:** `12345678` for all seeded accounts.  
+> **Sign In URL:** `http://localhost:8000/admin/login`  
+> **Tenant Dashboard:** `http://localhost:8000/admin/serviceflow-hq`  
+> **Technician Field Portal:** `http://localhost:8000/technician`
+
+| Role | Name | Email Address | Password | Permissions & Primary Scope |
+| --- | --- | --- | --- | --- |
+| **Platform Administrator** | Super Administrator | `superadmin@example.com` | `12345678` | Global platform administration, cross-tenant management, System Settings (`Mail Settings`, `Branding & Logo`), and all operational modules. |
+| **Organization Owner** | Organization Owner | `organization@example.com` | `12345678` | Complete organization ownership, branding settings, branch control, all operations and billing within ServiceFlow HQ. |
+| **Organization Administrator** | Organization Administrator | `admin@example.com` | `12345678` | Full administrative control over staff, customers, service operations, dispatch, estimates, invoices, and payments. |
+| **Service Dispatcher** | Service Dispatcher | `dispatcher@example.com` | `12345678` | Service request triage, work order scheduling, dispatching, and technician weekly availability planning. |
+| **Service Manager** | Service Manager | `servicemanager@example.com` | `12345678` | Service operations oversight, maintenance contracts, work order approvals, equipment asset management. |
+| **Service Manager (Alt)** | Service Manager (Alt) | `manager@example.com` | `12345678` | Alternate manager profile for multi-branch and multi-shift supervisory operations. |
+| **Service Technician** | Service Technician | `technician@example.com` | `12345678` | Mobile Technician Workspace (`/technician`), active job execution, work logs, parts usage, and availability hours. |
+| **Organization Accountant** | Organization Accountant | `accountant@example.com` | `12345678` | Financial records, estimates approval, customer invoicing, payment recording, and balance tracking. |
+
+To seed or refresh these demo accounts at any time:
+```powershell
+php artisan db:seed --class=RoleUserSeeder
+```
+
+## Application Showcase & Screenshots
+
+Below are captures of the implemented interfaces across ServiceFlow.
+
+### 1. Sign In & Authentication
+Clean, branded authentication portal with dynamic company logo and session persistence.
+![Sign In Portal](docs/screenshots/01-login.png)
+
+### 2. Operations & Executive KPI Dashboard
+Centralized metrics dashboard with dynamic date and branch filtering, real-time KPI stat cards, revenue metrics, active work orders, and recent payment logs.
+![Operations Dashboard](docs/screenshots/02-dashboard.png)
+
+### 3. Work Order Management & Scheduling
+Track work orders by priority, assigned technician, scheduled start times, and execution status (`New`, `Scheduled`, `In Progress`, `Completed`, `Cancelled`).
+![Work Orders](docs/screenshots/03-work-orders.png)
+
+### 4. Service Requests Intake & Conversion
+Customer issue logging with SLA priority flags, equipment tags, and one-click conversion into scheduled work orders.
+![Service Requests](docs/screenshots/04-service-requests.png)
+
+### 5. Customer Directory & Profiles
+Tenant-scoped client registry with associated primary contacts, billing details, and multiple service addresses.
+![Customers Directory](docs/screenshots/05-customers.png)
+
+### 6. Equipment & Asset Tracking
+Equipment database tracking serial numbers, model information, installation dates, active warranties, and linked customers.
+![Equipment & Assets](docs/screenshots/06-equipment.png)
+
+### 7. Preventive Maintenance Contracts
+Recurring maintenance agreements, covered assets, inspection schedules, and automated service reminders.
+![Maintenance Contracts](docs/screenshots/07-maintenance-contracts.png)
+
+### 8. Invoicing, Billing & Payments
+Commercial invoicing with line items, tax calculations, balance tracking, payment receipt recording, and PDF export status.
+![Invoices & Billing](docs/screenshots/08-invoices.png)
+
+### 9. System Mail Settings
+Platform administration tool under **System settings** to configure Gmail OAuth / App Passwords or Custom SMTP with live test email delivery.
+![Mail Settings](docs/screenshots/09-mail-settings.png)
+
+### 10. Branding, Logo & Visual Customization
+Under **System settings** below Mail Settings: upload company logos, adjust display height, configure browser favicons, brand name, support emails, and choose portal accent color palettes.
+![Branding & Customization](docs/screenshots/10-branding-settings.png)
+
+### 11. Technician Mobile Field Workspace
+Dedicated field interface at `/technician` optimized for mobile technicians to track today's scheduled jobs, update task status, and log hours.
+![Technician Workspace](docs/screenshots/11-technician-workspace.png)
+
 ## Technology stack
 
 Versions below reflect the installed dependency set observed in this repository. The PHP constraint is from `composer.json`; the runtime version is the one available during repository inspection.
@@ -210,7 +283,7 @@ php artisan migrate
 php artisan migrate:status
 ```
 
-The `DatabaseSeeder` creates a development-only `test@example.com` user without an organization membership. There is no organization/user onboarding UI yet, so provision the first organization and owner membership using a controlled seeder or Laravel Tinker; do not rely on the starter test user in production.
+The `DatabaseSeeder` calls `RoleUserSeeder`, provisioning the `ServiceFlow HQ` organization and all 8 pre-configured role accounts (`superadmin@example.com`, `admin@example.com`, `technician@example.com`, etc., with default password `12345678`). Run `php artisan db:seed` to seed or reset these records.
 
 ## Running the application and frontend assets
 
