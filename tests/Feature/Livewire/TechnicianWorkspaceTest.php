@@ -152,3 +152,22 @@ it('locks completed work orders against further modifications by technician', fu
         ->call('addLabourEntry')
         ->assertSet('errorMessage', 'Cannot record labour on completed work orders.');
 });
+
+it('shows start work button and allows starting work for newly assigned work orders', function () {
+    $newWorkOrder = WorkOrder::create([
+        'organization_id' => $this->organization->id,
+        'customer_id' => $this->customer->id,
+        'assigned_to_user_id' => $this->technician->id,
+        'title' => 'Emergency AC Leak',
+        'status' => WorkOrderStatus::New,
+    ]);
+
+    Livewire::actingAs($this->technician)
+        ->test(TechnicianWorkspace::class)
+        ->call('selectWorkOrder', $newWorkOrder->id)
+        ->assertSee('Start Work (In Progress)')
+        ->call('transitionStatus', WorkOrderStatus::InProgress->value)
+        ->assertSet('feedbackMessage', 'Work order updated to status: in_progress.');
+
+    expect($newWorkOrder->fresh()->status)->toBe(WorkOrderStatus::InProgress);
+});

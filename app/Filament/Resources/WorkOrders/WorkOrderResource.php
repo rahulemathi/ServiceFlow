@@ -122,6 +122,7 @@ class WorkOrderResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->poll('3s')
             ->columns([
                 TextColumn::make('work_order_number')->searchable()->sortable(),
                 TextColumn::make('title')->searchable()->limit(50),
@@ -135,6 +136,27 @@ class WorkOrderResource extends Resource
                 SelectFilter::make('status')->options(FilamentOptions::enum(WorkOrderStatus::cases())),
             ])
             ->recordActions([
+                Action::make('assign')
+                    ->label('Assign')
+                    ->icon(Heroicon::OutlinedUserGroup)
+                    ->visible(fn (WorkOrder $record): bool => ! in_array(
+                        $record->status,
+                        [WorkOrderStatus::Completed, WorkOrderStatus::Cancelled],
+                        true,
+                    ) && (Filament::auth()->user()?->isOrganizationAdmin() || Filament::auth()->user()?->isDispatcher() || Filament::auth()->user()?->isServiceManager()))
+                    ->schema([
+                        Select::make('assigned_to_user_id')
+                            ->label('Technician')
+                            ->options(FilamentOptions::technicians())
+                            ->required()
+                            ->searchable(),
+                    ])
+                    ->fillForm(fn (WorkOrder $record): array => [
+                        'assigned_to_user_id' => $record->assigned_to_user_id,
+                    ])
+                    ->action(function (WorkOrder $record, array $data): void {
+                        $record->update(['assigned_to_user_id' => $data['assigned_to_user_id']]);
+                    }),
                 Action::make('schedule')
                     ->schema([
                         DateTimePicker::make('scheduled_start_at')->required()->seconds(false),

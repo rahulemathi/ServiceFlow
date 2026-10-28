@@ -18,6 +18,8 @@ class ServiceOverviewWidget extends StatsOverviewWidget
 {
     use InteractsWithServiceFlowFilters;
 
+    protected ?string $pollingInterval = '15s';
+
     public static function canView(): bool
     {
         /** @var User|null $user */

@@ -18,6 +18,8 @@ class UpcomingWorkOrdersWidget extends TableWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected ?string $pollingInterval = '15s';
+
     public static function canView(): bool
     {
         /** @var User|null $user */

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Events\WorkOrderAssigned;
+use App\Events\WorkOrderUpdated;
 use App\UserRole;
 use App\WorkOrderStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -33,6 +35,29 @@ class WorkOrder extends Model
     {
         static::creating(function (self $workOrder): void {
             $workOrder->work_order_number ??= 'WO-'.Str::upper((string) Str::ulid());
+        });
+
+        static::created(function (self $workOrder): void {
+            if ($workOrder->assigned_to_user_id !== null) {
+                WorkOrderAssigned::dispatch($workOrder, "New work order {$workOrder->work_order_number} has been assigned.");
+            } else {
+                WorkOrderUpdated::dispatch($workOrder, "New work order {$workOrder->work_order_number} created.");
+            }
+        });
+
+        static::updated(function (self $workOrder): void {
+            if ($workOrder->wasChanged('assigned_to_user_id')) {
+                if ($workOrder->assigned_to_user_id !== null) {
+                    WorkOrderAssigned::dispatch($workOrder, "Work order {$workOrder->work_order_number} has been assigned.");
+                } else {
+                    WorkOrderUpdated::dispatch($workOrder, "Work order {$workOrder->work_order_number} was unassigned.");
+                }
+            } elseif ($workOrder->wasChanged('status')) {
+                $statusName = is_object($workOrder->status) ? $workOrder->status->value : $workOrder->status;
+                WorkOrderUpdated::dispatch($workOrder, "Work order {$workOrder->work_order_number} status updated to {$statusName}.");
+            } else {
+                WorkOrderUpdated::dispatch($workOrder);
+            }
         });
 
         static::saving(function (self $workOrder): void {
@@ -67,7 +92,7 @@ class WorkOrder extends Model
     {
         $currentStatus = $this->status;
         $allowedTransitions = match ($currentStatus) {
-            WorkOrderStatus::New => [WorkOrderStatus::Scheduled, WorkOrderStatus::Cancelled],
+            WorkOrderStatus::New => [WorkOrderStatus::Scheduled, WorkOrderStatus::InProgress, WorkOrderStatus::Cancelled],
             WorkOrderStatus::Scheduled => [WorkOrderStatus::InProgress, WorkOrderStatus::Cancelled],
             WorkOrderStatus::InProgress => [WorkOrderStatus::OnHold, WorkOrderStatus::Completed],
             WorkOrderStatus::OnHold => [WorkOrderStatus::InProgress, WorkOrderStatus::Cancelled],
@@ -87,6 +112,10 @@ class WorkOrder extends Model
             throw ValidationException::withMessages([
                 'scheduled_start_at' => 'A work order requires start and end times before it can be scheduled.',
             ]);
+        }
+
+        if ($status === WorkOrderStatus::InProgress && $this->scheduled_start_at === null) {
+            $this->scheduled_start_at = now();
         }
 
         $this->status = $status;

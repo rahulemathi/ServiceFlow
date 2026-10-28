@@ -38,6 +38,44 @@ class TechnicianWorkspace extends Component
 
     public ?string $errorMessage = null;
 
+    /**
+     * @return array<string, string>
+     */
+    public function getListeners(): array
+    {
+        $userId = auth()->id();
+
+        if (! $userId) {
+            return [];
+        }
+
+        return [
+            "echo-private:technician.{$userId},.work-order.assigned" => 'onWorkOrderAssigned',
+            "echo-private:technician.{$userId},.work-order.updated" => 'onWorkOrderUpdated',
+            'refreshWorkspace' => '$refresh',
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $payload
+     */
+    public function onWorkOrderAssigned(?array $payload = null): void
+    {
+        $woNumber = $payload['work_order_number'] ?? 'Work order';
+        $title = $payload['title'] ?? '';
+        $this->feedbackMessage = "🔔 New Assignment: {$woNumber} — {$title}";
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $payload
+     */
+    public function onWorkOrderUpdated(?array $payload = null): void
+    {
+        if (! empty($payload['action_note'])) {
+            $this->feedbackMessage = "ℹ️ {$payload['action_note']}";
+        }
+    }
+
     public function mount(?WorkOrder $workOrder = null): void
     {
         /** @var User|null $user */
@@ -267,7 +305,13 @@ class TechnicianWorkspace extends Component
         // Tab Filtering
         $workOrders = (clone $baseQuery)
             ->when($this->activeTab === 'today', function (Builder $query) use ($today): void {
-                $query->whereDate('scheduled_start_at', $today);
+                $query->where(function (Builder $sub) use ($today): void {
+                    $sub->whereDate('scheduled_start_at', $today)
+                        ->orWhere(function (Builder $nested) use ($today): void {
+                            $nested->whereNull('scheduled_start_at')
+                                ->whereDate('created_at', $today);
+                        });
+                });
             })
             ->when($this->activeTab === 'in_progress', function (Builder $query): void {
                 $query->whereIn('status', [WorkOrderStatus::InProgress->value, WorkOrderStatus::OnHold->value]);
@@ -285,7 +329,13 @@ class TechnicianWorkspace extends Component
         // Metrics for summary cards
         $metrics = [
             'total' => (clone $baseQuery)->count(),
-            'today' => (clone $baseQuery)->whereDate('scheduled_start_at', $today)->count(),
+            'today' => (clone $baseQuery)->where(function (Builder $sub) use ($today): void {
+                $sub->whereDate('scheduled_start_at', $today)
+                    ->orWhere(function (Builder $nested) use ($today): void {
+                        $nested->whereNull('scheduled_start_at')
+                            ->whereDate('created_at', $today);
+                    });
+            })->count(),
             'in_progress' => (clone $baseQuery)->where('status', WorkOrderStatus::InProgress->value)->count(),
             'on_hold' => (clone $baseQuery)->where('status', WorkOrderStatus::OnHold->value)->count(),
             'completed' => (clone $baseQuery)->where('status', WorkOrderStatus::Completed->value)->count(),

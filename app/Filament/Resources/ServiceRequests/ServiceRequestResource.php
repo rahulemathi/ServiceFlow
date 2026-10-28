@@ -99,9 +99,22 @@ class ServiceRequestResource extends Resource
                     ->icon(Heroicon::OutlinedWrenchScrewdriver)
                     ->visible(fn (ServiceRequest $record): bool => ! $record->workOrder()->exists()
                         && $record->status !== ServiceRequestStatus::Cancelled)
-                    ->requiresConfirmation()
-                    ->action(function (ServiceRequest $record): void {
-                        DB::transaction(function () use ($record): void {
+                    ->schema([
+                        Select::make('assigned_to_user_id')
+                            ->label('Assign Technician (Optional)')
+                            ->options(FilamentOptions::technicians())
+                            ->searchable()
+                            ->placeholder('Unassigned (Assign later)'),
+                        DateTimePicker::make('scheduled_start_at')
+                            ->label('Target Start (Optional)')
+                            ->seconds(false),
+                        DateTimePicker::make('scheduled_end_at')
+                            ->label('Target End (Optional)')
+                            ->after('scheduled_start_at')
+                            ->seconds(false),
+                    ])
+                    ->action(function (ServiceRequest $record, array $data): void {
+                        DB::transaction(function () use ($record, $data): void {
                             $request = ServiceRequest::query()
                                 ->where('organization_id', Filament::getTenant()?->getKey())
                                 ->lockForUpdate()
@@ -111,6 +124,9 @@ class ServiceRequestResource extends Resource
                                 return;
                             }
 
+                            $hasSchedule = ! empty($data['scheduled_start_at']) && ! empty($data['scheduled_end_at']);
+                            $status = $hasSchedule ? WorkOrderStatus::Scheduled->value : WorkOrderStatus::New->value;
+
                             WorkOrder::create([
                                 'organization_id' => $request->organization_id,
                                 'branch_id' => $request->branch_id,
@@ -118,9 +134,12 @@ class ServiceRequestResource extends Resource
                                 'customer_id' => $request->customer_id,
                                 'customer_address_id' => $request->customer_address_id,
                                 'equipment_id' => $request->equipment_id,
+                                'assigned_to_user_id' => $data['assigned_to_user_id'] ?? null,
                                 'title' => $request->title,
                                 'description' => $request->description,
-                                'status' => WorkOrderStatus::New->value,
+                                'status' => $status,
+                                'scheduled_start_at' => $data['scheduled_start_at'] ?? null,
+                                'scheduled_end_at' => $data['scheduled_end_at'] ?? null,
                             ]);
 
                             $request->update(['status' => ServiceRequestStatus::Converted->value]);

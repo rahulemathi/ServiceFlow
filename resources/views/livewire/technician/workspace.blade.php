@@ -1,4 +1,91 @@
-<div class="space-y-6">
+<div class="space-y-6"
+    wire:poll.10s
+    x-data="{
+        realtimeToast: null,
+        toastTimeout: null,
+        init() {
+            if (window.Echo) {
+                const userId = {{ auth()->id() }};
+                window.Echo.private(`technician.${userId}`)
+                    .listen('.work-order.assigned', (e) => {
+                        this.triggerNotification({
+                            title: 'New Work Order Assigned',
+                            number: e.work_order_number,
+                            description: e.title + (e.customer_name ? ' • ' + e.customer_name : ''),
+                            type: 'assigned'
+                        });
+                        $wire.$refresh();
+                    })
+                    .listen('.work-order.updated', (e) => {
+                        this.triggerNotification({
+                            title: 'Work Order Updated',
+                            number: e.work_order_number,
+                            description: e.action_note || (e.title + ' status: ' + e.status),
+                            type: 'updated'
+                        });
+                        $wire.$refresh();
+                    });
+            }
+        },
+        triggerNotification(data) {
+            this.realtimeToast = data;
+            this.playNotificationSound();
+            if (this.toastTimeout) clearTimeout(this.toastTimeout);
+            this.toastTimeout = setTimeout(() => {
+                this.realtimeToast = null;
+            }, 7000);
+        },
+        playNotificationSound() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.setValueAtTime(880, now + 0.12); // A5
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.55);
+            } catch (err) {}
+        }
+    }">
+
+    <!-- Floating Real-Time Broadcast Toast -->
+    <template x-if="realtimeToast">
+        <div class="fixed top-20 right-4 sm:right-8 z-50 max-w-md w-full bg-slate-900 text-white rounded-2xl p-4 shadow-2xl border border-blue-500/40 ring-4 ring-blue-500/10 flex items-start space-x-3.5 animate-bounce-short transition"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-y-[-10px] scale-95"
+            x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform scale-100"
+            x-transition:leave-end="opacity-0 transform scale-95">
+            <div class="w-10 h-10 rounded-xl bg-blue-600/30 text-blue-400 border border-blue-500/30 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-blue-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-400" x-text="realtimeToast.title"></span>
+                    <span class="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-mono" x-text="realtimeToast.number"></span>
+                </div>
+                <p class="text-sm font-medium text-slate-100 mt-1 truncate" x-text="realtimeToast.description"></p>
+                <div class="mt-2 flex items-center space-x-2">
+                    <button @click="$wire.setTab('today'); realtimeToast = null" class="text-xs font-semibold text-blue-400 hover:text-blue-300 underline">
+                        View Assignment &rarr;
+                    </button>
+                </div>
+            </div>
+            <button @click="realtimeToast = null" class="text-slate-400 hover:text-white font-bold p-1">&times;</button>
+        </div>
+    </template>
+
     <!-- Notifications / Alerts -->
     @if ($feedbackMessage)
         <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-800 flex items-center justify-between shadow-xs">
@@ -203,7 +290,7 @@
                         <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                             <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Job Workflow Actions</span>
                             <div class="flex flex-wrap gap-2">
-                                @if ($selectedWorkOrder->status === \App\WorkOrderStatus::Scheduled)
+                                @if ($selectedWorkOrder->status === \App\WorkOrderStatus::New || $selectedWorkOrder->status === \App\WorkOrderStatus::Scheduled)
                                     <button wire:click="transitionStatus('in_progress')" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold text-xs hover:bg-blue-700 shadow-xs flex items-center gap-1.5 transition">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
                                         Start Work (In Progress)

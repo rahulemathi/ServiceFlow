@@ -24,7 +24,13 @@
                             </svg>
                         </div>
                         <div>
-                            <span class="text-base font-semibold tracking-tight text-white block leading-none">ServiceFlow</span>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-base font-semibold tracking-tight text-white block leading-none">ServiceFlow</span>
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                    <span class="w-1.5 h-1.5 mr-1 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    Live Dispatch
+                                </span>
+                            </div>
                             <span class="text-xs text-blue-400 font-medium">Technician Workspace</span>
                         </div>
                     </div>
