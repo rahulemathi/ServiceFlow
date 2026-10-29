@@ -1129,21 +1129,18 @@
                         </button>
                     </div>
 
-                    <!-- Video Placeholder Container -->
-                    <div class="mt-6 aspect-video rounded-2xl bg-slate-950 border border-slate-800 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
-                        <div class="w-16 h-16 rounded-full bg-blue-600/90 text-white flex items-center justify-center shadow-lg shadow-blue-600/30 mb-4 cursor-pointer hover:scale-105 transition-transform">
-                            <x-heroicon-s-play class="w-8 h-8 ml-1" />
-                        </div>
-                        <h4 class="text-base font-bold text-white">Interactive Walkthrough & Feature Tour</h4>
-                        <p class="mt-1.5 text-xs text-slate-400 max-w-md">
-                            See how dispatchers schedule work orders, how technicians update status on-site, and how invoices generate automatically upon job completion.
-                        </p>
-                        <div class="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-400">
-                            <span class="px-2.5 py-1 rounded bg-slate-800">1. Customer Requests</span>
-                            <span class="px-2.5 py-1 rounded bg-slate-800">2. Dispatch Scheduling</span>
-                            <span class="px-2.5 py-1 rounded bg-slate-800">3. Work Orders</span>
-                            <span class="px-2.5 py-1 rounded bg-slate-800">4. Billing & Payments</span>
-                        </div>
+                    <!-- Video Container -->
+                    <div class="mt-6 aspect-video rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden">
+                        <video
+                            id="demo-video"
+                            class="w-full h-full object-cover rounded-2xl"
+                            controls
+                            preload="metadata"
+                            poster=""
+                        >
+                            <source src="{{ asset('video/Sequence 01.mp4') }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
                     </div>
 
                     <div class="mt-6 flex items-center justify-end gap-3">
@@ -1260,11 +1257,23 @@
                 const closeDemoBtn = document.getElementById('btn-close-demo-modal');
                 const closeDemoBtn2 = document.getElementById('btn-close-demo-modal-2');
                 const demoBackdrop = document.getElementById('demo-modal-backdrop');
+                const demoVideo = document.getElementById('demo-video');
 
-                if (openDemoBtn) openDemoBtn.addEventListener('click', () => toggleModal('demo-modal', true));
-                if (closeDemoBtn) closeDemoBtn.addEventListener('click', () => toggleModal('demo-modal', false));
-                if (closeDemoBtn2) closeDemoBtn2.addEventListener('click', () => toggleModal('demo-modal', false));
-                if (demoBackdrop) demoBackdrop.addEventListener('click', () => toggleModal('demo-modal', false));
+                function openDemoModal() {
+                    toggleModal('demo-modal', true);
+                }
+
+                function closeDemoModal() {
+                    toggleModal('demo-modal', false);
+                    if (demoVideo) {
+                        demoVideo.pause();
+                    }
+                }
+
+                if (openDemoBtn) openDemoBtn.addEventListener('click', openDemoModal);
+                if (closeDemoBtn) closeDemoBtn.addEventListener('click', closeDemoModal);
+                if (closeDemoBtn2) closeDemoBtn2.addEventListener('click', closeDemoModal);
+                if (demoBackdrop) demoBackdrop.addEventListener('click', closeDemoModal);
 
                 // Privacy Modal Handlers
                 const openPrivacyBtn = document.getElementById('btn-open-privacy');
@@ -1291,7 +1300,7 @@
                 // ESC key closes any open modal or menu
                 window.addEventListener('keydown', function (e) {
                     if (e.key === 'Escape') {
-                        toggleModal('demo-modal', false);
+                        closeDemoModal();
                         toggleModal('privacy-modal', false);
                         toggleModal('terms-modal', false);
                         if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
