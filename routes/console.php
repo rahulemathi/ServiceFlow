@@ -4,6 +4,7 @@ use App\MaintenanceContractStatus;
 use App\Models\MaintenanceContract;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -25,3 +26,5 @@ Artisan::command('serviceflow:generate-maintenance-work-orders', function () {
 
     $this->info("Generated {$count} maintenance work order(s).");
 })->purpose('Generate recurring work orders for active maintenance contracts due on or before today');
+
+Schedule::command('telescope:prune --hours=3')->everyThreeHours();
