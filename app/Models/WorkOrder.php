@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-#[Fillable(['organization_id', 'branch_id', 'service_request_id', 'customer_id', 'customer_address_id', 'equipment_id', 'assigned_to_user_id', 'title', 'description', 'status', 'status_reason', 'scheduled_start_at', 'scheduled_end_at', 'completed_at', 'completion_notes', 'customer_signature_name', 'customer_signed_at', 'supervisor_approved_by', 'supervisor_approved_at', 'supervisor_signature_notes', 'has_overlap_override', 'overlap_override_reason', 'overlap_override_by_id'])]
+#[Fillable(['organization_id', 'branch_id', 'service_request_id', 'maintenance_contract_id', 'customer_id', 'customer_address_id', 'equipment_id', 'assigned_to_user_id', 'title', 'description', 'status', 'status_reason', 'scheduled_start_at', 'scheduled_end_at', 'completed_at', 'completion_notes', 'customer_signature_name', 'customer_signed_at', 'supervisor_approved_by', 'supervisor_approved_at', 'supervisor_signature_notes', 'has_overlap_override', 'overlap_override_reason', 'overlap_override_by_id'])]
 class WorkOrder extends Model
 {
     protected $attributes = [
@@ -282,6 +282,14 @@ class WorkOrder extends Model
     public function serviceRequest(): BelongsTo
     {
         return $this->belongsTo(ServiceRequest::class);
+    }
+
+    /**
+     * @return BelongsTo<MaintenanceContract, $this>
+     */
+    public function maintenanceContract(): BelongsTo
+    {
+        return $this->belongsTo(MaintenanceContract::class);
     }
 
     public function customer(): BelongsTo

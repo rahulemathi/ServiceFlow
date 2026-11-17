@@ -17,6 +17,7 @@ use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -114,8 +115,42 @@ class MaintenanceContractResource extends Resource
                                 return;
                             }
 
-                            $contract->generateWorkOrder();
+                            $wo = $contract->generateWorkOrder();
+                            if (! $wo) {
+                                Notification::make()
+                                    ->title('Work order already generated')
+                                    ->body('A work order has already been generated for this contract on the scheduled date.')
+                                    ->warning()
+                                    ->send();
+                            } else {
+                                Notification::make()
+                                    ->title('Work order generated')
+                                    ->body("Work order {$wo->work_order_number} created successfully.")
+                                    ->success()
+                                    ->send();
+                            }
                         });
+                    }),
+                Action::make('renewContract')
+                    ->label('Renew Contract')
+                    ->icon(Heroicon::OutlinedArrowPath)
+                    ->schema([
+                        DatePicker::make('new_ends_at')
+                            ->label('New Contract Expiry Date')
+                            ->required()
+                            ->after('today'),
+                        TextInput::make('amount')
+                            ->label('Renewal Contract Amount')
+                            ->numeric()
+                            ->step(0.01)
+                            ->prefix('INR'),
+                    ])
+                    ->fillForm(fn (MaintenanceContract $record): array => [
+                        'amount' => $record->amount,
+                    ])
+                    ->action(function (MaintenanceContract $record, array $data): void {
+                        $record->renew($data['new_ends_at'], isset($data['amount']) ? (float) $data['amount'] : null);
+                        Notification::make()->title('Maintenance contract renewed successfully.')->success()->send();
                     }),
                 EditAction::make(),
             ])
