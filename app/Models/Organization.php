@@ -30,6 +30,11 @@ class Organization extends Model implements HasName
         return $this->hasMany(Membership::class);
     }
 
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(OrganizationInvitation::class);
+    }
+
     public function customers(): HasMany
     {
         return $this->hasMany(Customer::class);

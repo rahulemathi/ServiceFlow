@@ -49,9 +49,14 @@ Milestone 0 (**Security and organization-settings foundation**) is complete and 
   - Tenant organization profile management (`EditOrganizationProfile` registered as `->tenantProfile()`), restricted exclusively to Organization Owners and Platform Admins.
   - Tenant onboarding and registration (`RegisterOrganization` registered as `->tenantRegistration()`), enabling new users/owners to create an organization with an auto-provisioned owner membership and default Main branch.
   - 5 feature tests covering organization registration, owner profile editing, unauthorized access denial, and cross-tenant profile isolation.
+- **Increment 2: Secure Expiring Token-Based Organization Invitations** *(Completed & Verified)*
+  - `OrganizationInvitation` model and migration with secure 40-character random token, 7-day expiration, and single-use `accepted_at` timestamp.
+  - Dedicated invitation acceptance flow supporting both new account registration with password hashing, and seamless joining for existing authenticated users.
+  - UI integration in `ManageTeamMembers` with `inviteMember` header action (role escalation protections enforced) and `pendingInvitations` modal with revoke capability.
+  - 10 comprehensive feature tests covering creation, authorization boundaries, token expiration, acceptance for new/existing users, and invitation revocation.
 
-## Next increment: Milestone 1, Increment 2 proposal
+## Next increment: Milestone 1, Increment 3 proposal
 
 The recommended next increment for Milestone 1 is:
-- Secure, token-based expiring member invitations with accept/revoke lifecycle.
-- Enforcing server-side branch restrictions across operational resources.
+- Branch scoping and operational resource assignment (technicians/dispatchers restricted to assigned branches on Work Orders, Equipment, and Service Requests).
+- Strict server-side branch validation and authorization on operational forms and queries.
