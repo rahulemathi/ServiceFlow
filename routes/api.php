@@ -2,8 +2,17 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\WorkOrderApiController;
+use App\Http\Controllers\BillingWebhookController;
 use App\Http\Middleware\EnsureApiTenantScope;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Webhook Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/webhooks/billing', [BillingWebhookController::class, 'handle'])->name('api.webhooks.billing');
 
 /*
 |--------------------------------------------------------------------------

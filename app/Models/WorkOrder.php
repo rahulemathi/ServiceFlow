@@ -40,6 +40,13 @@ class WorkOrder extends Model
         static::creating(function (self $workOrder): void {
             $workOrder->work_order_number ??= 'WO-'.Str::upper((string) Str::ulid());
             $workOrder->organization_id ??= Filament::getTenant()?->getKey();
+
+            $org = $workOrder->organization ?? ($workOrder->organization_id ? Organization::find($workOrder->organization_id) : null);
+            if ($org && ! $org->canCreateWorkOrder()) {
+                throw ValidationException::withMessages([
+                    'title' => 'Cannot create work order: subscription is suspended or monthly work order limit has been reached.',
+                ]);
+            }
         });
 
         static::created(function (self $workOrder): void {

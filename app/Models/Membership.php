@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Validation\ValidationException;
 use LogicException;
 
 /**
@@ -71,11 +72,28 @@ class Membership extends Model
 
     protected static function booted(): void
     {
+        static::creating(function (self $membership): void {
+            $status = MembershipStatus::tryFrom((string) ($membership->getAttributes()['status'] ?? ''));
+            if ($status === MembershipStatus::Active && $membership->organization && ! $membership->organization->canAddUser()) {
+                throw ValidationException::withMessages([
+                    'user_id' => 'Organization active user limit exceeded for current plan. Please upgrade your subscription.',
+                ]);
+            }
+        });
+
         static::saving(function (self $membership): void {
             $status = MembershipStatus::tryFrom((string) ($membership->getAttributes()['status'] ?? ''));
 
             if ($status === null) {
                 throw new LogicException('A membership must use a valid status.');
+            }
+
+            if ($membership->exists && $membership->isDirty('status') && $status === MembershipStatus::Active) {
+                if ($membership->organization && ! $membership->organization->canAddUser()) {
+                    throw ValidationException::withMessages([
+                        'user_id' => 'Organization active user limit exceeded for current plan. Please upgrade your subscription.',
+                    ]);
+                }
             }
         });
     }
