@@ -65,6 +65,49 @@ class Payment extends Model
         });
     }
 
+    public static function recordRefund(Invoice $invoice, array $attributes): self
+    {
+        return DB::transaction(function () use ($invoice, $attributes): self {
+            $invoiceQuery = Invoice::query()
+                ->where('organization_id', $invoice->organization_id)
+                ->lockForUpdate();
+
+            $tenant = Filament::getTenant();
+
+            if ($tenant instanceof Organization) {
+                $invoiceQuery->where('organization_id', $tenant->getKey());
+            }
+
+            $lockedInvoice = $invoiceQuery->findOrFail($invoice->getKey());
+            $amount = round((float) $attributes['amount'], 2);
+
+            $totalPaid = (float) $lockedInvoice->payments()->where('amount', '>', 0)->sum('amount');
+            $totalRefunded = abs((float) $lockedInvoice->payments()->where('amount', '<', 0)->sum('amount'));
+            $refundable = round($totalPaid - $totalRefunded, 2);
+
+            if ($amount <= 0 || $amount > $refundable) {
+                throw ValidationException::withMessages([
+                    'amount' => "Refund amount must be greater than zero and cannot exceed net amount paid ({$refundable}).",
+                ]);
+            }
+
+            $payment = $lockedInvoice->payments()->create([
+                'organization_id' => $lockedInvoice->organization_id,
+                'branch_id' => $lockedInvoice->branch_id,
+                'recorded_by_user_id' => Filament::auth()->id() ?? auth()->id(),
+                'amount' => -$amount,
+                'received_at' => $attributes['received_at'] ?? today()->toDateString(),
+                'method' => $attributes['method'] ?? 'refund',
+                'reference' => $attributes['reference'] ?? null,
+                'notes' => $attributes['notes'] ?? 'Customer refund / credit adjustment',
+            ]);
+
+            $lockedInvoice->refreshPaymentStatus();
+
+            return $payment;
+        });
+    }
+
     protected static function booted(): void
     {
         static::created(function (self $payment): void {

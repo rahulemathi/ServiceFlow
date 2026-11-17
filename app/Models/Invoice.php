@@ -55,6 +55,11 @@ class Invoice extends Model
         $this->refreshPaymentStatus();
     }
 
+    public function getTotalPaidAttribute(): float
+    {
+        return (float) $this->payments()->sum('amount');
+    }
+
     public function refreshPaymentStatus(): void
     {
         if ($this->status === CommercialStatus::Void || $this->status === CommercialStatus::Draft) {
@@ -64,6 +69,7 @@ class Invoice extends Model
         $paid = (float) $this->payments()->sum('amount');
         $balance = max(0.0, round((float) $this->total - $paid, 2));
         $status = match (true) {
+            $paid <= 0 => CommercialStatus::Sent,
             $balance <= 0 => CommercialStatus::Paid,
             $this->due_at !== null && $this->due_at->isBefore(today()) => CommercialStatus::Overdue,
             $paid > 0 => CommercialStatus::PartiallyPaid,
@@ -71,6 +77,52 @@ class Invoice extends Model
         };
 
         $this->forceFill(['status' => $status])->saveQuietly();
+    }
+
+    /**
+     * @return array{type: string, rate: float, tax_amount: float, cgst: float, sgst: float, igst: float}
+     */
+    public function getTaxBreakdown(): array
+    {
+        $rate = (float) $this->tax_rate;
+        $taxAmount = (float) $this->tax_amount;
+
+        if ($rate <= 0 || $taxAmount <= 0) {
+            return [
+                'type' => 'exempt',
+                'rate' => 0.0,
+                'tax_amount' => 0.0,
+                'cgst' => 0.0,
+                'sgst' => 0.0,
+                'igst' => 0.0,
+            ];
+        }
+
+        $branchState = $this->branch?->state ?? 'Default';
+        $customerState = $this->customer?->primaryAddress?->region ?? $this->customer?->primaryAddress?->state ?? $branchState;
+        $isInterState = strtolower(trim((string) $branchState)) !== strtolower(trim((string) $customerState));
+
+        if ($isInterState) {
+            return [
+                'type' => 'inter_state',
+                'rate' => $rate,
+                'tax_amount' => $taxAmount,
+                'cgst' => 0.0,
+                'sgst' => 0.0,
+                'igst' => $taxAmount,
+            ];
+        }
+
+        $halfTax = round($taxAmount / 2, 2);
+
+        return [
+            'type' => 'intra_state',
+            'rate' => $rate,
+            'tax_amount' => $taxAmount,
+            'cgst' => $halfTax,
+            'sgst' => round($taxAmount - $halfTax, 2),
+            'igst' => 0.0,
+        ];
     }
 
     public function getBalanceAttribute(): float
