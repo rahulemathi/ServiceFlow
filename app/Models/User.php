@@ -182,6 +182,11 @@ class User extends Authenticatable implements FilamentUser, HasTenants
             return true;
         }
 
+        // Allow authenticated users to access the panel registration route to onboard an organization
+        if (request()->routeIs('filament.admin.tenant.registration')) {
+            return true;
+        }
+
         $activeMembership = $this->currentMembership();
         if (! $activeMembership) {
             return false;

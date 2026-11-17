@@ -12,7 +12,7 @@ Complete tenant/security foundations and production safety before exposing addit
 | Order | Milestone | Priority | Dependencies | Acceptance criteria | Status |
 |---|---|---|---|---|---|
 | 0 | Security and organization-settings foundation | **Completed** | Existing organization, membership, and role foundation | No shared production default passwords; organization owners cannot affect another tenant's branding; SMTP secrets are not written to `.env` by request handlers; membership edits cannot silently alter a shared account's credentials; focused tenant-boundary tests pass. | **Implemented & Verified** |
-| 1 | Organization onboarding, branches, members, and authorization | **Critical / Next** | Milestone 0; existing organization and membership schema | An owner/admin can onboard and configure an organization and manage branches/members. Secure expiring invitations can be accepted/revoked. Role and branch permissions are enforced server-side. Multiple memberships behave correctly. Cross-tenant ID and branch access tests pass. Important actions produce an audit record. | Planned |
+| 1 | Organization onboarding, branches, members, and authorization | **Critical / In Progress** | Milestone 0; existing organization and membership schema | An owner/admin can onboard and configure an organization and manage branches/members. Secure expiring invitations can be accepted/revoked. Role and branch permissions are enforced server-side. Multiple memberships behave correctly. Cross-tenant ID and branch access tests pass. Important actions produce an audit record. | In Progress (Increment 1: Onboarding & Profile Verified) |
 | 2 | Complete CRM and equipment lifecycle | **High** | Milestone 1; current customers, addresses, equipment | Customer timeline joins service and financial history; multiple contacts and tenant-scoped notes/documents are supported. Equipment service history, warranty tracking, and lifecycle state work. QR lookup cannot disclose cross-tenant equipment. |
 | 3 | Complete request and work-order lifecycle | **Critical** | Milestone 1 and CRM entities from milestone 2 | Request intake and attachments/comments are tenant-authorized; explicit status transitions and reasons are recorded; work-order checklist/evidence requirements and supervisor/customer sign-off are enforced; all cross-tenant mutations are rejected. |
 | 4 | Dispatch and technician workspace | **Critical** | Milestone 3; technician/member/branch authorization from milestone 1 | Dispatchers see availability/workload; assignment prevents overlapping bookings unless an authorized override is audited. Technicians access only assigned work in their selected organization and can complete required job execution steps. Test multiple memberships and direct Livewire action calls. |
@@ -43,9 +43,15 @@ Milestone 0 (**Security and organization-settings foundation**) is complete and 
 - Membership editing is decoupled from global user account credentials (name, email, password, authentication state).
 - 29 focused regression tests cover all Milestone 0 security guarantees; total suite has 129 passing tests.
 
-## Next increment: Milestone 1 proposal
+## Milestone 1 Implementation Progress
 
-With Milestone 0 completed, the recommended first increment for **Milestone 1** (Organization onboarding, branches, members, and authorization) is:
-- Organization onboarding flow and organization profile management.
-- Secure, token-based, expiring member invitations with accept/revoke lifecycle.
-- Server-side branch access enforcement across resources.
+- **Increment 1 (Completed & Verified):**
+  - Tenant organization profile management (`EditOrganizationProfile` registered as `->tenantProfile()`), restricted exclusively to Organization Owners and Platform Admins.
+  - Tenant onboarding and registration (`RegisterOrganization` registered as `->tenantRegistration()`), enabling new users/owners to create an organization with an auto-provisioned owner membership and default Main branch.
+  - 5 feature tests covering organization registration, owner profile editing, unauthorized access denial, and cross-tenant profile isolation.
+
+## Next increment: Milestone 1, Increment 2 proposal
+
+The recommended next increment for Milestone 1 is:
+- Secure, token-based expiring member invitations with accept/revoke lifecycle.
+- Enforcing server-side branch restrictions across operational resources.

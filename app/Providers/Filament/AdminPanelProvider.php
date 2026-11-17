@@ -4,6 +4,8 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard as ServiceFlowDashboard;
+use App\Filament\Pages\Tenancy\EditOrganizationProfile;
+use App\Filament\Pages\Tenancy\RegisterOrganization;
 use App\Http\Controllers\Auth\ForceChangePasswordController;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\EnsurePasswordIsChanged;
@@ -40,6 +42,8 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(fn (): string => SystemSetting::getFaviconUrl())
             ->login(Login::class)
             ->tenant(Organization::class, slugAttribute: 'slug', ownershipRelationship: 'organization')
+            ->tenantRegistration(RegisterOrganization::class)
+            ->tenantProfile(EditOrganizationProfile::class)
             ->colors(fn (): array => [
                 'primary' => SystemSetting::getPrimaryColor(),
             ])
