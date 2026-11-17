@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CustomerAddresses;
 
+use App\Filament\Resources\Concerns\ScopesToPermittedBranches;
 use App\Filament\Resources\CustomerAddresses\Pages\ManageCustomerAddresses;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Models\CustomerAddress;
@@ -20,10 +21,13 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class CustomerAddressResource extends Resource
 {
+    use ScopesToPermittedBranches;
+
     protected static ?string $model = CustomerAddress::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
@@ -56,12 +60,21 @@ class CustomerAddressResource extends Resource
         return $user && ($user->isOrganizationAdmin() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return static::scopeQueryToPermittedBranches(parent::getEloquentQuery());
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('customer_id')->options(FilamentOptions::customers())->searchable()->required(),
-                Select::make('branch_id')->options(FilamentOptions::branches())->searchable()->placeholder('No branch'),
+                Select::make('branch_id')
+                    ->options(FilamentOptions::branches())
+                    ->rules(FilamentOptions::branchValidationRules())
+                    ->searchable()
+                    ->placeholder('No branch'),
                 TextInput::make('label')->maxLength(100),
                 TextInput::make('address_line_1')->required()->maxLength(255),
                 TextInput::make('address_line_2')->maxLength(255),

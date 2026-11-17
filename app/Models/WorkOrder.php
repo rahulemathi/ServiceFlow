@@ -6,6 +6,7 @@ use App\Events\WorkOrderAssigned;
 use App\Events\WorkOrderUpdated;
 use App\UserRole;
 use App\WorkOrderStatus;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -35,6 +36,7 @@ class WorkOrder extends Model
     {
         static::creating(function (self $workOrder): void {
             $workOrder->work_order_number ??= 'WO-'.Str::upper((string) Str::ulid());
+            $workOrder->organization_id ??= Filament::getTenant()?->getKey();
         });
 
         static::created(function (self $workOrder): void {
@@ -61,6 +63,8 @@ class WorkOrder extends Model
         });
 
         static::saving(function (self $workOrder): void {
+            $workOrder->organization_id ??= Filament::getTenant()?->getKey();
+
             if ($workOrder->assigned_to_user_id !== null) {
                 $isActiveTechnician = Membership::query()
                     ->where('organization_id', $workOrder->organization_id)

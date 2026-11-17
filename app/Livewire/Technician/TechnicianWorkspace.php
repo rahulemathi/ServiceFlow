@@ -108,6 +108,10 @@ class TechnicianWorkspace extends Component
             abort(403, 'Unauthorized access. You may only view work orders explicitly assigned to you.');
         }
 
+        if (! $user->hasBranchAccess($workOrder->branch_id, $tenant)) {
+            abort(403, 'Unauthorized access. You do not have access to this branch.');
+        }
+
         $this->selectedWorkOrderId = $workOrder->id;
         $this->completionNotes = $workOrder->completion_notes ?? '';
     }
@@ -271,6 +275,10 @@ class TechnicianWorkspace extends Component
             abort(403, 'You are not authorized to view or edit this work order.');
         }
 
+        if (! $user->hasBranchAccess($workOrder->branch_id, $tenant)) {
+            abort(403, 'Unauthorized access. You do not have access to this branch.');
+        }
+
         return $workOrder;
     }
 
@@ -301,6 +309,14 @@ class TechnicianWorkspace extends Component
             ->where('organization_id', $tenant?->getKey())
             ->where('assigned_to_user_id', $user->id)
             ->with(['customer', 'address', 'equipment']);
+
+        $permittedBranches = $user->permittedBranchIds($tenant);
+        if (! empty($permittedBranches)) {
+            $baseQuery->where(function (Builder $b) use ($permittedBranches): void {
+                $b->whereIn('branch_id', $permittedBranches)
+                    ->orWhereNull('branch_id');
+            });
+        }
 
         // Tab Filtering
         $workOrders = (clone $baseQuery)

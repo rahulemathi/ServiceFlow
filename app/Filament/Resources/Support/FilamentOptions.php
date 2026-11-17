@@ -10,6 +10,7 @@ use App\Models\Invoice;
 use App\Models\User;
 use App\Models\WorkOrder;
 use App\UserRole;
+use Closure;
 use Filament\Facades\Filament;
 
 class FilamentOptions
@@ -34,11 +35,57 @@ class FilamentOptions
      */
     public static function branches(): array
     {
-        return Branch::query()
-            ->where('organization_id', Filament::getTenant()?->getKey())
+        $query = Branch::query()
+            ->where('organization_id', Filament::getTenant()?->getKey());
+
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+        if ($user && ! $user->isOrganizationAdmin() && ! $user->hasPlatformRole(UserRole::PlatformAdmin)) {
+            $permitted = $user->permittedBranchIds();
+            if (! empty($permitted)) {
+                $query->whereIn('id', $permitted);
+            }
+        }
+
+        return $query
             ->orderBy('name')
             ->pluck('name', 'id')
             ->all();
+    }
+
+    /**
+     * @return array<int, Closure>
+     */
+    public static function branchValidationRules(): array
+    {
+        return [
+            function (): Closure {
+                return function (string $attribute, mixed $value, Closure $fail): void {
+                    if (blank($value)) {
+                        return;
+                    }
+
+                    $tenantId = Filament::getTenant()?->getKey();
+                    /** @var Branch|null $branch */
+                    $branch = Branch::query()
+                        ->where('organization_id', $tenantId)
+                        ->where('id', $value)
+                        ->first();
+
+                    if (! $branch) {
+                        $fail('The selected branch does not exist in this organization.');
+
+                        return;
+                    }
+
+                    /** @var User|null $user */
+                    $user = Filament::auth()->user();
+                    if ($user && ! $user->hasBranchAccess($branch->id)) {
+                        $fail('You do not have permission to assign records to this branch.');
+                    }
+                };
+            },
+        ];
     }
 
     /**
@@ -142,14 +189,20 @@ class FilamentOptions
     /**
      * @return array<int, string>
      */
-    public static function technicians(): array
+    public static function technicians(?int $branchId = null): array
     {
         return User::query()
-            ->whereHas('memberships', function ($query): void {
+            ->whereHas('memberships', function ($query) use ($branchId): void {
                 $query
                     ->where('organization_id', Filament::getTenant()?->getKey())
                     ->where('status', 'active')
-                    ->whereHas('roles', fn ($roles) => $roles->where('role', UserRole::Technician->value));
+                    ->whereHas('roles', fn ($roles) => $roles->where('role', UserRole::Technician->value))
+                    ->when($branchId, function ($q) use ($branchId): void {
+                        $q->where(function ($sq) use ($branchId): void {
+                            $sq->whereDoesntHave('branches')
+                                ->orWhereHas('branches', fn ($bq) => $bq->where('branches.id', $branchId));
+                        });
+                    });
             })
             ->orderBy('name')
             ->pluck('name', 'id')

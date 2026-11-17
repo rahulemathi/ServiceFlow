@@ -2,13 +2,16 @@
 
 namespace App\Filament\Resources\WorkOrders;
 
+use App\Filament\Resources\Concerns\ScopesToPermittedBranches;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Filament\Resources\WorkOrders\Pages\ManageWorkOrders;
+use App\Models\Organization;
 use App\Models\User;
 use App\Models\WorkOrder;
 use App\UserRole;
 use App\WorkOrderStatus;
 use BackedEnum;
+use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
@@ -18,6 +21,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -28,6 +32,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class WorkOrderResource extends Resource
 {
+    use ScopesToPermittedBranches;
+
     protected static ?string $model = WorkOrder::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
@@ -74,14 +80,7 @@ class WorkOrderResource extends Resource
             $query->where('assigned_to_user_id', $user->id);
         }
 
-        $permittedBranches = $user->permittedBranchIds();
-        if (! empty($permittedBranches) && ! $user->isOrganizationAdmin() && ! $user->hasPlatformRole(UserRole::PlatformAdmin)) {
-            $query->where(function (Builder $b) use ($permittedBranches): void {
-                $b->whereIn('branch_id', $permittedBranches)->orWhereNull('branch_id');
-            });
-        }
-
-        return $query;
+        return static::scopeQueryToPermittedBranches($query);
     }
 
     public static function form(Schema $schema): Schema
@@ -89,15 +88,53 @@ class WorkOrderResource extends Resource
         return $schema
             ->components([
                 Select::make('customer_id')->options(FilamentOptions::customers())->searchable()->required(),
-                Select::make('branch_id')->options(FilamentOptions::branches())->searchable()->placeholder('No branch'),
+                Select::make('branch_id')
+                    ->options(FilamentOptions::branches())
+                    ->rules(FilamentOptions::branchValidationRules())
+                    ->searchable()
+                    ->live()
+                    ->placeholder('No branch'),
                 Select::make('customer_address_id')->options(FilamentOptions::addresses())->searchable()->placeholder('No address'),
                 Select::make('equipment_id')->options(FilamentOptions::equipment())->searchable()->placeholder('No equipment'),
                 Select::make('assigned_to_user_id')
                     ->label('Technician')
-                    ->options(FilamentOptions::technicians())
+                    ->options(fn (Get $get): array => FilamentOptions::technicians($get('branch_id') ? (int) $get('branch_id') : null))
                     ->searchable()
                     ->placeholder('Unassigned')
-                    ->disabled(fn (): bool => ! (Filament::auth()->user()?->isOrganizationAdmin() || Filament::auth()->user()?->isDispatcher())),
+                    ->disabled(fn (): bool => ! (Filament::auth()->user()?->isOrganizationAdmin() || Filament::auth()->user()?->isDispatcher()))
+                    ->rules([
+                        fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get): void {
+                            if (blank($value)) {
+                                return;
+                            }
+
+                            $tenant = Filament::getTenant();
+                            $organization = $tenant instanceof Organization ? $tenant : null;
+                            if (! $organization) {
+                                return;
+                            }
+
+                            /** @var User|null $technician */
+                            $technician = User::find($value);
+                            if (! $technician) {
+                                $fail('Selected technician does not exist.');
+
+                                return;
+                            }
+
+                            $membership = $technician->currentMembership($organization);
+                            if (! $membership || ! $membership->hasRole(UserRole::Technician)) {
+                                $fail('Selected user is not an active technician in this organization.');
+
+                                return;
+                            }
+
+                            $branchId = $get('branch_id');
+                            if ($branchId && ! $technician->hasBranchAccess($branchId, $organization)) {
+                                $fail('The selected technician is not assigned to this branch.');
+                            }
+                        },
+                    ]),
                 TextInput::make('title')->required()->maxLength(255),
                 Textarea::make('description')->rows(3)->columnSpanFull(),
                 DateTimePicker::make('scheduled_start_at')->seconds(false),

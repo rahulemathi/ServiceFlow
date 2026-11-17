@@ -12,7 +12,7 @@ Complete tenant/security foundations and production safety before exposing addit
 | Order | Milestone | Priority | Dependencies | Acceptance criteria | Status |
 |---|---|---|---|---|---|
 | 0 | Security and organization-settings foundation | **Completed** | Existing organization, membership, and role foundation | No shared production default passwords; organization owners cannot affect another tenant's branding; SMTP secrets are not written to `.env` by request handlers; membership edits cannot silently alter a shared account's credentials; focused tenant-boundary tests pass. | **Implemented & Verified** |
-| 1 | Organization onboarding, branches, members, and authorization | **Critical / In Progress** | Milestone 0; existing organization and membership schema | An owner/admin can onboard and configure an organization and manage branches/members. Secure expiring invitations can be accepted/revoked. Role and branch permissions are enforced server-side. Multiple memberships behave correctly. Cross-tenant ID and branch access tests pass. Important actions produce an audit record. | In Progress (Increment 1: Onboarding & Profile Verified) |
+| 1 | Organization onboarding, branches, members, and authorization | **Completed** | Milestone 0; existing organization and membership schema | An owner/admin can onboard and configure an organization and manage branches/members. Secure expiring invitations can be accepted/revoked. Role and branch permissions are enforced server-side. Multiple memberships behave correctly. Cross-tenant ID and branch access tests pass. | **Implemented & Verified** |
 | 2 | Complete CRM and equipment lifecycle | **High** | Milestone 1; current customers, addresses, equipment | Customer timeline joins service and financial history; multiple contacts and tenant-scoped notes/documents are supported. Equipment service history, warranty tracking, and lifecycle state work. QR lookup cannot disclose cross-tenant equipment. |
 | 3 | Complete request and work-order lifecycle | **Critical** | Milestone 1 and CRM entities from milestone 2 | Request intake and attachments/comments are tenant-authorized; explicit status transitions and reasons are recorded; work-order checklist/evidence requirements and supervisor/customer sign-off are enforced; all cross-tenant mutations are rejected. |
 | 4 | Dispatch and technician workspace | **Critical** | Milestone 3; technician/member/branch authorization from milestone 1 | Dispatchers see availability/workload; assignment prevents overlapping bookings unless an authorized override is audited. Technicians access only assigned work in their selected organization and can complete required job execution steps. Test multiple memberships and direct Livewire action calls. |
@@ -43,9 +43,9 @@ Milestone 0 (**Security and organization-settings foundation**) is complete and 
 - Membership editing is decoupled from global user account credentials (name, email, password, authentication state).
 - 29 focused regression tests cover all Milestone 0 security guarantees; total suite has 129 passing tests.
 
-## Milestone 1 Implementation Progress
+## Milestone 1 Implementation Progress (Completed & Verified)
 
-- **Increment 1 (Completed & Verified):**
+- **Increment 1: Onboarding & Profile Management** *(Completed & Verified)*
   - Tenant organization profile management (`EditOrganizationProfile` registered as `->tenantProfile()`), restricted exclusively to Organization Owners and Platform Admins.
   - Tenant onboarding and registration (`RegisterOrganization` registered as `->tenantRegistration()`), enabling new users/owners to create an organization with an auto-provisioned owner membership and default Main branch.
   - 5 feature tests covering organization registration, owner profile editing, unauthorized access denial, and cross-tenant profile isolation.
@@ -54,9 +54,19 @@ Milestone 0 (**Security and organization-settings foundation**) is complete and 
   - Dedicated invitation acceptance flow supporting both new account registration with password hashing, and seamless joining for existing authenticated users.
   - UI integration in `ManageTeamMembers` with `inviteMember` header action (role escalation protections enforced) and `pendingInvitations` modal with revoke capability.
   - 10 comprehensive feature tests covering creation, authorization boundaries, token expiration, acceptance for new/existing users, and invitation revocation.
+- **Increment 3: Branch Scoping & Operational Permissions Enforcement** *(Completed & Verified)*
+  - `ScopesToPermittedBranches` trait enforcing branch-level query isolation across all operational resources (`WorkOrders`, `ServiceRequests`, `Equipment`, `Customers`, `CustomerAddresses`, `MaintenanceContracts`, `Estimates`, `Invoices`).
+  - `FilamentOptions::branchValidationRules()` enforcing strict tenant-boundary and branch assignment validation on all branch inputs, rejecting cross-tenant branch IDs and unauthorized branch assignments.
+  - `FilamentOptions::branches()` dynamically scoped to the user's permitted branches (or all branches for admins).
+  - `FilamentOptions::technicians()` scoped to only technicians assigned to the selected branch.
+  - `TechnicianWorkspace` hard-scoped by the technician's permitted branches, rejecting out-of-branch work order selection with 403 Forbidden.
+  - `BranchResource` deletion protection preventing deletion of branches with active team members or operational records, and branch code uniqueness enforced per organization.
+  - 10 feature tests covering branch option scoping, work order query scoping, branch validation, cross-tenant rejection, technician assignment, equipment/service request scoping, technician workspace isolation, deletion protection, and branch code uniqueness.
 
-## Next increment: Milestone 1, Increment 3 proposal
+## Next milestone: Milestone 2 Proposal (Complete CRM and equipment lifecycle)
 
-The recommended next increment for Milestone 1 is:
-- Branch scoping and operational resource assignment (technicians/dispatchers restricted to assigned branches on Work Orders, Equipment, and Service Requests).
-- Strict server-side branch validation and authorization on operational forms and queries.
+The recommended next milestone is:
+- Customer timeline joining service and financial history.
+- Multiple contacts and tenant-scoped notes/documents per customer.
+- Equipment service history, warranty tracking, and lifecycle states (active, in repair, retired).
+- QR code lookup that strictly enforces tenant isolation and cannot disclose cross-tenant equipment.

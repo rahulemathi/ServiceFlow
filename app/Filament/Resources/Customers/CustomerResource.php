@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Customers;
 
+use App\Filament\Resources\Concerns\ScopesToPermittedBranches;
 use App\Filament\Resources\Customers\Pages\ManageCustomers;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Models\Customer;
@@ -20,10 +21,13 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class CustomerResource extends Resource
 {
+    use ScopesToPermittedBranches;
+
     protected static ?string $model = Customer::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
@@ -56,6 +60,11 @@ class CustomerResource extends Resource
         return $user && ($user->isOrganizationAdmin() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return static::scopeQueryToPermittedBranches(parent::getEloquentQuery());
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -65,6 +74,7 @@ class CustomerResource extends Resource
                 TextInput::make('phone')->tel()->maxLength(50),
                 Select::make('branch_id')
                     ->options(FilamentOptions::branches())
+                    ->rules(FilamentOptions::branchValidationRules())
                     ->searchable()
                     ->placeholder('All branches'),
                 Textarea::make('notes')->rows(4)->columnSpanFull(),

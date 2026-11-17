@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Invoices;
 
 use App\CommercialStatus;
+use App\Filament\Resources\Concerns\ScopesToPermittedBranches;
 use App\Filament\Resources\Invoices\Pages\ManageInvoices;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Models\Invoice;
@@ -30,6 +31,8 @@ use Illuminate\Validation\ValidationException;
 
 class InvoiceResource extends Resource
 {
+    use ScopesToPermittedBranches;
+
     protected static ?string $model = Invoice::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedReceiptPercent;
@@ -46,12 +49,21 @@ class InvoiceResource extends Resource
         return $user && ($user->isOrganizationAdmin() || $user->isAccountant() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return static::scopeQueryToPermittedBranches(parent::getEloquentQuery());
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('customer_id')->options(FilamentOptions::customers())->searchable()->required()->live(),
-                Select::make('branch_id')->options(FilamentOptions::branches())->searchable()->placeholder('No branch'),
+                Select::make('branch_id')
+                    ->options(FilamentOptions::branches())
+                    ->rules(FilamentOptions::branchValidationRules())
+                    ->searchable()
+                    ->placeholder('No branch'),
                 Select::make('work_order_id')
                     ->options(fn (Get $get): array => FilamentOptions::workOrdersForCustomer($get('customer_id')))
                     ->searchable()

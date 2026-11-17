@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Equipment;
 
+use App\Filament\Resources\Concerns\ScopesToPermittedBranches;
 use App\Filament\Resources\Equipment\Pages\ManageEquipment;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Models\Equipment;
@@ -21,10 +22,13 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class EquipmentResource extends Resource
 {
+    use ScopesToPermittedBranches;
+
     protected static ?string $model = Equipment::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
@@ -57,13 +61,22 @@ class EquipmentResource extends Resource
         return $user && ($user->isOrganizationAdmin() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return static::scopeQueryToPermittedBranches(parent::getEloquentQuery());
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 TextInput::make('name')->required()->maxLength(255),
                 Select::make('customer_id')->options(FilamentOptions::customers())->searchable()->required(),
-                Select::make('branch_id')->options(FilamentOptions::branches())->searchable()->placeholder('No branch'),
+                Select::make('branch_id')
+                    ->options(FilamentOptions::branches())
+                    ->rules(FilamentOptions::branchValidationRules())
+                    ->searchable()
+                    ->placeholder('No branch'),
                 TextInput::make('manufacturer')->maxLength(255),
                 TextInput::make('model')->maxLength(255),
                 TextInput::make('serial_number')->maxLength(255),

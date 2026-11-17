@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Estimates;
 
 use App\CommercialStatus;
+use App\Filament\Resources\Concerns\ScopesToPermittedBranches;
 use App\Filament\Resources\Estimates\Pages\ManageEstimates;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\Models\Estimate;
@@ -26,11 +27,14 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class EstimateResource extends Resource
 {
+    use ScopesToPermittedBranches;
+
     protected static ?string $model = Estimate::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
@@ -47,12 +51,21 @@ class EstimateResource extends Resource
         return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->isAccountant() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return static::scopeQueryToPermittedBranches(parent::getEloquentQuery());
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('customer_id')->options(FilamentOptions::customers())->searchable()->required()->live(),
-                Select::make('branch_id')->options(FilamentOptions::branches())->searchable()->placeholder('No branch'),
+                Select::make('branch_id')
+                    ->options(FilamentOptions::branches())
+                    ->rules(FilamentOptions::branchValidationRules())
+                    ->searchable()
+                    ->placeholder('No branch'),
                 Select::make('work_order_id')
                     ->options(fn (Get $get): array => FilamentOptions::workOrdersForCustomer($get('customer_id')))
                     ->searchable()

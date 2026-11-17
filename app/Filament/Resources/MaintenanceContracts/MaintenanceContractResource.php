@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MaintenanceContracts;
 
+use App\Filament\Resources\Concerns\ScopesToPermittedBranches;
 use App\Filament\Resources\MaintenanceContracts\Pages\ManageMaintenanceContracts;
 use App\Filament\Resources\Support\FilamentOptions;
 use App\MaintenanceContractStatus;
@@ -23,10 +24,13 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class MaintenanceContractResource extends Resource
 {
+    use ScopesToPermittedBranches;
+
     protected static ?string $model = MaintenanceContract::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
@@ -43,12 +47,21 @@ class MaintenanceContractResource extends Resource
         return $user && ($user->isOrganizationAdmin() || $user->isDispatcher() || $user->isServiceManager() || $user->hasPlatformRole(UserRole::PlatformAdmin));
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return static::scopeQueryToPermittedBranches(parent::getEloquentQuery());
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('customer_id')->options(FilamentOptions::customers())->searchable()->required()->live(),
-                Select::make('branch_id')->options(FilamentOptions::branches())->searchable()->placeholder('No branch'),
+                Select::make('branch_id')
+                    ->options(FilamentOptions::branches())
+                    ->rules(FilamentOptions::branchValidationRules())
+                    ->searchable()
+                    ->placeholder('No branch'),
                 Select::make('equipment_id')
                     ->options(fn (Get $get): array => FilamentOptions::equipmentForCustomer($get('customer_id')))
                     ->searchable()
