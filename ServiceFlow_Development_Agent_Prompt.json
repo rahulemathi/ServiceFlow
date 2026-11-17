@@ -1,0 +1,420 @@
+{
+  "prompt_name": "ServiceFlow - Full Product Development Agent",
+  "version": "1.0.0",
+  "intended_tools": [
+    "VS Code GitHub Copilot",
+    "Google Antigravity",
+    "other repository-aware coding agents"
+  ],
+  "project": {
+    "name": "ServiceFlow",
+    "type": "Multi-tenant Field Service Management SaaS",
+    "description": "A platform for AC and refrigeration maintenance companies, electrical and equipment repair businesses, and other field-service providers to manage customers, equipment, service requests, work orders, technicians, maintenance contracts, estimates, invoices, payments, and business operations.",
+    "documented_stack": {
+      "php": "^8.3",
+      "laravel": "13.x",
+      "filament": "5.x",
+      "livewire": "4.x",
+      "tailwind_css": "4.x",
+      "database": "MySQL/MariaDB preferred for production; SQLite may be used for local tests",
+      "testing": "Pest",
+      "optional_planned_components": [
+        "Laravel Sanctum for API authentication",
+        "Laravel Reverb for real-time updates",
+        "Redis for queues/cache when infrastructure is configured"
+      ]
+    },
+    "architecture_preferences": {
+      "admin_panel": "Use Filament for platform and organization administration wherever practical.",
+      "technician_and_customer_interfaces": "Use Livewire for web portals and interactive workflows.",
+      "backend": "Use Laravel services, policies, form requests or equivalent validation, events/listeners, jobs, notifications, and scheduled tasks where appropriate.",
+      "api": "Build a versioned REST API only when the relevant workflows and authorization are ready.",
+      "database": "Use relational integrity, indexes, foreign keys, and transactions for critical workflows."
+    }
+  },
+  "mission": "Evolve the existing ServiceFlow repository into a secure, maintainable, production-ready, multi-tenant Field Service Management SaaS product. Do not rebuild the application from scratch. First inspect the actual repository, identify what is implemented, partially implemented, broken, duplicated, or missing, and then implement the roadmap incrementally while preserving working functionality.",
+  "critical_agent_instructions": [
+    "Treat the existing repository code as the source of truth. README documentation is useful context but may be outdated or inconsistent with the implementation.",
+    "Before changing code, inspect the repository structure, composer.json, package.json, routes, migrations, models, relationships, Filament resources/pages/widgets, Livewire components, middleware, policies, services, jobs, notifications, tests, and README.",
+    "Do not assume a feature exists merely because it is mentioned in documentation, seeded demo data, screenshots, or a roadmap.",
+    "Do not claim a feature is complete until you have inspected its implementation and added or run appropriate tests.",
+    "Start with an implementation audit and a prioritized plan. Do not attempt to implement every module in one large, uncontrolled change.",
+    "After the audit, implement one coherent phase at a time. At the end of each phase, summarize changed files, migrations, behavior, tests run, remaining gaps, and any manual setup required.",
+    "Preserve existing working functionality, routes, naming conventions, coding style, tenant boundaries, and UI patterns unless a change is necessary and explained.",
+    "Do not replace Filament functionality with custom Livewire admin pages when Filament resources, pages, actions, or widgets are appropriate.",
+    "Do not add React, Vue, or another frontend framework unless the repository already depends on it and there is a demonstrated requirement.",
+    "Do not install packages speculatively. Check installed versions and compatibility with Laravel 13, Filament 5, and Livewire 4 before proposing or adding dependencies.",
+    "Do not make destructive database changes, reset databases, drop tables, truncate production data, overwrite environment files, or rotate APP_KEY.",
+    "Never hardcode credentials, API keys, passwords, tenant IDs, or environment-specific URLs. Never commit secrets.",
+    "Do not use shared default passwords for production accounts. Seeders must be development-safe and clearly documented.",
+    "Use database transactions for multi-step business operations such as converting estimates to invoices, recording payments, consuming inventory, and completing work orders.",
+    "Enforce authorization on the server for every sensitive read and state-changing action. Hiding a button is not authorization.",
+    "Enforce tenant isolation in queries, relationships, route binding, exports, file access, background jobs, notifications, and API endpoints. Test cross-tenant access explicitly.",
+    "Use clear status enums or constants and explicit, validated state transitions. Prevent invalid or backward transitions unless a documented business rule permits them.",
+    "Use queued jobs for slow or retryable work such as email delivery, large exports, and notification fan-out when queue infrastructure is configured.",
+    "Use Laravel Scheduler for recurring maintenance generation, reminders, subscription lifecycle tasks, and other scheduled processes. Make scheduled jobs idempotent.",
+    "Use accessible, responsive interfaces with clear empty, loading, validation, success, and failure states.",
+    "Use realistic factories and focused Pest tests. Do not weaken or delete existing tests to make changes pass.",
+    "Run the relevant tests and quality checks after each phase. If a command cannot run because of missing services or environment configuration, state that clearly rather than claiming success.",
+    "Update README and setup documentation when implementation, dependencies, environment variables, scheduled tasks, queue workers, or deployment requirements change.",
+    "If requirements are ambiguous or a business decision affects data structure or workflow, explain the options and ask one focused question instead of silently inventing behavior."
+  ],
+  "initial_audit_deliverables": [
+    "Create or update docs/IMPLEMENTATION_AUDIT.md with a module-by-module inventory.",
+    "For every feature, classify it as implemented, partially implemented, missing, broken, or unverified.",
+    "For each classification, cite the relevant code paths, classes, migrations, routes, and tests where possible.",
+    "Identify security and multi-tenancy risks, missing authorization, incomplete workflows, schema gaps, and test gaps.",
+    "Identify conflicts between README claims and actual code, including role/permission inconsistencies and any claimed technician portal functionality that is not actually present.",
+    "Create docs/DEVELOPMENT_ROADMAP.md with dependencies, priorities, milestones, and acceptance criteria.",
+    "Recommend the next smallest valuable implementation phase. Do not start broad implementation until the audit and roadmap are presented."
+  ],
+  "feature_roadmap": [
+    {
+      "phase": 1,
+      "name": "Foundation, organization management, and security",
+      "priority": "critical",
+      "features": [
+        "Organization self-onboarding and setup wizard",
+        "Branch creation and management",
+        "Employee/member management",
+        "Email invitations with secure expiring tokens",
+        "Invitation acceptance and revocation",
+        "Employee activation/deactivation and profile management",
+        "Multiple organization memberships where supported",
+        "Role assignment and branch-level access rules",
+        "Fine-grained policies and authorization for every role",
+        "Organization settings and business profile",
+        "Audit trail for important actions",
+        "Secure file access and tenant-scoped uploads",
+        "Tenant-isolation tests for all organization-owned data"
+      ],
+      "acceptance_criteria": [
+        "An authorized organization owner/admin can manage members without Tinker or manual database changes.",
+        "A user cannot access another organization's records by changing an ID, URL, request payload, export, or file URL.",
+        "Sensitive actions are authorized server-side and recorded in an audit trail.",
+        "Existing platform-admin and organization access behavior remains covered by tests."
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Complete CRM, customers, and equipment lifecycle",
+      "priority": "high",
+      "features": [
+        "Customer service and transaction history",
+        "Customer notes and internal communication timeline",
+        "Multiple customer contacts and contact persons",
+        "Customer document attachments",
+        "Customer-specific pricing and credit settings where required",
+        "Customer feedback and complaint records",
+        "Customer portal foundation",
+        "Equipment service and repair history",
+        "Equipment maintenance history",
+        "Warranty expiry tracking and reminders",
+        "Equipment QR code generation and lookup",
+        "Equipment manuals and document storage",
+        "Equipment condition and lifecycle status",
+        "Equipment downtime tracking"
+      ],
+      "acceptance_criteria": [
+        "A customer profile provides a tenant-scoped timeline of requests, work orders, equipment, estimates, invoices, and payments.",
+        "An equipment profile shows its owner, location, warranty, documents, and complete service history.",
+        "QR lookup never exposes equipment belonging to another tenant."
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Service request and work order lifecycle",
+      "priority": "critical",
+      "features": [
+        "Customer-facing service request submission",
+        "Request categories, priorities, and configurable statuses",
+        "Request attachments, comments, and activity timeline",
+        "SLA targets, breach detection, escalation, and reporting",
+        "Duplicate request handling",
+        "Work order task and checklist templates",
+        "Multiple technician assignment",
+        "Before/after photographs and private attachments",
+        "Labour and travel time tracking",
+        "Parts and additional charge recording",
+        "Customer and technician signatures",
+        "Completion reports and PDF generation",
+        "Supervisor review and approval",
+        "Customer sign-off",
+        "Cancellation, rejection, and rescheduling reasons"
+      ],
+      "acceptance_criteria": [
+        "A request can be tracked from intake through triage, work-order creation, execution, and resolution.",
+        "Work orders enforce valid status transitions and record who performed each transition.",
+        "Completion requires configured mandatory checklist items and required evidence/signatures.",
+        "All attachments are authorized and tenant-scoped."
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "Dispatch, scheduling, and technician workspace",
+      "priority": "critical",
+      "features": [
+        "Dispatch board with calendar and list views",
+        "Technician daily and weekly schedules",
+        "Conflict and availability detection",
+        "Skill- and certification-based assignment",
+        "Branch and workload-aware assignment",
+        "Manual and rule-based technician assignment",
+        "Travel distance/time integration only after selecting a provider",
+        "Emergency job scheduling and priority handling",
+        "Schedule change notifications",
+        "Responsive technician portal",
+        "Job acceptance and rejection",
+        "Job check-in/check-out",
+        "Job navigation links",
+        "Technician notes, checklists, time logs, parts usage, and evidence",
+        "Technician leave and break management",
+        "Offline capability and synchronization as a separately scoped enhancement",
+        "GPS tracking only with explicit organizational configuration, user notice, and appropriate consent"
+      ],
+      "acceptance_criteria": [
+        "Dispatchers can see technician availability and assigned workload for a selected period.",
+        "The system prevents accidental overlapping assignments unless an authorized override is recorded.",
+        "Technicians can complete an assigned job using a mobile-friendly interface.",
+        "Technicians cannot access unassigned jobs or other tenants' work."
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "Preventive maintenance automation",
+      "priority": "high",
+      "features": [
+        "Configurable maintenance frequencies and schedules",
+        "Daily, weekly, monthly, quarterly, and annual recurrence rules",
+        "Maintenance checklist templates",
+        "Automatic recurring work-order generation",
+        "Contract renewal and expiry reminders",
+        "Warranty-aware maintenance reminders",
+        "Missed and overdue maintenance alerts",
+        "Maintenance completion reports",
+        "Maintenance cost tracking",
+        "Idempotent scheduler jobs and duplicate-generation prevention"
+      ],
+      "acceptance_criteria": [
+        "A contract can generate the correct future maintenance occurrences.",
+        "Repeated scheduler execution does not create duplicate work orders.",
+        "Generated work orders retain links to the contract, customer, and covered equipment."
+      ]
+    },
+    {
+      "phase": 6,
+      "name": "Inventory, suppliers, and purchasing",
+      "priority": "high",
+      "features": [
+        "Spare parts and product catalog",
+        "Categories, units of measure, and stock tracking",
+        "Branch and warehouse stock locations",
+        "Technician/vehicle stock allocation",
+        "Stock transfers and adjustments",
+        "Work-order parts consumption",
+        "Low-stock thresholds and alerts",
+        "Supplier management",
+        "Purchase orders",
+        "Goods received notes",
+        "Stock movement ledger",
+        "Inventory valuation and costing",
+        "Returns and damaged stock workflows"
+      ],
+      "acceptance_criteria": [
+        "Every stock change creates an attributable stock movement record.",
+        "Work-order consumption updates the correct stock location transactionally.",
+        "Stock cannot become negative unless an explicitly configured and authorized rule permits it.",
+        "Tenant and branch boundaries are enforced."
+      ]
+    },
+    {
+      "phase": 7,
+      "name": "Finance, estimates, invoices, and payments",
+      "priority": "high",
+      "features": [
+        "Complete estimate lifecycle and customer approval",
+        "Invoice delivery by email",
+        "Invoice numbering rules",
+        "Payment methods and references",
+        "Partial and multiple payments",
+        "Refunds and credit notes",
+        "Recurring invoices where applicable",
+        "Payment reminders and receipts",
+        "Expenses and technician expense claims",
+        "Tax configuration and jurisdiction-specific calculation",
+        "India GST support where required: GSTIN, CGST, SGST, IGST, HSN/SAC, place of supply, and invoice fields",
+        "Revenue, receivables, and profitability reports"
+      ],
+      "acceptance_criteria": [
+        "Invoice totals are calculated server-side and cannot be trusted from client-submitted totals.",
+        "Payment, refund, and invoice balance changes are transactional and auditable.",
+        "Tax behavior is configurable and tested; do not assume all organizations use Indian GST.",
+        "Existing estimate conversion and payment-limit tests continue to pass."
+      ]
+    },
+    {
+      "phase": 8,
+      "name": "Notifications and communication",
+      "priority": "high",
+      "features": [
+        "Central notification preferences",
+        "In-app notifications",
+        "Email notifications and templates",
+        "Job assignment and schedule change alerts",
+        "Request and work-order status notifications",
+        "Maintenance and contract reminders",
+        "SLA breach alerts",
+        "Invoice and payment notifications",
+        "SMS and WhatsApp integrations only after provider selection and credentials are configured",
+        "Push notifications for supported mobile clients",
+        "Retry and failure handling",
+        "Tenant-specific notification settings"
+      ],
+      "acceptance_criteria": [
+        "Notification delivery is triggered from domain events rather than duplicated controller logic.",
+        "Queued notifications are retryable and failures are observable.",
+        "Messages never leak information across organizations."
+      ]
+    },
+    {
+      "phase": 9,
+      "name": "Reports and analytics",
+      "priority": "medium",
+      "features": [
+        "Revenue and receivables reports",
+        "Work-order volume and completion reports",
+        "Technician productivity and utilization reports",
+        "Customer service history reports",
+        "Equipment downtime reports",
+        "Preventive maintenance compliance reports",
+        "SLA performance reports",
+        "Inventory usage and valuation reports",
+        "Branch performance reports",
+        "Date and branch filters",
+        "CSV, Excel, and PDF exports with tenant authorization"
+      ],
+      "acceptance_criteria": [
+        "Report totals reconcile with underlying operational and financial records.",
+        "Exports use the same tenant and permission scopes as on-screen reports.",
+        "Large exports do not block normal web requests."
+      ]
+    },
+    {
+      "phase": 10,
+      "name": "Versioned API and mobile readiness",
+      "priority": "high",
+      "features": [
+        "Laravel Sanctum API authentication",
+        "Versioned REST endpoints",
+        "API authorization and tenant context resolution",
+        "Customer, equipment, request, work-order, schedule, and technician endpoints",
+        "Pagination, filtering, validation, and consistent error responses",
+        "API rate limiting",
+        "Token revocation and device/session management",
+        "API documentation",
+        "Offline synchronization strategy with conflict handling"
+      ],
+      "acceptance_criteria": [
+        "API clients cannot bypass tenant or role authorization.",
+        "API endpoints have feature tests for success, validation, unauthorized access, and cross-tenant access.",
+        "API versioning and response contracts are documented."
+      ]
+    },
+    {
+      "phase": 11,
+      "name": "SaaS subscription and platform administration",
+      "priority": "critical before commercial SaaS launch",
+      "features": [
+        "Self-service organization registration and onboarding",
+        "Subscription plans and billing intervals",
+        "Trial periods",
+        "Subscription checkout and payment-provider integration",
+        "Upgrade, downgrade, cancellation, and renewal workflows",
+        "Grace periods and past-due handling",
+        "Feature entitlements and usage limits",
+        "User, branch, storage, and operational usage tracking",
+        "Organization suspension and reactivation",
+        "Platform-wide organization and subscription dashboard",
+        "Platform support tools with audited access",
+        "Custom domains and branding where commercially justified",
+        "Organization data export and deletion workflows"
+      ],
+      "acceptance_criteria": [
+        "Plan limits are enforced server-side, not only hidden in the UI.",
+        "Subscription webhooks are signature-verified and idempotent.",
+        "Suspension and cancellation follow documented data-retention and access rules.",
+        "Platform administrators' cross-tenant actions are logged."
+      ]
+    },
+    {
+      "phase": 12,
+      "name": "Production readiness and operational reliability",
+      "priority": "critical before production launch",
+      "features": [
+        "Security and authorization review",
+        "Tenant-isolation regression suite",
+        "Database indexes and query optimization",
+        "Queue and scheduler deployment configuration",
+        "Structured logging and error monitoring",
+        "Health checks and service monitoring",
+        "Automated database and file backups",
+        "Backup restoration and disaster-recovery procedure",
+        "Deployment and rollback procedure",
+        "Production environment configuration",
+        "Rate limiting and abuse protection",
+        "Data retention and privacy controls",
+        "Dependency and vulnerability review",
+        "Load and performance testing"
+      ],
+      "acceptance_criteria": [
+        "A documented backup can be restored and verified.",
+        "Production errors and failed jobs are observable.",
+        "Deployment and rollback steps are documented and tested.",
+        "Critical workflows and tenant boundaries have automated regression coverage."
+      ]
+    }
+  ],
+  "implementation_workflow": {
+    "step_1": "Inspect the existing repository and report the current state. Do not edit application code during the initial audit.",
+    "step_2": "Write docs/IMPLEMENTATION_AUDIT.md and docs/DEVELOPMENT_ROADMAP.md.",
+    "step_3": "Present the audit findings and recommend the next phase, including dependencies and acceptance criteria.",
+    "step_4": "After the user approves a phase, implement it in small, reviewable increments.",
+    "step_5": "Before each increment, identify affected models, migrations, policies, routes, Filament resources, Livewire components, services, jobs, and tests.",
+    "step_6": "Implement database changes safely, then business logic, authorization, UI, and tests.",
+    "step_7": "Run focused Pest tests, the full test suite when practical, Pint, and Larastan if configured.",
+    "step_8": "Update documentation and provide a concise completion report with known limitations."
+  },
+  "definition_of_done": [
+    "The feature is implemented in the actual application, not just documented or represented by placeholder UI.",
+    "Validation and server-side authorization are present.",
+    "Tenant isolation is enforced and tested.",
+    "Relevant success, failure, edge-case, and permission tests exist.",
+    "Database migrations are safe and reversible where practical.",
+    "The interface is responsive and provides useful loading, empty, and error states.",
+    "No secrets or unsafe default credentials are introduced.",
+    "Relevant tests and quality checks have been run and their results reported.",
+    "Documentation reflects the actual implementation."
+  ],
+  "agent_response_format": {
+    "during_audit": [
+      "Repository structure reviewed",
+      "Existing architecture and dependencies",
+      "Implemented features with code references",
+      "Partially implemented features and missing pieces",
+      "Missing features",
+      "Security and tenant-isolation findings",
+      "README/code inconsistencies",
+      "Prioritized next steps"
+    ],
+    "after_each_phase": [
+      "Phase and scope completed",
+      "Files created or modified",
+      "Database migrations and commands",
+      "User-visible behavior added",
+      "Tests and quality checks executed with results",
+      "Configuration or manual setup required",
+      "Known limitations and next recommended task"
+    ]
+  },
+  "first_instruction_to_agent": "Begin now with Step 1 only: inspect the repository thoroughly and produce the implementation audit and prioritized roadmap. Do not start implementing features yet. Once the audit is complete, show the findings and ask for approval to begin the recommended phase. Work with the current codebase; do not rebuild it."
+}
