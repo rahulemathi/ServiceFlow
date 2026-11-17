@@ -409,6 +409,57 @@
                         @endif
                     </div>
 
+                    <!-- Quality & Safety Checklists -->
+                    @if ($selectedWorkOrder->checklists->isNotEmpty())
+                        <div class="space-y-3 pt-2 border-t border-slate-100">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Required Checklists</span>
+                                <span class="text-xs text-slate-500">
+                                    {{ $selectedWorkOrder->checklists->where('is_completed', true)->count() }} / {{ $selectedWorkOrder->checklists->count() }} completed
+                                </span>
+                            </div>
+                            <div class="space-y-2">
+                                @foreach ($selectedWorkOrder->checklists as $chk)
+                                    <div class="flex items-center justify-between p-2.5 rounded-xl border {{ $chk->is_completed ? 'bg-emerald-50/40 border-emerald-200 text-emerald-900' : 'bg-slate-50 border-slate-200 text-slate-700' }}">
+                                        <label class="flex items-center gap-2 cursor-pointer text-xs">
+                                            <input type="checkbox"
+                                                   wire:click="toggleChecklist({{ $chk->id }})"
+                                                   {{ $chk->is_completed ? 'checked' : '' }}
+                                                   {{ $selectedWorkOrder->status === \App\WorkOrderStatus::Completed ? 'disabled' : '' }}
+                                                   class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                            <span class="{{ $chk->is_completed ? 'line-through text-slate-500' : 'font-medium' }}">{{ $chk->item }}</span>
+                                        </label>
+                                        @if ($chk->is_completed)
+                                            <span class="text-[10px] text-emerald-700 font-semibold">Done</span>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Customer Sign-off Section -->
+                    <div class="space-y-2 pt-2 border-t border-slate-100">
+                        <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">Customer Sign-off</span>
+                        @if ($selectedWorkOrder->isCustomerSigned())
+                            <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center justify-between">
+                                <div>
+                                    <span class="font-bold block">Signed by: {{ $selectedWorkOrder->customer_signature_name }}</span>
+                                    <span class="text-[10px] text-emerald-600">{{ $selectedWorkOrder->customer_signed_at?->format('M d, Y @ g:i A') }}</span>
+                                </div>
+                                <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                            </div>
+                        @else
+                            <div class="flex gap-2">
+                                <input type="text" wire:model="customerSignatureName" placeholder="Customer full name..." class="flex-1 text-xs rounded-xl border-slate-300 shadow-xs focus:ring-emerald-500 focus:border-emerald-500">
+                                <button wire:click="submitCustomerSignature" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-white font-semibold text-xs hover:bg-slate-900 transition">
+                                    Record Sign-off
+                                </button>
+                            </div>
+                            @error('customerSignatureName') <span class="text-xs text-rose-600 block">{{ $message }}</span> @enderror
+                        @endif
+                    </div>
+
                     <!-- Service Completion Section -->
                     <div class="pt-4 border-t border-slate-100 space-y-3">
                         <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">Service Completion Report</span>

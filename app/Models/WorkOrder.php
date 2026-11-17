@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-#[Fillable(['organization_id', 'branch_id', 'service_request_id', 'customer_id', 'customer_address_id', 'equipment_id', 'assigned_to_user_id', 'title', 'description', 'status', 'scheduled_start_at', 'scheduled_end_at', 'completed_at', 'completion_notes'])]
+#[Fillable(['organization_id', 'branch_id', 'service_request_id', 'customer_id', 'customer_address_id', 'equipment_id', 'assigned_to_user_id', 'title', 'description', 'status', 'status_reason', 'scheduled_start_at', 'scheduled_end_at', 'completed_at', 'completion_notes', 'customer_signature_name', 'customer_signed_at', 'supervisor_approved_by', 'supervisor_approved_at', 'supervisor_signature_notes'])]
 class WorkOrder extends Model
 {
     protected $attributes = [
@@ -29,6 +29,8 @@ class WorkOrder extends Model
             'scheduled_start_at' => 'datetime',
             'scheduled_end_at' => 'datetime',
             'completed_at' => 'datetime',
+            'customer_signed_at' => 'datetime',
+            'supervisor_approved_at' => 'datetime',
         ];
     }
 
@@ -92,7 +94,7 @@ class WorkOrder extends Model
         });
     }
 
-    public function transitionTo(WorkOrderStatus $status): void
+    public function transitionTo(WorkOrderStatus $status, ?string $reason = null, ?User $user = null): void
     {
         $currentStatus = $this->status;
         $allowedTransitions = match ($currentStatus) {
@@ -118,17 +120,110 @@ class WorkOrder extends Model
             ]);
         }
 
+        if ($status === WorkOrderStatus::OnHold && blank($reason) && blank($this->status_reason)) {
+            throw ValidationException::withMessages([
+                'status_reason' => 'A reason is required when placing a work order on hold.',
+            ]);
+        }
+
+        if ($status === WorkOrderStatus::Cancelled && blank($reason) && blank($this->status_reason)) {
+            throw ValidationException::withMessages([
+                'status_reason' => 'A reason is required when cancelling a work order.',
+            ]);
+        }
+
+        if ($status === WorkOrderStatus::Completed) {
+            if (! $this->allChecklistsCompleted()) {
+                throw ValidationException::withMessages([
+                    'status' => 'All checklist items must be completed before marking the work order as completed.',
+                ]);
+            }
+        }
+
         if ($status === WorkOrderStatus::InProgress && $this->scheduled_start_at === null) {
             $this->scheduled_start_at = now();
         }
 
         $this->status = $status;
 
+        if ($reason !== null) {
+            $this->status_reason = $reason;
+        }
+
         if ($status === WorkOrderStatus::Completed) {
             $this->completed_at = now();
         }
 
         $this->save();
+
+        // Record status change log
+        $this->statusLogs()->create([
+            'organization_id' => $this->organization_id,
+            'from_status' => $currentStatus->value,
+            'to_status' => $status->value,
+            'reason' => $reason,
+            'user_id' => $user?->id ?? auth()->id(),
+        ]);
+    }
+
+    public function allChecklistsCompleted(): bool
+    {
+        if ($this->checklists()->count() === 0) {
+            return true;
+        }
+
+        return ! $this->checklists()->where('is_completed', false)->exists();
+    }
+
+    public function isCustomerSigned(): bool
+    {
+        return $this->customer_signed_at !== null && ! blank($this->customer_signature_name);
+    }
+
+    public function signCustomer(string $name): void
+    {
+        $this->update([
+            'customer_signature_name' => $name,
+            'customer_signed_at' => now(),
+        ]);
+    }
+
+    public function isSupervisorApproved(): bool
+    {
+        return $this->supervisor_approved_at !== null && $this->supervisor_approved_by !== null;
+    }
+
+    public function approveSupervisor(User $supervisor, ?string $notes = null): void
+    {
+        $this->update([
+            'supervisor_approved_by' => $supervisor->id,
+            'supervisor_approved_at' => now(),
+            'supervisor_signature_notes' => $notes,
+        ]);
+    }
+
+    /**
+     * @return HasMany<WorkOrderChecklist, $this>
+     */
+    public function checklists(): HasMany
+    {
+        return $this->hasMany(WorkOrderChecklist::class)->orderBy('sort_order');
+    }
+
+    /**
+     * @return HasMany<WorkOrderStatusLog, $this>
+     */
+    public function statusLogs(): HasMany
+    {
+        return $this->hasMany(WorkOrderStatusLog::class)->latest();
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function supervisor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'supervisor_approved_by');
     }
 
     public function organization(): BelongsTo

@@ -20,6 +20,8 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -103,10 +105,23 @@ class ServiceRequestResource extends Resource
                 SelectFilter::make('status')->options(FilamentOptions::enum(ServiceRequestStatus::cases())),
             ])
             ->recordActions([
+                Action::make('addComment')
+                    ->label('Add Comment')
+                    ->icon(Heroicon::OutlinedChatBubbleLeftEllipsis)
+                    ->schema([
+                        Textarea::make('comment')->required()->maxLength(1000),
+                        Toggle::make('is_internal')->label('Internal note only')->default(true),
+                    ])
+                    ->action(function (ServiceRequest $record, array $data): void {
+                        /** @var User $user */
+                        $user = Filament::auth()->user();
+                        $record->addComment($user, $data['comment'], (bool) ($data['is_internal'] ?? true));
+                        Notification::make()->title('Comment added.')->success()->send();
+                    }),
                 Action::make('review')
                     ->label('Start review')
                     ->visible(fn (ServiceRequest $record): bool => $record->status === ServiceRequestStatus::Open)
-                    ->action(fn (ServiceRequest $record) => $record->update(['status' => ServiceRequestStatus::Reviewing])),
+                    ->action(fn (ServiceRequest $record) => $record->transitionTo(ServiceRequestStatus::Reviewing)),
                 Action::make('convertToWorkOrder')
                     ->label('Convert to work order')
                     ->icon(Heroicon::OutlinedWrenchScrewdriver)
@@ -155,17 +170,20 @@ class ServiceRequestResource extends Resource
                                 'scheduled_end_at' => $data['scheduled_end_at'] ?? null,
                             ]);
 
-                            $request->update(['status' => ServiceRequestStatus::Converted->value]);
+                            $request->transitionTo(ServiceRequestStatus::Converted);
                         });
                     }),
                 Action::make('close')
                     ->requiresConfirmation()
                     ->visible(fn (ServiceRequest $record): bool => in_array($record->status, [ServiceRequestStatus::Open, ServiceRequestStatus::Reviewing], true))
-                    ->action(fn (ServiceRequest $record) => $record->update(['status' => ServiceRequestStatus::Closed])),
+                    ->action(fn (ServiceRequest $record) => $record->transitionTo(ServiceRequestStatus::Closed)),
                 Action::make('cancel')
-                    ->requiresConfirmation()
+                    ->label('Cancel request')
+                    ->schema([
+                        TextInput::make('reason')->label('Reason for cancellation')->required()->maxLength(255),
+                    ])
                     ->visible(fn (ServiceRequest $record): bool => in_array($record->status, [ServiceRequestStatus::Open, ServiceRequestStatus::Reviewing], true))
-                    ->action(fn (ServiceRequest $record) => $record->update(['status' => ServiceRequestStatus::Cancelled])),
+                    ->action(fn (ServiceRequest $record, array $data) => $record->transitionTo(ServiceRequestStatus::Cancelled, $data['reason'] ?? null)),
                 EditAction::make()->visible(fn (ServiceRequest $record): bool => ! in_array(
                     $record->status,
                     [ServiceRequestStatus::Converted, ServiceRequestStatus::Closed, ServiceRequestStatus::Cancelled],

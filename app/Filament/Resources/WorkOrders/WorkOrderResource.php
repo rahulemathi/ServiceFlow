@@ -15,11 +15,13 @@ use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -140,6 +142,15 @@ class WorkOrderResource extends Resource
                 DateTimePicker::make('scheduled_start_at')->seconds(false),
                 DateTimePicker::make('scheduled_end_at')->after('scheduled_start_at')->seconds(false),
                 Textarea::make('completion_notes')->rows(3)->columnSpanFull(),
+                Repeater::make('checklists')
+                    ->relationship()
+                    ->schema([
+                        TextInput::make('item')->required()->maxLength(255),
+                        Checkbox::make('is_completed')->label('Completed'),
+                    ])
+                    ->columns(2)
+                    ->defaultItems(0)
+                    ->columnSpanFull(),
                 Repeater::make('entries')
                     ->relationship()
                     ->schema([
@@ -152,6 +163,7 @@ class WorkOrderResource extends Resource
                         TextInput::make('unit_price')->numeric()->minValue(0)->step(0.01),
                     ])
                     ->columns(2)
+                    ->defaultItems(0)
                     ->columnSpanFull(),
             ]);
     }
@@ -206,29 +218,59 @@ class WorkOrderResource extends Resource
                     }),
                 Action::make('start')
                     ->visible(fn (WorkOrder $record): bool => $record->status === WorkOrderStatus::Scheduled)
-                    ->action(fn (WorkOrder $record) => $record->transitionTo(WorkOrderStatus::InProgress)),
+                    ->action(fn (WorkOrder $record) => $record->transitionTo(WorkOrderStatus::InProgress, null, Filament::auth()->user())),
                 Action::make('hold')
                     ->label('Put on hold')
+                    ->schema([
+                        TextInput::make('reason')->required()->maxLength(255),
+                    ])
                     ->visible(fn (WorkOrder $record): bool => $record->status === WorkOrderStatus::InProgress)
-                    ->action(fn (WorkOrder $record) => $record->transitionTo(WorkOrderStatus::OnHold)),
+                    ->action(fn (WorkOrder $record, array $data) => $record->transitionTo(WorkOrderStatus::OnHold, $data['reason'] ?? null, Filament::auth()->user())),
                 Action::make('resume')
                     ->visible(fn (WorkOrder $record): bool => $record->status === WorkOrderStatus::OnHold)
-                    ->action(fn (WorkOrder $record) => $record->transitionTo(WorkOrderStatus::InProgress)),
+                    ->action(fn (WorkOrder $record) => $record->transitionTo(WorkOrderStatus::InProgress, null, Filament::auth()->user())),
                 Action::make('cancel')
-                    ->requiresConfirmation()
+                    ->schema([
+                        TextInput::make('reason')->required()->maxLength(255),
+                    ])
                     ->visible(fn (WorkOrder $record): bool => in_array($record->status, [
                         WorkOrderStatus::New,
                         WorkOrderStatus::Scheduled,
                         WorkOrderStatus::OnHold,
                     ], true))
-                    ->action(fn (WorkOrder $record) => $record->transitionTo(WorkOrderStatus::Cancelled)),
+                    ->action(fn (WorkOrder $record, array $data) => $record->transitionTo(WorkOrderStatus::Cancelled, $data['reason'] ?? null, Filament::auth()->user())),
                 Action::make('complete')
                     ->schema([Textarea::make('completion_notes')->rows(3)])
                     ->visible(fn (WorkOrder $record): bool => $record->status === WorkOrderStatus::InProgress)
                     ->action(function (WorkOrder $record, array $data): void {
+                        if (! $record->allChecklistsCompleted()) {
+                            Notification::make()
+                                ->title('Cannot complete work order')
+                                ->body('All checklist items must be completed before marking this work order as completed.')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
                         $record->completion_notes = $data['completion_notes'] ?? null;
                         $record->save();
-                        $record->transitionTo(WorkOrderStatus::Completed);
+                        $record->transitionTo(WorkOrderStatus::Completed, null, Filament::auth()->user());
+                    }),
+                Action::make('approveSupervisor')
+                    ->label('Supervisor Sign-off')
+                    ->icon(Heroicon::OutlinedCheckBadge)
+                    ->visible(fn (WorkOrder $record): bool => $record->status === WorkOrderStatus::Completed
+                        && ! $record->isSupervisorApproved()
+                        && (Filament::auth()->user()?->isOrganizationAdmin() || Filament::auth()->user()?->isServiceManager()))
+                    ->schema([
+                        Textarea::make('notes')->label('Sign-off Notes')->maxLength(500),
+                    ])
+                    ->action(function (WorkOrder $record, array $data): void {
+                        /** @var User $user */
+                        $user = Filament::auth()->user();
+                        $record->approveSupervisor($user, $data['notes'] ?? null);
+                        Notification::make()->title('Work order approved by supervisor.')->success()->send();
                     }),
                 EditAction::make()->visible(fn (WorkOrder $record): bool => ! in_array(
                     $record->status,

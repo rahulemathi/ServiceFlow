@@ -34,6 +34,8 @@ class TechnicianWorkspace extends Component
     // Completion form
     public string $completionNotes = '';
 
+    public string $customerSignatureName = '';
+
     public ?string $feedbackMessage = null;
 
     public ?string $errorMessage = null;
@@ -101,7 +103,7 @@ class TechnicianWorkspace extends Component
         $workOrder = WorkOrder::query()
             ->where('organization_id', $tenant?->getKey())
             ->where('assigned_to_user_id', $user->id)
-            ->with(['customer', 'address', 'equipment', 'entries.user'])
+            ->with(['customer', 'address', 'equipment', 'entries.user', 'checklists'])
             ->find($id);
 
         if (! $workOrder) {
@@ -114,6 +116,7 @@ class TechnicianWorkspace extends Component
 
         $this->selectedWorkOrderId = $workOrder->id;
         $this->completionNotes = $workOrder->completion_notes ?? '';
+        $this->customerSignatureName = $workOrder->customer_signature_name ?? '';
     }
 
     public function closeWorkOrderDetails(): void
@@ -151,7 +154,11 @@ class TechnicianWorkspace extends Component
         }
 
         try {
-            $workOrder->transitionTo($targetStatus);
+            $workOrder->transitionTo(
+                $targetStatus,
+                $targetStatus === WorkOrderStatus::OnHold ? 'Placed on hold by technician' : null,
+                auth()->user() instanceof User ? auth()->user() : null
+            );
             $this->feedbackMessage = "Work order updated to status: {$targetStatus->value}.";
         } catch (ValidationException $e) {
             $this->errorMessage = collect($e->errors())->flatten()->first() ?? 'Unable to change status.';
@@ -253,6 +260,42 @@ class TechnicianWorkspace extends Component
         } catch (ValidationException $e) {
             $this->errorMessage = collect($e->errors())->flatten()->first() ?? 'Unable to complete work order.';
         }
+    }
+
+    public function toggleChecklist(int $checklistId): void
+    {
+        $this->resetFeedback();
+        $workOrder = $this->getSelectedWorkOrder();
+        if (! $workOrder) {
+            return;
+        }
+
+        $item = $workOrder->checklists()->find($checklistId);
+        if ($item) {
+            if ($item->is_completed) {
+                $item->markIncomplete();
+            } else {
+                $item->markCompleted(auth()->user());
+            }
+
+            $this->feedbackMessage = 'Checklist updated.';
+        }
+    }
+
+    public function submitCustomerSignature(): void
+    {
+        $this->resetFeedback();
+        $workOrder = $this->getSelectedWorkOrder();
+        if (! $workOrder) {
+            return;
+        }
+
+        $this->validate([
+            'customerSignatureName' => ['required', 'string', 'min:3', 'max:255'],
+        ]);
+
+        $workOrder->signCustomer($this->customerSignatureName);
+        $this->feedbackMessage = "Customer sign-off recorded for {$this->customerSignatureName}.";
     }
 
     protected function getSelectedWorkOrder(): ?WorkOrder
