@@ -2,10 +2,15 @@
 
 namespace App\Providers;
 
+use App\Events\WorkOrderAssigned;
+use App\Events\WorkOrderUpdated;
 use App\Http\Responses\LoginResponse;
+use App\Listeners\SendWorkOrderAssignedNotification;
+use App\Listeners\SendWorkOrderUpdatedNotification;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -28,6 +33,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        Event::listen(WorkOrderAssigned::class, SendWorkOrderAssignedNotification::class);
+        Event::listen(WorkOrderUpdated::class, SendWorkOrderUpdatedNotification::class);
     }
 
     /**
