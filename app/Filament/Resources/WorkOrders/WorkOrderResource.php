@@ -165,7 +165,18 @@ class WorkOrderResource extends Resource
                     ->schema([
                         Select::make('type')
                             ->options(['note' => 'Note', 'labor' => 'Labor', 'part' => 'Part'])
-                            ->required(),
+                            ->required()
+                            ->live(),
+                        Select::make('part_id')
+                            ->label('Part / Item')
+                            ->options(FilamentOptions::parts())
+                            ->searchable()
+                            ->visible(fn (Get $get): bool => $get('type') === 'part'),
+                        Select::make('stock_location_id')
+                            ->label('Stock Location')
+                            ->options(FilamentOptions::stockLocations())
+                            ->searchable()
+                            ->visible(fn (Get $get): bool => $get('type') === 'part'),
                         TextInput::make('description')->required()->maxLength(255),
                         TextInput::make('minutes')->numeric()->minValue(0),
                         TextInput::make('quantity')->numeric()->minValue(0)->step(0.01),

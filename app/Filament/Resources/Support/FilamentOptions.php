@@ -7,6 +7,9 @@ use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\Equipment;
 use App\Models\Invoice;
+use App\Models\Part;
+use App\Models\StockLocation;
+use App\Models\Supplier;
 use App\Models\User;
 use App\Models\WorkOrder;
 use App\UserRole;
@@ -48,6 +51,46 @@ class FilamentOptions
         }
 
         return $query
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->all();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function parts(): array
+    {
+        return Part::query()
+            ->where('organization_id', Filament::getTenant()?->getKey())
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->all();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function stockLocations(?int $branchId = null): array
+    {
+        return StockLocation::query()
+            ->where('organization_id', Filament::getTenant()?->getKey())
+            ->where('is_active', true)
+            ->when($branchId, fn ($q) => $q->where(fn ($sub) => $sub->where('branch_id', $branchId)->orWhereNull('branch_id')))
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->all();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function suppliers(): array
+    {
+        return Supplier::query()
+            ->where('organization_id', Filament::getTenant()?->getKey())
+            ->where('is_active', true)
             ->orderBy('name')
             ->pluck('name', 'id')
             ->all();
