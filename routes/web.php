@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EquipmentLookupController;
 use App\Http\Controllers\OrganizationInvitationController;
 use App\Livewire\Technician\TechnicianWorkspace;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,8 @@ Route::redirect('/dashboard', '/admin')->name('dashboard');
 
 Route::get('/invitations/{token}', [OrganizationInvitationController::class, 'show'])->name('invitations.show');
 Route::post('/invitations/{token}/accept', [OrganizationInvitationController::class, 'accept'])->name('invitations.accept');
+
+Route::get('/equipment/lookup/{serial}', [EquipmentLookupController::class, 'show'])->name('equipment.lookup');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/technician', TechnicianWorkspace::class)->name('technician.workspace');

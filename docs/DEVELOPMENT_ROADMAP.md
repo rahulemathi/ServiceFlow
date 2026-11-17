@@ -13,7 +13,7 @@ Complete tenant/security foundations and production safety before exposing addit
 |---|---|---|---|---|---|
 | 0 | Security and organization-settings foundation | **Completed** | Existing organization, membership, and role foundation | No shared production default passwords; organization owners cannot affect another tenant's branding; SMTP secrets are not written to `.env` by request handlers; membership edits cannot silently alter a shared account's credentials; focused tenant-boundary tests pass. | **Implemented & Verified** |
 | 1 | Organization onboarding, branches, members, and authorization | **Completed** | Milestone 0; existing organization and membership schema | An owner/admin can onboard and configure an organization and manage branches/members. Secure expiring invitations can be accepted/revoked. Role and branch permissions are enforced server-side. Multiple memberships behave correctly. Cross-tenant ID and branch access tests pass. | **Implemented & Verified** |
-| 2 | Complete CRM and equipment lifecycle | **High** | Milestone 1; current customers, addresses, equipment | Customer timeline joins service and financial history; multiple contacts and tenant-scoped notes/documents are supported. Equipment service history, warranty tracking, and lifecycle state work. QR lookup cannot disclose cross-tenant equipment. |
+| 2 | Complete CRM and equipment lifecycle | **Completed** | Milestone 1; current customers, addresses, equipment | Customer timeline joins service and financial history; multiple contacts and tenant-scoped notes/documents are supported. Equipment service history, warranty tracking, and lifecycle state work. QR lookup cannot disclose cross-tenant equipment. | **Implemented & Verified** |
 | 3 | Complete request and work-order lifecycle | **Critical** | Milestone 1 and CRM entities from milestone 2 | Request intake and attachments/comments are tenant-authorized; explicit status transitions and reasons are recorded; work-order checklist/evidence requirements and supervisor/customer sign-off are enforced; all cross-tenant mutations are rejected. |
 | 4 | Dispatch and technician workspace | **Critical** | Milestone 3; technician/member/branch authorization from milestone 1 | Dispatchers see availability/workload; assignment prevents overlapping bookings unless an authorized override is audited. Technicians access only assigned work in their selected organization and can complete required job execution steps. Test multiple memberships and direct Livewire action calls. |
 | 5 | Preventive maintenance automation | **High** | Milestones 2 and 3 | Recurrence rules generate correctly dated occurrences linked to their contract/customer/equipment. Repeated or concurrent scheduler runs cannot duplicate a work order. Expiry, missed maintenance, and renewal reminders are observable and tested. |
@@ -63,10 +63,26 @@ Milestone 0 (**Security and organization-settings foundation**) is complete and 
   - `BranchResource` deletion protection preventing deletion of branches with active team members or operational records, and branch code uniqueness enforced per organization.
   - 10 feature tests covering branch option scoping, work order query scoping, branch validation, cross-tenant rejection, technician assignment, equipment/service request scoping, technician workspace isolation, deletion protection, and branch code uniqueness.
 
-## Next milestone: Milestone 2 Proposal (Complete CRM and equipment lifecycle)
+## Milestone 2: Complete CRM and Equipment Lifecycle (Completed & Verified)
+
+- **Multiple Contacts & Pinned Notes:**
+  - `CustomerContact` model and migration with `name`, `email`, `phone`, `role_or_title`, and `is_primary` designation.
+  - `CustomerNote` model and migration with author attribution (`user_id`) and `is_pinned` status.
+  - Form integration on `CustomerResource` with contacts repeater (`defaultItems(0)`).
+- **Customer Unified Timeline:**
+  - `Customer::timeline()` method compiling a chronological feed of service requests, work orders, estimates, invoices, and notes with financial balances and status badges.
+  - Modal action `viewTimeline` on `CustomerResource` table.
+- **Equipment Lifecycle & Warranty Tracking:**
+  - `EquipmentStatus` enum (`active`, `in_repair`, `decommissioned`, `retired`) with color badges.
+  - Warranty tracking helpers `isUnderWarranty()` and `warrantyStatusLabel()`.
+- **Secure Equipment QR Lookup:**
+  - Route `/equipment/lookup/{serial}` with `EquipmentLookupController`.
+  - Strict tenant boundary: unauthenticated users redirected to login; cross-tenant lookup returns 404 (does not disclose cross-tenant records); unassigned branch access returns 403 Forbidden.
+  - 7 feature tests in `CrmAndEquipmentLifecycleTest.php` covering contacts, notes, timeline aggregation, equipment statuses, warranty calculations, and QR security.
+
+## Next milestone: Milestone 3 Proposal (Complete Request and Work-Order Lifecycle)
 
 The recommended next milestone is:
-- Customer timeline joining service and financial history.
-- Multiple contacts and tenant-scoped notes/documents per customer.
-- Equipment service history, warranty tracking, and lifecycle states (active, in repair, retired).
-- QR code lookup that strictly enforces tenant isolation and cannot disclose cross-tenant equipment.
+- Request intake attachments, tenant authorization, and explicit status transitions with recorded reasons.
+- Work order checklist execution, time tracking / parts consumption, and supervisor / customer sign-off.
+- Strict server-side mutation protection rejecting any cross-tenant IDs.

@@ -9,9 +9,12 @@ use App\Models\Customer;
 use App\Models\User;
 use App\UserRole;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -77,7 +80,20 @@ class CustomerResource extends Resource
                     ->rules(FilamentOptions::branchValidationRules())
                     ->searchable()
                     ->placeholder('All branches'),
-                Textarea::make('notes')->rows(4)->columnSpanFull(),
+                Textarea::make('notes')->rows(3)->columnSpanFull(),
+                Repeater::make('contacts')
+                    ->relationship()
+                    ->defaultItems(0)
+                    ->schema([
+                        TextInput::make('name')->required()->maxLength(255),
+                        TextInput::make('email')->email()->maxLength(255),
+                        TextInput::make('phone')->tel()->maxLength(50),
+                        TextInput::make('role_or_title')->label('Role / Title')->placeholder('e.g. Operations Manager')->maxLength(100),
+                        Checkbox::make('is_primary')->label('Primary contact'),
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->collapsible(),
             ]);
     }
 
@@ -88,6 +104,11 @@ class CustomerResource extends Resource
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('email')->searchable()->toggleable(),
                 TextColumn::make('phone')->toggleable(),
+                TextColumn::make('contacts.name')
+                    ->label('Contacts')
+                    ->badge()
+                    ->placeholder('None')
+                    ->toggleable(),
                 TextColumn::make('branch.name')->placeholder('Organization-wide')->sortable(),
                 TextColumn::make('created_at')->date()->sortable()->toggleable(),
             ])
@@ -97,6 +118,17 @@ class CustomerResource extends Resource
                     ->options(FilamentOptions::branches()),
             ])
             ->recordActions([
+                Action::make('viewTimeline')
+                    ->label('Timeline')
+                    ->icon(Heroicon::OutlinedClock)
+                    ->color('gray')
+                    ->modalHeading(fn (Customer $record): string => "Timeline: {$record->name}")
+                    ->modalDescription('Chronological service requests, work orders, estimates, invoices, and notes.')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close')
+                    ->modalContent(fn (Customer $record) => view('filament.pages.customer-timeline', [
+                        'timeline' => $record->timeline(),
+                    ])),
                 EditAction::make(),
                 DeleteAction::make(),
             ])

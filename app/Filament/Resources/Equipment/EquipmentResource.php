@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Equipment;
 
+use App\EquipmentStatus;
 use App\Filament\Resources\Concerns\ScopesToPermittedBranches;
 use App\Filament\Resources\Equipment\Pages\ManageEquipment;
 use App\Filament\Resources\Support\FilamentOptions;
@@ -9,6 +10,7 @@ use App\Models\Equipment;
 use App\Models\User;
 use App\UserRole;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
@@ -83,8 +85,8 @@ class EquipmentResource extends Resource
                 DatePicker::make('installed_at'),
                 DatePicker::make('warranty_expires_at'),
                 Select::make('status')
-                    ->options(['active' => 'Active', 'inactive' => 'Inactive', 'retired' => 'Retired'])
-                    ->default('active')
+                    ->options(FilamentOptions::enum(EquipmentStatus::cases()))
+                    ->default(EquipmentStatus::Active->value)
                     ->required(),
                 Textarea::make('notes')->rows(4)->columnSpanFull(),
             ]);
@@ -99,14 +101,28 @@ class EquipmentResource extends Resource
                 TextColumn::make('model')->searchable()->toggleable(),
                 TextColumn::make('serial_number')->searchable(),
                 TextColumn::make('customer.name')->searchable()->sortable(),
-                TextColumn::make('status')->badge(),
-                TextColumn::make('warranty_expires_at')->date()->sortable()->toggleable(),
+                TextColumn::make('status')
+                    ->badge()
+                    ->formatStateUsing(fn ($state): string => $state instanceof EquipmentStatus ? $state->label() : ucfirst((string) $state))
+                    ->color(fn ($state): string => $state instanceof EquipmentStatus ? $state->color() : 'gray'),
+                TextColumn::make('warranty_status')
+                    ->label('Warranty')
+                    ->badge()
+                    ->state(fn (Equipment $record): string => $record->warrantyStatusLabel())
+                    ->color(fn (Equipment $record): string => $record->isUnderWarranty() ? 'success' : 'gray'),
+                TextColumn::make('warranty_expires_at')->date()->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('branch_id')->options(FilamentOptions::branches()),
-                SelectFilter::make('status')->options(['active' => 'Active', 'inactive' => 'Inactive', 'retired' => 'Retired']),
+                SelectFilter::make('status')->options(FilamentOptions::enum(EquipmentStatus::cases())),
             ])
             ->recordActions([
+                Action::make('qrLookup')
+                    ->label('QR Page')
+                    ->icon(Heroicon::OutlinedQrCode)
+                    ->color('gray')
+                    ->url(fn (Equipment $record): string => $record->qrLookupUrl())
+                    ->openUrlInNewTab(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])
