@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EquipmentLookupController;
 use App\Http\Controllers\OrganizationInvitationController;
+use App\Http\Controllers\ReportDownloadController;
 use App\Livewire\Technician\TechnicianWorkspace;
 use Illuminate\Support\Facades\Route;
 
@@ -34,4 +35,5 @@ Route::get('/equipment/lookup/{serial}', [EquipmentLookupController::class, 'sho
 Route::middleware(['auth'])->group(function () {
     Route::get('/technician', TechnicianWorkspace::class)->name('technician.workspace');
     Route::get('/technician/{workOrder}', TechnicianWorkspace::class)->name('technician.workspace.show');
+    Route::get('/reports/download/{id}', ReportDownloadController::class)->name('reports.download');
 });
