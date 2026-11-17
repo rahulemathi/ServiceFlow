@@ -14,6 +14,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(RoleUserSeeder::class);
+        // Demo accounts and known credentials are only provisioned in local, testing, or development environments
+        if (app()->environment(['local', 'testing', 'development'])) {
+            $this->call(RoleUserSeeder::class);
+        }
     }
 }

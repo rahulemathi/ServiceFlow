@@ -5,12 +5,23 @@ namespace App\Models;
 use App\MembershipStatus;
 use App\UserRole;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use LogicException;
 
+/**
+ * @property int $id
+ * @property int $organization_id
+ * @property int $user_id
+ * @property MembershipStatus|string $status
+ * @property-read User|null $user
+ * @property-read Organization|null $organization
+ * @property-read Collection<int, MembershipRole> $roles
+ * @property-read Collection<int, Branch> $branches
+ */
 #[Fillable(['organization_id', 'user_id', 'status'])]
 class Membership extends Model
 {

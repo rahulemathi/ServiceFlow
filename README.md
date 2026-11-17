@@ -28,27 +28,30 @@ The implemented panel is an initial operations MVP, not a complete ServiceFlow p
 | Tests | Feature coverage for role and tenant access, tenant resource pages and data isolation, invoice totals, payment recording and limits, work-order transitions, estimate conversion, and technician availability | Broader workflow, authorization, and production-database coverage |
 | Product modules | Customer and equipment CRUD, service request conversion, work-order scheduling and status actions, maintenance contracts, estimate approval/invoice generation, marking invoices as sent, and payment recording | Recurring work-order generation, notifications, reports, and complete lifecycle workflows |
 
-## Demo User Roles & Credentials
+## Demo User Roles & Credentials (Development Only)
 
-The seed data provisions pre-configured accounts across all supported user roles under the demo organization **ServiceFlow HQ** (`slug: serviceflow-hq`) and branch **Main Branch** (`code: MAIN`).
+In permitted **local and development environments**, seed data provisions pre-configured test accounts across all supported user roles under the demo organization **ServiceFlow HQ** (`slug: serviceflow-hq`) and branch **Main Branch** (`code: MAIN`).
 
-> **Default Password:** `12345678` for all seeded accounts.  
-> **Sign In URL:** `http://localhost:8000/admin/login`  
-> **Tenant Dashboard:** `http://localhost:8000/admin/serviceflow-hq`  
+> [!WARNING]
+> **Development / Testing Only:** Demo accounts and the default password `12345678` are strictly prohibited in production and staging environments. `RoleUserSeeder` enforces this boundary and throws an exception if executed in production or staging.
+
+> **Default Development Password:** `12345678` (local/testing only)<br>
+> **Sign In URL:** `http://localhost:8000/admin/login`<br>
+> **Tenant Dashboard:** `http://localhost:8000/admin/serviceflow-hq`<br>
 > **Technician Field Portal:** `http://localhost:8000/technician`
 
 | Role | Name | Email Address | Password | Permissions & Primary Scope |
 | --- | --- | --- | --- | --- |
 | **Platform Administrator** | Super Administrator | `superadmin@example.com` | `12345678` | Global platform administration, cross-tenant management, System Settings (`Mail Settings`, `Branding & Logo`), and all operational modules. |
-| **Organization Owner** | Organization Owner | `organization@example.com` | `12345678` | Complete organization ownership, branding settings, branch control, all operations and billing within ServiceFlow HQ. |
-| **Organization Administrator** | Organization Administrator | `admin@example.com` | `12345678` | Full administrative control over staff, customers, service operations, dispatch, estimates, invoices, and payments. |
+| **Organization Owner** | Organization Owner | `organization@example.com` | `12345678` | Organization ownership, branch management, member management, and tenant business operations. Cannot alter platform branding or mail settings. |
+| **Organization Administrator** | Organization Administrator | `admin@example.com` | `12345678` | Administrative control over staff memberships, customers, service operations, dispatch, estimates, invoices, and payments. |
 | **Service Dispatcher** | Service Dispatcher | `dispatcher@example.com` | `12345678` | Service request triage, work order scheduling, dispatching, and technician weekly availability planning. |
 | **Service Manager** | Service Manager | `servicemanager@example.com` | `12345678` | Service operations oversight, maintenance contracts, work order approvals, equipment asset management. |
 | **Service Manager (Alt)** | Service Manager (Alt) | `manager@example.com` | `12345678` | Alternate manager profile for multi-branch and multi-shift supervisory operations. |
 | **Service Technician** | Service Technician | `technician@example.com` | `12345678` | Mobile Technician Workspace (`/technician`), active job execution, work logs, parts usage, and availability hours. |
 | **Organization Accountant** | Organization Accountant | `accountant@example.com` | `12345678` | Financial records, estimates approval, customer invoicing, payment recording, and balance tracking. |
 
-To seed or refresh these demo accounts at any time:
+To seed or refresh these demo accounts in a local development environment:
 ```powershell
 php artisan db:seed --class=RoleUserSeeder
 ```
@@ -89,12 +92,12 @@ Recurring maintenance agreements, covered assets, inspection schedules, and auto
 Commercial invoicing with line items, tax calculations, balance tracking, payment receipt recording, and PDF export status.
 ![Invoices & Billing](docs/screenshots/08-invoices.png)
 
-### 9. System Mail Settings
-Platform administration tool under **System settings** to configure Gmail OAuth / App Passwords or Custom SMTP with live test email delivery.
+### 9. System Mail Settings (Deployment Managed)
+Platform administration status tool under **System settings > Mail Settings** (restricted to Platform Administrators). Displays active deployment-configured mail transport parameters and allows sending diagnostic test emails without writing secrets to `.env` or exposing credentials.
 ![Mail Settings](docs/screenshots/09-mail-settings.png)
 
-### 10. Branding, Logo & Visual Customization
-Under **System settings** below Mail Settings: upload company logos, adjust display height, configure browser favicons, brand name, support emails, and choose portal accent color palettes.
+### 10. Branding, Logo & Visual Customization (Platform-Wide)
+Under **System settings > Branding & Logo** (restricted to Platform Administrators): configure company logos, display height, browser favicons, application brand name, support email, and primary accent color palette. Values are saved persistently in system settings without mutating `.env`.
 ![Branding & Customization](docs/screenshots/10-branding-settings.png)
 
 ### 11. Technician Mobile Field Workspace
@@ -195,7 +198,7 @@ The broader design direction also includes mobile technician workflows, addition
 
 The role and membership foundation is implemented. `platform_admin` is assigned globally. `organization_owner`, `admin`, `dispatcher`, and `technician` are assigned per organization membership, and one user may have multiple memberships and roles. Active organization owners and admins, plus platform admins, can access the Filament panel; dispatchers and technicians cannot. Operational resources and their selection lists are scoped to the active organization, with database constraints protecting cross-organization references.
 
-There is not yet a user or membership management screen. Initial user, organization, and owner membership setup must currently be done with an approved seeder or through Laravel Tinker. Avoid creating production users with shared or committed passwords.
+Tenant team members are managed under **Organization > Team members**. Membership-level operations manage organization status, assigned roles, and branch assignments. To protect user security across multi-tenant organizations, tenant administrators cannot alter a user's global credentials (name, email, or password); global user identity remains isolated from tenant membership management.
 
 The initial roles still need validation against the full organization workflows:
 
@@ -283,7 +286,10 @@ php artisan migrate
 php artisan migrate:status
 ```
 
-The `DatabaseSeeder` calls `RoleUserSeeder`, provisioning the `ServiceFlow HQ` organization and all 8 pre-configured role accounts (`superadmin@example.com`, `admin@example.com`, `technician@example.com`, etc., with default password `12345678`). Run `php artisan db:seed` to seed or reset these records.
+In local and development environments, `DatabaseSeeder` calls `RoleUserSeeder`, provisioning the `ServiceFlow HQ` organization and development accounts. In production or staging environments, `DatabaseSeeder` automatically excludes demo accounts to prevent insecure credentials from being provisioned. To seed development accounts locally, run:
+```powershell
+php artisan db:seed
+```
 
 ## Running the application and frontend assets
 

@@ -20,6 +20,9 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
+/**
+ * @property Schema $form
+ */
 class BrandingSettings extends Page
 {
     protected string $view = 'filament.pages.branding-settings';
@@ -44,7 +47,7 @@ class BrandingSettings extends Page
         /** @var User|null $user */
         $user = auth()->user();
 
-        return (bool) ($user?->hasPlatformRole(UserRole::PlatformAdmin) || $user?->isOrganizationOwner());
+        return (bool) $user?->hasPlatformRole(UserRole::PlatformAdmin);
     }
 
     public function mount(): void
@@ -191,15 +194,15 @@ class BrandingSettings extends Page
 
     public function save(): void
     {
+        abort_unless(static::canAccess(), 403);
+
         $data = $this->form->getState();
 
         foreach ($data as $key => $value) {
             SystemSetting::set($key, $value, 'branding');
         }
 
-        // If brand name changed, also update .env APP_NAME
         if (! empty($data['brand_name'])) {
-            $this->updateAppNameInEnv($data['brand_name']);
             config(['app.name' => $data['brand_name']]);
         }
 
@@ -212,6 +215,8 @@ class BrandingSettings extends Page
 
     public function resetDefaults(): void
     {
+        abort_unless(static::canAccess(), 403);
+
         $defaults = [
             'brand_name' => 'ServiceFlow',
             'brand_tagline' => 'Field Service & Maintenance Management',
@@ -234,26 +239,5 @@ class BrandingSettings extends Page
             ->body('Logo and theme settings have been restored to default values.')
             ->info()
             ->send();
-    }
-
-    protected function updateAppNameInEnv(string $name): void
-    {
-        $envPath = base_path('.env');
-
-        if (! file_exists($envPath)) {
-            return;
-        }
-
-        $content = file_get_contents($envPath);
-        $escaped = '"'.addcslashes($name, '"\\').'"';
-        $pattern = '/^APP_NAME=.*/m';
-
-        if (preg_match($pattern, $content)) {
-            $content = preg_replace($pattern, "APP_NAME={$escaped}", $content);
-        } else {
-            $content .= "\nAPP_NAME={$escaped}";
-        }
-
-        file_put_contents($envPath, $content);
     }
 }

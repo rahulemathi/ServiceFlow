@@ -26,33 +26,17 @@ class ManageTeamMembers extends ManageRecords
                 ->using(function (array $data): Membership {
                     $mustChangePassword = (bool) ($data['must_change_password'] ?? true);
 
-                    $user = User::firstOrCreate(
-                        ['email' => $data['email']],
-                        [
+                    $user = User::where('email', $data['email'])->first();
+
+                    if (! $user) {
+                        $user = User::create([
                             'name' => $data['name'],
+                            'email' => $data['email'],
                             'password' => filled($data['password'] ?? null)
                                 ? Hash::make($data['password'])
                                 : Hash::make(Str::random(16)),
                             'must_change_password' => $mustChangePassword,
-                        ],
-                    );
-
-                    $userUpdates = [];
-
-                    if (filled($data['name']) && $user->name !== $data['name']) {
-                        $userUpdates['name'] = $data['name'];
-                    }
-
-                    if (filled($data['password'] ?? null)) {
-                        $userUpdates['password'] = Hash::make($data['password']);
-                    }
-
-                    if (isset($data['must_change_password'])) {
-                        $userUpdates['must_change_password'] = $mustChangePassword;
-                    }
-
-                    if (! empty($userUpdates)) {
-                        $user->update($userUpdates);
+                        ]);
                     }
 
                     $tenant = Filament::getTenant();
@@ -71,7 +55,10 @@ class ManageTeamMembers extends ManageRecords
                         'status' => $data['status'] ?? MembershipStatus::Active->value,
                     ]);
 
-                    $selectedRoles = collect($data['roles'] ?? [UserRole::Technician->value])
+                    /** @var array<int, string|UserRole> $rawRoles */
+                    $rawRoles = is_array($data['roles'] ?? null) ? $data['roles'] : [UserRole::Technician->value];
+
+                    $selectedRoles = collect($rawRoles)
                         ->map(fn ($r) => is_string($r) ? UserRole::tryFrom($r) : $r)
                         ->filter();
 
@@ -88,7 +75,7 @@ class ManageTeamMembers extends ManageRecords
                     $membership->roles()->whereNotIn('role', $selectedRoles->pluck('value'))->delete();
 
                     foreach ($selectedRoles as $role) {
-                        if ($role instanceof UserRole && $role->isOrganizationRole()) {
+                        if ($role->isOrganizationRole()) {
                             $membership->assignRole($role);
                         }
                     }

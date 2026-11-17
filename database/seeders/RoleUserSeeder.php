@@ -21,6 +21,10 @@ class RoleUserSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! app()->environment(['local', 'testing', 'development'])) {
+            throw new \RuntimeException('Demo accounts and known credentials cannot be seeded in ['.app()->environment().'] environment.');
+        }
+
         $organization = Organization::firstOrCreate(
             ['slug' => 'serviceflow-hq'],
             ['name' => 'ServiceFlow HQ']

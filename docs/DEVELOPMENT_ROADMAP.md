@@ -9,10 +9,10 @@ Complete tenant/security foundations and production safety before exposing addit
 
 ## Milestones, dependencies, and acceptance criteria
 
-| Order | Milestone | Priority | Dependencies | Acceptance criteria |
-|---|---|---|---|---|
-| 0 | Security and organization-settings foundation | **Critical / next** | Existing organization, membership, and role foundation | No shared production default passwords; organization owners cannot affect another tenant's branding; SMTP secrets are not written to `.env` by request handlers; membership edits cannot silently alter a shared account's credentials; focused tenant-boundary tests pass. Resolve branding ownership and mail-configuration policy before schema/UI changes. |
-| 1 | Organization onboarding, branches, members, and authorization | **Critical** | Milestone 0; existing organization and membership schema | An owner/admin can onboard and configure an organization and manage branches/members. Secure expiring invitations can be accepted/revoked. Role and branch permissions are enforced server-side. Multiple memberships behave correctly. Cross-tenant ID and branch access tests pass. Important actions produce an audit record. |
+| Order | Milestone | Priority | Dependencies | Acceptance criteria | Status |
+|---|---|---|---|---|---|
+| 0 | Security and organization-settings foundation | **Completed** | Existing organization, membership, and role foundation | No shared production default passwords; organization owners cannot affect another tenant's branding; SMTP secrets are not written to `.env` by request handlers; membership edits cannot silently alter a shared account's credentials; focused tenant-boundary tests pass. | **Implemented & Verified** |
+| 1 | Organization onboarding, branches, members, and authorization | **Critical / Next** | Milestone 0; existing organization and membership schema | An owner/admin can onboard and configure an organization and manage branches/members. Secure expiring invitations can be accepted/revoked. Role and branch permissions are enforced server-side. Multiple memberships behave correctly. Cross-tenant ID and branch access tests pass. Important actions produce an audit record. | Planned |
 | 2 | Complete CRM and equipment lifecycle | **High** | Milestone 1; current customers, addresses, equipment | Customer timeline joins service and financial history; multiple contacts and tenant-scoped notes/documents are supported. Equipment service history, warranty tracking, and lifecycle state work. QR lookup cannot disclose cross-tenant equipment. |
 | 3 | Complete request and work-order lifecycle | **Critical** | Milestone 1 and CRM entities from milestone 2 | Request intake and attachments/comments are tenant-authorized; explicit status transitions and reasons are recorded; work-order checklist/evidence requirements and supervisor/customer sign-off are enforced; all cross-tenant mutations are rejected. |
 | 4 | Dispatch and technician workspace | **Critical** | Milestone 3; technician/member/branch authorization from milestone 1 | Dispatchers see availability/workload; assignment prevents overlapping bookings unless an authorized override is audited. Technicians access only assigned work in their selected organization and can complete required job execution steps. Test multiple memberships and direct Livewire action calls. |
@@ -34,12 +34,18 @@ Complete tenant/security foundations and production safety before exposing addit
 5. Select providers and queue operations before building notifications, exports, or API clients (8-10).
 6. Treat subscription billing and production readiness as independent launch gates (11-12), not as implied consequences of the current demo panel.
 
-## Next increment: scope proposal
+## Completed milestone: Milestone 0
 
-The smallest useful next increment is to remove the known insecure seed behavior and close the global-settings/member-identity boundaries identified in the audit. Before work starts, confirm:
+Milestone 0 (**Security and organization-settings foundation**) is complete and verified:
+- Platform branding is restricted exclusively to platform administrators; no runtime `.env` modification occurs.
+- Platform SMTP settings are deployment-managed via Laravel configuration; secrets are never output to forms or markup; no runtime `.env` editing occurs.
+- Demo-account provisioning is restricted to `local`, `development`, and `testing` environments. Direct or automated seeding in `production` or `staging` is blocked.
+- Membership editing is decoupled from global user account credentials (name, email, password, authentication state).
+- 29 focused regression tests cover all Milestone 0 security guarantees; total suite has 129 passing tests.
 
-- Whether branding should be organization-specific, platform-global, or support both scopes.
-- Whether SMTP is platform-wide only or must support per-organization delivery, and whether secrets remain deployment-managed.
-- Whether the demo seeder should be disabled outside local/testing environments or moved to an explicitly named development seeder.
+## Next increment: Milestone 1 proposal
 
-Do not begin unrelated module implementation until this increment's authorization, isolation, and regression tests pass.
+With Milestone 0 completed, the recommended first increment for **Milestone 1** (Organization onboarding, branches, members, and authorization) is:
+- Organization onboarding flow and organization profile management.
+- Secure, token-based, expiring member invitations with accept/revoke lifecycle.
+- Server-side branch access enforcement across resources.

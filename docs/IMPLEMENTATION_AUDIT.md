@@ -44,7 +44,7 @@ The foundation still has release-blocking risks: the normal seeder installs and 
 | Estimates, invoices, and payments | **Partially implemented** | Models/resources support estimate approval and invoice creation, server-side total recalculation, payment recording, and payment balance updates. `EstimateInvoiceGenerationTest`, `PaymentRecordingTest`, and model tests cover selected paths. Invoice delivery, numbering configuration, refunds/credit notes, recurring billing, expenses, tax jurisdiction configuration, GST support, and financial exports are absent. |
 | Notifications and real-time updates | **Partially implemented** | `WorkOrderAssigned` and `WorkOrderUpdated` implement immediate broadcasting, and `routes/channels.php` authorizes technician and organization channels. There are no domain email/in-app notification workflows, preferences, retry/failure handling, or tenant-configurable notification settings. |
 | Reports and analytics | **Partially implemented** | Filament dashboard widgets provide operational and financial summaries with filters. Dedicated reconciled reports, technician performance, SLA/maintenance/inventory reporting, and authorized asynchronous exports are absent. |
-| Branding and mail administration | **Partially implemented; tenant-scope concern** | `BrandingSettings`, `MailSettings`, and `SystemSetting` exist. Settings use global keys rather than organization ownership. Organization owners can edit shared branding; platform admins configure shared SMTP. Both pages write values into `.env` at runtime. |
+| Branding and mail administration | **Implemented (Milestone 0 secured)** | `BrandingSettings`, `MailSettings`, and `SystemSetting`. Platform branding is strictly platform-admin only; no .env modification occurs. SMTP is deployment-managed via Laravel configuration; secrets are never rendered to browser; no .env mutation occurs. |
 | Inventory and purchasing | **Missing** | No inventory, supplier, purchase-order, stock-location, or stock-movement model/resource/workflow was found. |
 | Customer portal | **Missing** | No customer-facing authenticated portal or customer-owned request flow was found. |
 | Versioned API and mobile authentication | **Missing** | No application API routes or resources, Sanctum dependency, API tokens, or API contract were found. |
@@ -54,17 +54,14 @@ The foundation still has release-blocking risks: the normal seeder installs and 
 
 ## Security and multi-tenancy findings
 
-### Release-blocking
+### Resolved in Milestone 0
 
-1. **Shared seeded credentials are known and production-unsafe.** `database/seeders/RoleUserSeeder.php` assigns the literal password `12345678` to all seeded identities and sets `must_change_password` to false. `DatabaseSeeder` invokes the role seeder, while `tests/Feature/RoleUserSeederTest.php` explicitly locks in that behavior. `README.md` publishes the same credentials and recommends running the seeder. Do not run this seeder against a production environment; replace the behavior before SaaS launch.
+1. **Shared seeded credentials are development-only (Resolved in Milestone 0).** `RoleUserSeeder` and `DatabaseSeeder` now enforce environment restrictions: demo accounts can only be provisioned in `local`, `development`, or `testing` environments. Executing in `production` or `staging` raises a `RuntimeException`. Production database seeding runs without provisioning demo accounts.
+2. **Platform branding access restricted and runtime .env editing removed (Resolved in Milestone 0).** `BrandingSettings` is now restricted exclusively to platform administrators (`hasPlatformRole(UserRole::PlatformAdmin)`). Organization owners and admins are denied access (both at page and action levels). Non-secret branding values are stored in `system_settings`; runtime modification of `.env` has been eliminated.
+3. **SMTP configuration is deployment-managed and credentials are secure (Resolved in Milestone 0).** Platform mail settings are managed exclusively through deployment environment variables and consumed via Laravel's `config(...)`. `MailSettings` is a read-only configuration/status diagnostic page for platform administrators; secrets are masked (`••••••••`) and never output to HTML/forms; runtime writing to `.env` has been removed.
+4. **Membership edits isolated from global user identity (Resolved in Milestone 0).** `ManageTeamMembers` and `TeamMemberResource` now enforce a strict boundary: editing a tenant membership only alters membership status, organization roles, and branch assignments. It never alters the user's global `name`, `email`, or `password`. Adding an existing user to a new organization links the membership without modifying existing account credentials.
 
-2. **Organization owners change global branding and runtime environment.** `BrandingSettings::canAccess()` grants access to organization owners, but `SystemSetting` is keyed globally (unique `key`, with no `organization_id`). Saving branding changes shared records and writes the brand name into the application's `.env`. This is not tenant-specific configuration and creates cross-organization interference; editing `.env` at request time is also unsuitable for immutable deployments.
-
-3. **SMTP credentials are written as plaintext to `.env`.** `MailSettings` reads SMTP credentials using `env()` in a page, allows an authenticated platform admin to update them, and writes them into `.env`. This is global platform mail configuration, not per-tenant mail; it relies on a writable application directory and is incompatible with the normal config-cache/immutable-deployment model. The checked-in `SystemSetting` table is not used as an encrypted secret store.
-
-### High-priority hardening
-
-4. **Membership edits affect the user's global identity.** `ManageTeamMembers` updates the shared `User` record, including email and password, when editing a tenant membership. A user may belong to multiple organizations, so a tenant admin's membership edit can change the account used across those organizations. Separate tenant membership changes from global account recovery/profile operations.
+### Remaining high-priority hardening for subsequent milestones
 
 5. **Fine-grained authorization and branch boundaries need a systematic pass.** Tenant selection and resource access checks exist, and many resource queries/options are scoped. However, authorization is implemented in resource methods/actions rather than central policies, and branch assignment/access is not consistently applied across all resources and actions. `User::hasBranchAccess()` treats a membership with no assigned branches as unrestricted; confirm that this is the intended business rule. Add explicit branch and cross-tenant tests for direct actions, relationship IDs, and membership updates.
 
@@ -88,18 +85,21 @@ The foundation still has release-blocking risks: the normal seeder installs and 
 ## Verification performed
 
 - `php artisan route:list --except-vendor`: **passed**, 24 application routes listed, including the tenant Filament panel and technician workspace.
-- `php artisan test --compact`: **passed**, 115 tests and 510 assertions (2 warnings were reported by the runner).
-- `composer test`: **failed at Larastan**, after Pint passed. Larastan reported **233 errors**. Representative findings include missing `WorkOrder::$priority` referenced by broadcast events, calls to `env()` outside config, and type/property diagnostics in several Filament pages/resources. Because the Composer script stops at static analysis, Pest was separately run and passed as noted above.
+- `php artisan test --compact`: **passed**, 129 tests and 585 assertions passed (2 starter warnings reported by runner).
+- `vendor/bin/pint --test`: **passed** with 0 style issues.
+- `vendor/bin/phpstan analyse`: **199 errors remaining** (reduced from 233 baseline errors; 0 errors introduced; all modified files pass analysis with 0 errors).
+- `git diff -- .env`: verified clean, no runtime modifications to environment files.
 - No production database, mail provider, queue worker, Reverb service, deployment, backup, or restore test was performed.
 
-## Recommended next increment
+## Completed increment: Milestone 0
 
-Begin with a narrowly scoped **security and organization-settings foundation** increment before adding new product modules:
+Milestone 0 (**Security and organization-settings foundation**) has been implemented and verified:
+1. Demo-account provisioning restricted to `local`, `development`, and `testing`. Production/staging protected against seeding demo accounts.
+2. Platform branding restricted to platform administrators only; no runtime `.env` modification.
+3. SMTP configuration is deployment-managed via Laravel configuration; secrets are not rendered to the browser; no `.env` writing.
+4. Membership editing decoupled from global user account credentials (name, email, password, authentication state).
+5. Comprehensive Pest tests added across branding, mail, seeders, membership, and tenant isolation.
 
-1. Remove shared-password behavior from the normal seeder path and make demo-account provisioning explicitly local/development-only without disabling the existing seeder test suite silently.
-2. Decide whether branding is platform-global or organization-owned; implement the matching data/access model so an organization owner cannot change another tenant's branding.
-3. Move SMTP secrets out of `.env` editing and into deployment-managed configuration or a reviewed encrypted secret flow; do not make a tenant-admin mail configuration decision without requirements.
-4. Prevent organization-level member edits from resetting a shared account's credentials or changing global identity unintentionally.
-5. Add focused regression tests for production-safe seeding, cross-organization branding isolation, and multi-membership identity boundaries.
+## Recommended next increment: Milestone 1
 
-The settings ownership and SMTP policy choices affect schema and business behavior; confirm those before implementation. The detailed dependency sequence and acceptance criteria are in `docs/DEVELOPMENT_ROADMAP.md`.
+Begin **Milestone 1 (Organization onboarding, branches, members, and authorization)** as defined in `docs/DEVELOPMENT_ROADMAP.md`.

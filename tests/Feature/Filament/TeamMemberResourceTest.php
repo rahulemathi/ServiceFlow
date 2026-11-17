@@ -97,7 +97,7 @@ it('prevents creating duplicate memberships for the same email in the same organ
         ->assertHasActionErrors(['email']);
 });
 
-it('updates team member roles and details', function () {
+it('updates team member roles and details while preserving global user identity', function () {
     $techUser = User::factory()->create([
         'name' => 'Sam Worker',
         'email' => 'sam@acmeservices.com',
@@ -112,8 +112,8 @@ it('updates team member roles and details', function () {
 
     Livewire::test(ManageTeamMembers::class)
         ->callTableAction('edit', $membership, data: [
-            'name' => 'Samuel Worker',
-            'email' => 'samuel@acmeservices.com',
+            'name' => 'Attempted Name Change',
+            'email' => 'attempted-email-change@acmeservices.com',
             'roles' => [UserRole::Technician->value, UserRole::Dispatcher->value],
             'status' => MembershipStatus::Active->value,
             'branches' => [$this->branch->id],
@@ -121,8 +121,8 @@ it('updates team member roles and details', function () {
         ->assertHasNoTableActionErrors();
 
     $membership->refresh();
-    expect($membership->user->name)->toBe('Samuel Worker')
-        ->and($membership->user->email)->toBe('samuel@acmeservices.com')
+    expect($membership->user->name)->toBe('Sam Worker')
+        ->and($membership->user->email)->toBe('sam@acmeservices.com')
         ->and($membership->hasRole(UserRole::Technician))->toBeTrue()
         ->and($membership->hasRole(UserRole::Dispatcher))->toBeTrue();
 });

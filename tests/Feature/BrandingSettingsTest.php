@@ -8,6 +8,7 @@ use App\Models\User;
 use App\UserRole;
 use Filament\Facades\Filament;
 use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 beforeEach(function () {
     $this->organization = Organization::firstOrCreate(
@@ -21,8 +22,19 @@ beforeEach(function () {
     ]);
     $this->platformAdmin->assignPlatformRole(UserRole::PlatformAdmin);
 
+    $this->orgOwner = User::factory()->create([
+        'email' => 'org-owner-branding-test@example.com',
+        'must_change_password' => false,
+    ]);
+    $ownerMembership = Membership::create([
+        'organization_id' => $this->organization->id,
+        'user_id' => $this->orgOwner->id,
+        'status' => 'active',
+    ]);
+    $ownerMembership->assignRole(UserRole::OrganizationOwner);
+
     $this->orgAdmin = User::factory()->create([
-        'email' => 'org-branding-test@example.com',
+        'email' => 'org-admin-branding-test@example.com',
         'must_change_password' => false,
     ]);
     $membership = Membership::create([
@@ -45,7 +57,19 @@ it('allows platform administrators to access the branding settings page', functi
         ->assertOk();
 });
 
-it('denies access to non-platform admin users', function () {
+it('denies access to organization owners', function () {
+    $this->actingAs($this->orgOwner);
+    Filament::setCurrentPanel('admin');
+    Filament::bootCurrentPanel();
+    Filament::setTenant($this->organization);
+
+    expect(BrandingSettings::canAccess())->toBeFalse();
+
+    $this->get(BrandingSettings::getUrl(tenant: $this->organization))
+        ->assertForbidden();
+});
+
+it('denies access to organization administrators', function () {
     $this->actingAs($this->orgAdmin);
     Filament::setCurrentPanel('admin');
     Filament::bootCurrentPanel();
@@ -57,11 +81,26 @@ it('denies access to non-platform admin users', function () {
         ->assertForbidden();
 });
 
-it('saves branding and portal identity settings to system_settings table', function () {
+it('rejects direct save and reset actions from unauthorized users', function () {
+    $this->actingAs($this->orgOwner);
+    Filament::setCurrentPanel('admin');
+    Filament::bootCurrentPanel();
+    Filament::setTenant($this->organization);
+
+    expect(fn () => (new BrandingSettings)->save())
+        ->toThrow(HttpException::class);
+
+    expect(fn () => (new BrandingSettings)->resetDefaults())
+        ->toThrow(HttpException::class);
+});
+
+it('saves branding and portal identity settings to system_settings table without modifying .env', function () {
     $this->actingAs($this->platformAdmin);
     Filament::setCurrentPanel('admin');
     Filament::bootCurrentPanel();
     Filament::setTenant($this->organization);
+
+    $envFileBefore = file_exists(base_path('.env')) ? file_get_contents(base_path('.env')) : '';
 
     Livewire::test(BrandingSettings::class)
         ->fillForm([
@@ -82,9 +121,12 @@ it('saves branding and portal identity settings to system_settings table', funct
         ->and(SystemSetting::get('primary_color'))->toBe('emerald')
         ->and(SystemSetting::get('support_email'))->toBe('help@acme-flow.com')
         ->and(SystemSetting::get('footer_text'))->toBe('© 2026 Acme Corp. All rights reserved.');
+
+    $envFileAfter = file_exists(base_path('.env')) ? file_get_contents(base_path('.env')) : '';
+    expect($envFileAfter)->toBe($envFileBefore);
 });
 
-it('resets branding settings back to defaults', function () {
+it('resets branding settings back to defaults without modifying .env', function () {
     $this->actingAs($this->platformAdmin);
     Filament::setCurrentPanel('admin');
     Filament::bootCurrentPanel();
@@ -94,10 +136,15 @@ it('resets branding settings back to defaults', function () {
     SystemSetting::set('brand_name', 'Custom Brand', 'branding');
     SystemSetting::set('primary_color', 'rose', 'branding');
 
+    $envFileBefore = file_exists(base_path('.env')) ? file_get_contents(base_path('.env')) : '';
+
     Livewire::test(BrandingSettings::class)
         ->call('resetDefaults')
         ->assertNotified('Branding reset to defaults');
 
     expect(SystemSetting::get('brand_name'))->toBe('ServiceFlow')
         ->and(SystemSetting::get('primary_color'))->toBe('blue');
+
+    $envFileAfter = file_exists(base_path('.env')) ? file_get_contents(base_path('.env')) : '';
+    expect($envFileAfter)->toBe($envFileBefore);
 });

@@ -6,7 +6,9 @@ use App\Models\Organization;
 use App\Models\User;
 use App\UserRole;
 use Filament\Facades\Filament;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 beforeEach(function () {
     $this->organization = Organization::firstOrCreate(
@@ -20,16 +22,27 @@ beforeEach(function () {
     ]);
     $this->platformAdmin->assignPlatformRole(UserRole::PlatformAdmin);
 
+    $this->orgOwner = User::factory()->create([
+        'email' => 'org-owner-test@example.com',
+        'must_change_password' => false,
+    ]);
+    $ownerMembership = Membership::create([
+        'organization_id' => $this->organization->id,
+        'user_id' => $this->orgOwner->id,
+        'status' => 'active',
+    ]);
+    $ownerMembership->assignRole(UserRole::OrganizationOwner);
+
     $this->orgAdmin = User::factory()->create([
         'email' => 'org-admin-test@example.com',
         'must_change_password' => false,
     ]);
-    $membership = Membership::create([
+    $adminMembership = Membership::create([
         'organization_id' => $this->organization->id,
         'user_id' => $this->orgAdmin->id,
         'status' => 'active',
     ]);
-    $membership->assignRole(UserRole::Admin);
+    $adminMembership->assignRole(UserRole::Admin);
 });
 
 it('allows only platform administrators to access the mail settings page', function () {
@@ -44,70 +57,107 @@ it('allows only platform administrators to access the mail settings page', funct
         ->assertOk();
 });
 
-it('denies access to non-platform admin users', function () {
-    $this->actingAs($this->orgAdmin);
+it('denies access to organization owners and organization admins', function () {
+    // Org Owner
+    $this->actingAs($this->orgOwner);
     Filament::setCurrentPanel('admin');
     Filament::bootCurrentPanel();
     Filament::setTenant($this->organization);
 
     expect(MailSettings::canAccess())->toBeFalse();
+    $this->get(MailSettings::getUrl(tenant: $this->organization))
+        ->assertForbidden();
 
+    // Org Admin
+    $this->actingAs($this->orgAdmin);
+    Filament::setTenant($this->organization);
+
+    expect(MailSettings::canAccess())->toBeFalse();
     $this->get(MailSettings::getUrl(tenant: $this->organization))
         ->assertForbidden();
 });
 
-it('saves Gmail configuration to .env with preset host, port, and APP_NAME as from name', function () {
+it('loads deployment-managed configuration from Laravel config and does not expose secrets', function () {
+    config([
+        'mail.default' => 'smtp',
+        'mail.mailers.smtp.host' => 'smtp.deploy-server.com',
+        'mail.mailers.smtp.port' => 587,
+        'mail.mailers.smtp.scheme' => 'tls',
+        'mail.mailers.smtp.username' => 'deploy-user@example.com',
+        'mail.mailers.smtp.password' => 'super-secret-deployment-password',
+        'mail.from.address' => 'system@serviceflow.com',
+        'mail.from.name' => 'ServiceFlow Platform',
+    ]);
+
     $this->actingAs($this->platformAdmin);
     Filament::setCurrentPanel('admin');
     Filament::bootCurrentPanel();
     Filament::setTenant($this->organization);
 
-    $component = Livewire::test(MailSettings::class)
-        ->fillForm([
-            'provider' => 'gmail',
-            'mail_username' => 'testuser@gmail.com',
-            'mail_password' => 'abcd efgh ijkl mnop',
-            'mail_from_address' => 'testuser@gmail.com',
-        ])
-        ->call('save');
+    $component = Livewire::test(MailSettings::class);
 
-    $component->assertHasNoFormErrors();
+    $component->assertSchemaStateSet([
+        'mail_mailer' => 'smtp',
+        'mail_host' => 'smtp.deploy-server.com',
+        'mail_port' => '587',
+        'mail_scheme' => 'tls',
+        'mail_username' => 'deploy-user@example.com',
+        'mail_from_address' => 'system@serviceflow.com',
+        'mail_from_name' => 'ServiceFlow Platform',
+    ]);
 
-    $envContent = file_get_contents(base_path('.env'));
-    expect($envContent)->toContain('MAIL_MAILER=smtp')
-        ->and($envContent)->toContain('MAIL_HOST=smtp.gmail.com')
-        ->and($envContent)->toContain('MAIL_PORT=587')
-        ->and($envContent)->toContain('MAIL_SCHEME=tls')
-        ->and($envContent)->toContain('MAIL_USERNAME=testuser@gmail.com')
-        ->and($envContent)->toContain('MAIL_FROM_NAME="${APP_NAME}"');
+    // Password must never be exposed
+    $state = $component->get('data');
+    expect($state)->not->toHaveKey('mail_password')
+        ->and($state['mail_password_status'])->not->toContain('super-secret-deployment-password')
+        ->and($state['mail_password_status'])->toContain('••••••••');
 });
 
-it('saves custom SMTP configuration when other provider is selected', function () {
+it('does not allow requests to write SMTP credentials into .env', function () {
     $this->actingAs($this->platformAdmin);
     Filament::setCurrentPanel('admin');
     Filament::bootCurrentPanel();
     Filament::setTenant($this->organization);
 
-    $component = Livewire::test(MailSettings::class)
-        ->fillForm([
-            'provider' => 'other',
-            'mail_mailer' => 'smtp',
-            'mail_host' => 'smtp.custom-mail.com',
-            'mail_port' => 465,
-            'mail_scheme' => 'ssl',
-            'mail_username' => 'custom-smtp-user',
-            'mail_password' => 'secret-smtp-password',
-            'mail_from_address' => 'alerts@custom-domain.com',
+    $envFileBefore = file_exists(base_path('.env')) ? file_get_contents(base_path('.env')) : '';
+
+    $component = Livewire::test(MailSettings::class);
+
+    // Assert that 'save' method does not exist or cannot be called to modify .env
+    expect(method_exists(MailSettings::class, 'save'))->toBeFalse();
+    expect(method_exists(MailSettings::class, 'updateEnvironmentFile'))->toBeFalse();
+
+    $envFileAfter = file_exists(base_path('.env')) ? file_get_contents(base_path('.env')) : '';
+    expect($envFileAfter)->toBe($envFileBefore);
+});
+
+it('allows platform administrators to dispatch a test email using server configuration', function () {
+    Mail::spy();
+
+    $this->actingAs($this->platformAdmin);
+    Filament::setCurrentPanel('admin');
+    Filament::bootCurrentPanel();
+    Filament::setTenant($this->organization);
+
+    Livewire::test(MailSettings::class)
+        ->callAction('testEmail', data: [
+            'recipient' => 'diagnostics@serviceflow.com',
         ])
-        ->call('save');
+        ->assertNotified('Test email dispatched');
 
-    $component->assertHasNoFormErrors();
+    Mail::shouldHaveReceived('raw');
+});
 
-    $envContent = file_get_contents(base_path('.env'));
-    expect($envContent)->toContain('MAIL_HOST=smtp.custom-mail.com')
-        ->and($envContent)->toContain('MAIL_PORT=465')
-        ->and($envContent)->toContain('MAIL_SCHEME=ssl')
-        ->and($envContent)->toContain('MAIL_USERNAME=custom-smtp-user')
-        ->and($envContent)->toContain('MAIL_FROM_ADDRESS=alerts@custom-domain.com')
-        ->and($envContent)->toContain('MAIL_FROM_NAME="${APP_NAME}"');
+it('rejects test email execution from unauthorized users', function () {
+    Mail::fake();
+
+    $this->actingAs($this->orgAdmin);
+    Filament::setCurrentPanel('admin');
+    Filament::bootCurrentPanel();
+    Filament::setTenant($this->organization);
+
+    expect(fn () => (new MailSettings)->sendTestEmail('hacker@example.com'))
+        ->toThrow(HttpException::class);
+
+    Mail::assertNothingSent();
 });

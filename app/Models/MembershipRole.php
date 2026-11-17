@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use LogicException;
 
+/**
+ * @property int $id
+ * @property int $membership_id
+ * @property UserRole $role
+ * @property-read Membership $membership
+ */
 #[Fillable(['membership_id', 'role'])]
 class MembershipRole extends Model
 {

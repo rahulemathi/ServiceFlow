@@ -6,6 +6,7 @@ use App\Filament\Resources\Support\FilamentOptions;
 use App\Filament\Resources\TeamMembers\Pages\ManageTeamMembers;
 use App\MembershipStatus;
 use App\Models\Membership;
+use App\Models\MembershipRole;
 use App\Models\User;
 use App\UserRole;
 use BackedEnum;
@@ -25,7 +26,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class TeamMemberResource extends Resource
@@ -62,12 +62,16 @@ class TeamMemberResource extends Resource
                             ->label('Full name')
                             ->required()
                             ->maxLength(255)
+                            ->disabled(fn (string $operation): bool => $operation === 'edit')
+                            ->helperText(fn (string $operation): ?string => $operation === 'edit' ? 'Global user name cannot be modified from tenant membership.' : null)
                             ->placeholder('e.g. Alex Rivera'),
                         TextInput::make('email')
                             ->label('Email address')
                             ->email()
                             ->required()
                             ->maxLength(255)
+                            ->disabled(fn (string $operation): bool => $operation === 'edit')
+                            ->helperText(fn (string $operation): ?string => $operation === 'edit' ? 'Global user email cannot be modified from tenant membership.' : null)
                             ->placeholder('e.g. alex@serviceflow.com')
                             ->rules([
                                 fn (string $operation, ?Membership $record): Closure => function (string $attribute, mixed $value, Closure $fail) use ($operation, $record): void {
@@ -87,12 +91,14 @@ class TeamMemberResource extends Resource
                             ->label('Password')
                             ->password()
                             ->revealable()
+                            ->visible(fn (string $operation): bool => $operation === 'create')
                             ->required(fn (string $operation): bool => $operation === 'create')
-                            ->helperText(fn (string $operation): ?string => $operation === 'edit' ? 'Leave blank to retain current password.' : 'Minimum 8 characters recommended.')
+                            ->helperText('Minimum 8 characters recommended.')
                             ->columnSpanFull(),
                         Checkbox::make('must_change_password')
                             ->label('Require password change on next login')
                             ->default(true)
+                            ->visible(fn (string $operation): bool => $operation === 'create')
                             ->helperText('When enabled, the user is redirected to set a new password on their first login before gaining access.')
                             ->columnSpanFull(),
                     ])
@@ -246,9 +252,8 @@ class TeamMemberResource extends Resource
                         return [
                             'name' => $record->user?->name,
                             'email' => $record->user?->email,
-                            'must_change_password' => (bool) $record->user?->must_change_password,
                             'status' => $record->status instanceof MembershipStatus ? $record->status->value : (string) $record->status,
-                            'roles' => $record->roles->map(fn ($r) => $r->role instanceof UserRole ? $r->role->value : (string) $r->role)->all(),
+                            'roles' => $record->roles->map(fn (MembershipRole $r): string => $r->role->value)->all(),
                             'branches' => $record->branches->pluck('id')->all(),
                         ];
                     })
@@ -256,7 +261,10 @@ class TeamMemberResource extends Resource
                         /** @var User|null $currentUser */
                         $currentUser = auth()->user();
 
-                        $selectedRoles = collect($data['roles'] ?? [])
+                        /** @var array<int, string|UserRole> $rawRoles */
+                        $rawRoles = is_array($data['roles'] ?? null) ? $data['roles'] : [];
+
+                        $selectedRoles = collect($rawRoles)
                             ->map(fn ($r) => is_string($r) ? UserRole::tryFrom($r) : $r)
                             ->filter();
 
@@ -288,20 +296,6 @@ class TeamMemberResource extends Resource
                             }
                         }
 
-                        if ($record->user) {
-                            $userUpdates = [
-                                'name' => $data['name'],
-                                'email' => $data['email'],
-                                'must_change_password' => (bool) ($data['must_change_password'] ?? false),
-                            ];
-
-                            if (filled($data['password'] ?? null)) {
-                                $userUpdates['password'] = Hash::make($data['password']);
-                            }
-
-                            $record->user->update($userUpdates);
-                        }
-
                         $record->update([
                             'status' => $data['status'] ?? $record->status,
                         ]);
@@ -309,7 +303,7 @@ class TeamMemberResource extends Resource
                         $record->roles()->whereNotIn('role', $selectedRoles->pluck('value'))->delete();
 
                         foreach ($selectedRoles as $role) {
-                            if ($role instanceof UserRole && $role->isOrganizationRole()) {
+                            if ($role->isOrganizationRole()) {
                                 $record->assignRole($role);
                             }
                         }
