@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-#[Fillable(['organization_id', 'branch_id', 'service_request_id', 'customer_id', 'customer_address_id', 'equipment_id', 'assigned_to_user_id', 'title', 'description', 'status', 'status_reason', 'scheduled_start_at', 'scheduled_end_at', 'completed_at', 'completion_notes', 'customer_signature_name', 'customer_signed_at', 'supervisor_approved_by', 'supervisor_approved_at', 'supervisor_signature_notes'])]
+#[Fillable(['organization_id', 'branch_id', 'service_request_id', 'customer_id', 'customer_address_id', 'equipment_id', 'assigned_to_user_id', 'title', 'description', 'status', 'status_reason', 'scheduled_start_at', 'scheduled_end_at', 'completed_at', 'completion_notes', 'customer_signature_name', 'customer_signed_at', 'supervisor_approved_by', 'supervisor_approved_at', 'supervisor_signature_notes', 'has_overlap_override', 'overlap_override_reason', 'overlap_override_by_id'])]
 class WorkOrder extends Model
 {
     protected $attributes = [
@@ -31,6 +31,7 @@ class WorkOrder extends Model
             'completed_at' => 'datetime',
             'customer_signed_at' => 'datetime',
             'supervisor_approved_at' => 'datetime',
+            'has_overlap_override' => 'boolean',
         ];
     }
 
@@ -90,6 +91,40 @@ class WorkOrder extends Model
                 throw ValidationException::withMessages([
                     'scheduled_end_at' => 'The scheduled end must be later than the scheduled start.',
                 ]);
+            }
+
+            if (
+                $workOrder->assigned_to_user_id !== null
+                && $workOrder->scheduled_start_at !== null
+                && $workOrder->scheduled_end_at !== null
+                && ! in_array($workOrder->status, [WorkOrderStatus::Completed, WorkOrderStatus::Cancelled], true)
+            ) {
+                if (! $workOrder->has_overlap_override) {
+                    $conflicting = self::query()
+                        ->where('organization_id', $workOrder->organization_id)
+                        ->where('assigned_to_user_id', $workOrder->assigned_to_user_id)
+                        ->when($workOrder->id, fn ($q) => $q->where('id', '!=', $workOrder->id))
+                        ->whereNotIn('status', [WorkOrderStatus::Completed->value, WorkOrderStatus::Cancelled->value])
+                        ->where('scheduled_start_at', '<', $workOrder->scheduled_end_at)
+                        ->where('scheduled_end_at', '>', $workOrder->scheduled_start_at)
+                        ->first();
+
+                    if ($conflicting) {
+                        throw ValidationException::withMessages([
+                            'assigned_to_user_id' => "Technician already has an overlapping work order scheduled during this time window ({$conflicting->work_order_number}). An authorized override is required to double-book.",
+                        ]);
+                    }
+                } else {
+                    if (blank($workOrder->overlap_override_reason)) {
+                        throw ValidationException::withMessages([
+                            'overlap_override_reason' => 'An audit reason is required when overriding a technician schedule overlap.',
+                        ]);
+                    }
+
+                    if (! $workOrder->overlap_override_by_id && Filament::auth()->id()) {
+                        $workOrder->overlap_override_by_id = Filament::auth()->id();
+                    }
+                }
             }
         });
     }
@@ -216,6 +251,14 @@ class WorkOrder extends Model
     public function statusLogs(): HasMany
     {
         return $this->hasMany(WorkOrderStatusLog::class)->latest();
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function overlapOverrideBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'overlap_override_by_id');
     }
 
     /**

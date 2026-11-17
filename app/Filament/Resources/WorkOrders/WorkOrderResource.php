@@ -21,6 +21,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
@@ -141,6 +142,14 @@ class WorkOrderResource extends Resource
                 Textarea::make('description')->rows(3)->columnSpanFull(),
                 DateTimePicker::make('scheduled_start_at')->seconds(false),
                 DateTimePicker::make('scheduled_end_at')->after('scheduled_start_at')->seconds(false),
+                Toggle::make('has_overlap_override')
+                    ->label('Override schedule conflict')
+                    ->live()
+                    ->visible(fn (): bool => Filament::auth()->user()?->isOrganizationAdmin() || Filament::auth()->user()?->isServiceManager() || Filament::auth()->user()?->isDispatcher()),
+                TextInput::make('overlap_override_reason')
+                    ->label('Override Reason')
+                    ->required(fn (Get $get): bool => (bool) $get('has_overlap_override'))
+                    ->visible(fn (Get $get): bool => (bool) $get('has_overlap_override')),
                 Textarea::make('completion_notes')->rows(3)->columnSpanFull(),
                 Repeater::make('checklists')
                     ->relationship()
@@ -199,12 +208,25 @@ class WorkOrderResource extends Resource
                             ->options(FilamentOptions::technicians())
                             ->required()
                             ->searchable(),
+                        Toggle::make('has_overlap_override')
+                            ->label('Override schedule conflict if technician is busy')
+                            ->live(),
+                        TextInput::make('overlap_override_reason')
+                            ->label('Override Reason')
+                            ->visible(fn (Get $get): bool => (bool) $get('has_overlap_override')),
                     ])
                     ->fillForm(fn (WorkOrder $record): array => [
                         'assigned_to_user_id' => $record->assigned_to_user_id,
+                        'has_overlap_override' => (bool) $record->has_overlap_override,
+                        'overlap_override_reason' => $record->overlap_override_reason,
                     ])
                     ->action(function (WorkOrder $record, array $data): void {
-                        $record->update(['assigned_to_user_id' => $data['assigned_to_user_id']]);
+                        $record->update([
+                            'assigned_to_user_id' => $data['assigned_to_user_id'],
+                            'has_overlap_override' => (bool) ($data['has_overlap_override'] ?? false),
+                            'overlap_override_reason' => $data['overlap_override_reason'] ?? null,
+                            'overlap_override_by_id' => ! empty($data['has_overlap_override']) ? Filament::auth()->id() : null,
+                        ]);
                     }),
                 Action::make('schedule')
                     ->schema([
