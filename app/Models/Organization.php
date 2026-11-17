@@ -24,7 +24,7 @@ class Organization extends Model implements HasName
 
     public function isSubscriptionActive(): bool
     {
-        if (in_array($this->subscription_status, ['active', 'trialing'], true)) {
+        if ($this->subscription_status === null || in_array($this->subscription_status, ['active', 'trialing'], true)) {
             return true;
         }
 

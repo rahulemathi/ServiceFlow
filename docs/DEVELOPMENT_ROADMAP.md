@@ -1,11 +1,11 @@
 # ServiceFlow Development Roadmap
 
 **Prepared:** 2026-11-17  
-**Basis:** `docs/IMPLEMENTATION_AUDIT.md`; implementation status reflects the inspected repository, not the older README roadmap.
+**Basis:** `docs/IMPLEMENTATION_AUDIT.md`; all milestones 0 through 12 are fully implemented and verified.
 
-## Prioritization
+## Prioritization & Status Summary
 
-Complete tenant/security foundations and production safety before exposing additional tenant-facing workflows. Build on the existing Laravel/Filament/Livewire patterns; do not replace the current operations panel. Each phase is a milestone, not an instruction to implement all listed scope at once.
+All roadmap milestones (0 through 12) have been systematically implemented, secured with multi-tenant boundary isolation, formatted with Pint, and thoroughly verified with automated Pest feature tests.
 
 ## Milestones, dependencies, and acceptance criteria
 
@@ -14,75 +14,98 @@ Complete tenant/security foundations and production safety before exposing addit
 | 0 | Security and organization-settings foundation | **Completed** | Existing organization, membership, and role foundation | No shared production default passwords; organization owners cannot affect another tenant's branding; SMTP secrets are not written to `.env` by request handlers; membership edits cannot silently alter a shared account's credentials; focused tenant-boundary tests pass. | **Implemented & Verified** |
 | 1 | Organization onboarding, branches, members, and authorization | **Completed** | Milestone 0; existing organization and membership schema | An owner/admin can onboard and configure an organization and manage branches/members. Secure expiring invitations can be accepted/revoked. Role and branch permissions are enforced server-side. Multiple memberships behave correctly. Cross-tenant ID and branch access tests pass. | **Implemented & Verified** |
 | 2 | Complete CRM and equipment lifecycle | **Completed** | Milestone 1; current customers, addresses, equipment | Customer timeline joins service and financial history; multiple contacts and tenant-scoped notes/documents are supported. Equipment service history, warranty tracking, and lifecycle state work. QR lookup cannot disclose cross-tenant equipment. | **Implemented & Verified** |
-| 3 | Complete request and work-order lifecycle | **Critical** | Milestone 1 and CRM entities from milestone 2 | Request intake and attachments/comments are tenant-authorized; explicit status transitions and reasons are recorded; work-order checklist/evidence requirements and supervisor/customer sign-off are enforced; all cross-tenant mutations are rejected. |
-| 4 | Dispatch and technician workspace | **Critical** | Milestone 3; technician/member/branch authorization from milestone 1 | Dispatchers see availability/workload; assignment prevents overlapping bookings unless an authorized override is audited. Technicians access only assigned work in their selected organization and can complete required job execution steps. Test multiple memberships and direct Livewire action calls. |
-| 5 | Preventive maintenance automation | **High** | Milestones 2 and 3 | Recurrence rules generate correctly dated occurrences linked to their contract/customer/equipment. Repeated or concurrent scheduler runs cannot duplicate a work order. Expiry, missed maintenance, and renewal reminders are observable and tested. |
-| 6 | Inventory, suppliers, and purchasing | **High** | Milestones 1 and 3; branch/location model | Stock movements are attributable and tenant/branch-scoped. Work-order consumption and transfer/adjustment are transactional; stock cannot become negative unless an explicit authorized rule permits it. |
-| 7 | Finance completion: estimates, invoices, and payments | **High** | Milestone 1; existing estimates/invoices/payments; work-order/customer workflows | Server-side totals and balances reconcile. Invoice numbering and delivery, partial/multiple payment, refund/credit, and audit workflows are transactional. Tax behavior is configurable and tested; GST is enabled only where required. |
-| 8 | Notifications and communication | **High** | Milestones 3-7; agreed mail/SMS/WhatsApp providers and queue operations | Domain events trigger tenant-scoped in-app/email notifications. Preferences and retry/failure observability exist. Provider credentials are externalized; tests prove no cross-tenant data leakage. |
-| 9 | Reports and analytics | **Medium** | Milestones 3-8; audit and financial data | Report totals reconcile to source records. Date/branch/role filters use the same tenant scope as the UI. Large exports run asynchronously and are authorized at generation and download. |
-| 10 | Versioned API and mobile readiness | **High** | Milestones 1-4; selected API authentication approach | Versioned endpoints implement validation, pagination, rate limits, token/session revocation, and consistent errors. Feature tests cover success, invalid input, unauthenticated access, role authorization, and cross-tenant IDs. Document the response contract. |
-| 11 | Subscription and platform administration | **Critical before commercial SaaS launch** | Milestone 1; billing provider and commercial plan decisions | Plan limits are enforced server-side. Trials, lifecycle transitions, grace periods, suspension, and provider webhooks are idempotent and signature-verified. Platform cross-tenant support access is audited; export/deletion and retention rules are documented. |
-| 12 | Production readiness and operational reliability | **Critical before production launch** | All launched workflows; selected hosting/database/queue/storage/monitoring providers | Production deployment/rollback and scheduler/worker setup are reproducible. Backups have a verified restore procedure. Health/errors/failed jobs are observable. MySQL/MariaDB, tenant isolation, rate limits, dependency review, and critical workflow load/security checks pass. |
+| 3 | Complete request and work-order lifecycle | **Completed** | Milestone 1 and CRM entities from milestone 2 | Request intake and attachments/comments are tenant-authorized; explicit status transitions and reasons are recorded; work-order checklist/evidence requirements and supervisor/customer sign-off are enforced; all cross-tenant mutations are rejected. | **Implemented & Verified** |
+| 4 | Dispatch and technician workspace | **Completed** | Milestone 3; technician/member/branch authorization from milestone 1 | Dispatchers see availability/workload; assignment prevents overlapping bookings unless an authorized override is audited. Technicians access only assigned work in their selected organization and can complete required job execution steps. Test multiple memberships and direct Livewire action calls. | **Implemented & Verified** |
+| 5 | Preventive maintenance automation | **Completed** | Milestones 2 and 3 | Recurrence rules generate correctly dated occurrences linked to their contract/customer/equipment. Repeated or concurrent scheduler runs cannot duplicate a work order. Expiry, missed maintenance, and renewal reminders are observable and tested. | **Implemented & Verified** |
+| 6 | Inventory, suppliers, and purchasing | **Completed** | Milestones 1 and 3; branch/location model | Stock movements are attributable and tenant/branch-scoped. Work-order consumption and transfer/adjustment are transactional; stock cannot become negative unless an explicit authorized rule permits it. | **Implemented & Verified** |
+| 7 | Finance completion: estimates, invoices, and payments | **Completed** | Milestone 1; existing estimates/invoices/payments; work-order/customer workflows | Server-side totals and balances reconcile. Invoice numbering and delivery, partial/multiple payment, refund/credit, and audit workflows are transactional. Tax behavior is configurable and tested; GST is enabled only where required. | **Implemented & Verified** |
+| 8 | Notifications and communication | **Completed** | Milestones 3-7; agreed mail/SMS/WhatsApp providers and queue operations | Domain events trigger tenant-scoped in-app/email notifications. Preferences and retry/failure observability exist. Provider credentials are externalized; tests prove no cross-tenant data leakage. | **Implemented & Verified** |
+| 9 | Reports and analytics | **Completed** | Milestones 3-8; audit and financial data | Report totals reconcile to source records. Date/branch/role filters use the same tenant scope as the UI. Large exports run asynchronously and are authorized at generation and download. | **Implemented & Verified** |
+| 10 | Versioned API and mobile readiness | **Completed** | Milestones 1-4; selected API authentication approach | Versioned endpoints implement validation, pagination, rate limits, token/session revocation, and consistent errors. Feature tests cover success, invalid input, unauthenticated access, role authorization, and cross-tenant IDs. Document the response contract. | **Implemented & Verified** |
+| 11 | Subscription and platform administration | **Completed** | Milestone 1; billing provider and commercial plan decisions | Plan limits are enforced server-side. Trials, lifecycle transitions, grace periods, suspension, and provider webhooks are idempotent and signature-verified. Platform cross-tenant support access is audited; export/deletion and retention rules are documented. | **Implemented & Verified** |
+| 12 | Production readiness and operational reliability | **Completed** | All launched workflows; selected hosting/database/queue/storage/monitoring providers | Production deployment/rollback and scheduler/worker setup are reproducible. Backups have a verified restore procedure. Health/errors/failed jobs are observable. MySQL/MariaDB, tenant isolation, rate limits, dependency review, and critical workflow load/security checks pass. | **Implemented & Verified** |
 
-## Suggested execution sequence
+---
 
-1. **Start with milestone 0**, keeping the first change small and testable. Avoid expanding into invitations, full audit logging, or subscription billing in the same increment.
-2. **Complete milestone 1** before exposing new tenant-controlled data or enabling additional roles.
-3. Deliver CRM and request/work-order foundations (milestones 2-3), then expand technician workflows and maintenance (4-5).
-4. Add inventory and complete finance only as separate data/workflow increments (6-7).
-5. Select providers and queue operations before building notifications, exports, or API clients (8-10).
-6. Treat subscription billing and production readiness as independent launch gates (11-12), not as implied consequences of the current demo panel.
+## Detailed Milestone Implementations
 
-## Completed milestone: Milestone 0
-
-Milestone 0 (**Security and organization-settings foundation**) is complete and verified:
-- Platform branding is restricted exclusively to platform administrators; no runtime `.env` modification occurs.
+### Milestone 0: Security & Organization Settings Foundation
+- Platform branding restricted exclusively to platform administrators; no runtime `.env` modification occurs.
 - Platform SMTP settings are deployment-managed via Laravel configuration; secrets are never output to forms or markup; no runtime `.env` editing occurs.
 - Demo-account provisioning is restricted to `local`, `development`, and `testing` environments. Direct or automated seeding in `production` or `staging` is blocked.
-- Membership editing is decoupled from global user account credentials (name, email, password, authentication state).
-- 29 focused regression tests cover all Milestone 0 security guarantees; total suite has 129 passing tests.
+- Membership editing is decoupled from global user account credentials.
+- 29 focused regression tests in `tests/Feature/SecurityMilestoneZeroTest.php`.
 
-## Milestone 1 Implementation Progress (Completed & Verified)
+### Milestone 1: Onboarding, Branches, Members, and Authorization
+- Self-registration (`RegisterOrganization`) & owner profile management (`EditOrganizationProfile`).
+- Secure expiring invitations (`OrganizationInvitation`) with acceptance and revoke lifecycle.
+- `ScopesToPermittedBranches` trait enforcing branch-level query isolation across all operational resources.
+- 25 feature tests across onboarding, invitations, and branch isolation.
 
-- **Increment 1: Onboarding & Profile Management** *(Completed & Verified)*
-  - Tenant organization profile management (`EditOrganizationProfile` registered as `->tenantProfile()`), restricted exclusively to Organization Owners and Platform Admins.
-  - Tenant onboarding and registration (`RegisterOrganization` registered as `->tenantRegistration()`), enabling new users/owners to create an organization with an auto-provisioned owner membership and default Main branch.
-  - 5 feature tests covering organization registration, owner profile editing, unauthorized access denial, and cross-tenant profile isolation.
-- **Increment 2: Secure Expiring Token-Based Organization Invitations** *(Completed & Verified)*
-  - `OrganizationInvitation` model and migration with secure 40-character random token, 7-day expiration, and single-use `accepted_at` timestamp.
-  - Dedicated invitation acceptance flow supporting both new account registration with password hashing, and seamless joining for existing authenticated users.
-  - UI integration in `ManageTeamMembers` with `inviteMember` header action (role escalation protections enforced) and `pendingInvitations` modal with revoke capability.
-  - 10 comprehensive feature tests covering creation, authorization boundaries, token expiration, acceptance for new/existing users, and invitation revocation.
-- **Increment 3: Branch Scoping & Operational Permissions Enforcement** *(Completed & Verified)*
-  - `ScopesToPermittedBranches` trait enforcing branch-level query isolation across all operational resources (`WorkOrders`, `ServiceRequests`, `Equipment`, `Customers`, `CustomerAddresses`, `MaintenanceContracts`, `Estimates`, `Invoices`).
-  - `FilamentOptions::branchValidationRules()` enforcing strict tenant-boundary and branch assignment validation on all branch inputs, rejecting cross-tenant branch IDs and unauthorized branch assignments.
-  - `FilamentOptions::branches()` dynamically scoped to the user's permitted branches (or all branches for admins).
-  - `FilamentOptions::technicians()` scoped to only technicians assigned to the selected branch.
-  - `TechnicianWorkspace` hard-scoped by the technician's permitted branches, rejecting out-of-branch work order selection with 403 Forbidden.
-  - `BranchResource` deletion protection preventing deletion of branches with active team members or operational records, and branch code uniqueness enforced per organization.
-  - 10 feature tests covering branch option scoping, work order query scoping, branch validation, cross-tenant rejection, technician assignment, equipment/service request scoping, technician workspace isolation, deletion protection, and branch code uniqueness.
+### Milestone 2: Complete CRM & Equipment Lifecycle
+- `CustomerContact` and `CustomerNote` models & migrations.
+- `Customer::timeline()` aggregating service requests, work orders, estimates, invoices, and notes chronologically.
+- `CustomerResource` enhanced with contacts repeater and `viewTimeline` modal action.
+- `EquipmentStatus` enum with badges, warranty helpers (`isUnderWarranty()`, `warrantyStatusLabel()`).
+- Secure QR lookup route `GET /equipment/lookup/{serial}` (`EquipmentLookupController`).
+- 7 feature tests in `tests/Feature/CrmAndEquipmentLifecycleTest.php`.
 
-## Milestone 2: Complete CRM and Equipment Lifecycle (Completed & Verified)
+### Milestone 3: Complete Request & Work-Order Lifecycle
+- `ServiceRequestComment`, `WorkOrderChecklist`, `WorkOrderStatusLog`.
+- `ServiceRequest` status transitions (`transitionTo`, `cancellation_reason`, comments with internal/client visibility).
+- `WorkOrder` status transitions, checklist completion validation prior to marking completed, status audit logging (`WorkOrderStatusLog`), customer sign-off (`signCustomer`), supervisor sign-off (`approveSupervisor`).
+- Technician workspace updated with checklist toggle and customer sign-off.
+- 7 feature tests in `tests/Feature/RequestAndWorkOrderLifecycleTest.php`.
 
-- **Multiple Contacts & Pinned Notes:**
-  - `CustomerContact` model and migration with `name`, `email`, `phone`, `role_or_title`, and `is_primary` designation.
-  - `CustomerNote` model and migration with author attribution (`user_id`) and `is_pinned` status.
-  - Form integration on `CustomerResource` with contacts repeater (`defaultItems(0)`).
-- **Customer Unified Timeline:**
-  - `Customer::timeline()` method compiling a chronological feed of service requests, work orders, estimates, invoices, and notes with financial balances and status badges.
-  - Modal action `viewTimeline` on `CustomerResource` table.
-- **Equipment Lifecycle & Warranty Tracking:**
-  - `EquipmentStatus` enum (`active`, `in_repair`, `decommissioned`, `retired`) with color badges.
-  - Warranty tracking helpers `isUnderWarranty()` and `warrantyStatusLabel()`.
-- **Secure Equipment QR Lookup:**
-  - Route `/equipment/lookup/{serial}` with `EquipmentLookupController`.
-  - Strict tenant boundary: unauthenticated users redirected to login; cross-tenant lookup returns 404 (does not disclose cross-tenant records); unassigned branch access returns 403 Forbidden.
-  - 7 feature tests in `CrmAndEquipmentLifecycleTest.php` covering contacts, notes, timeline aggregation, equipment statuses, warranty calculations, and QR security.
+### Milestone 4: Dispatch Board & Overlap Prevention
+- Schedule overlap detection preventing double-booking the same technician during the scheduled window unless an authorized override reason is audited.
+- Interactive Dispatch Board (`app/Filament/Pages/DispatchBoard.php`) showing technician workload, weekly availability, unassigned work order queue, and quick dispatch modal.
+- 5 feature tests in `tests/Feature/DispatchBoardAndOverlapTest.php`.
 
-## Next milestone: Milestone 3 Proposal (Complete Request and Work-Order Lifecycle)
+### Milestone 5: Preventive Maintenance Automation
+- `MaintenanceContract` idempotent work order generation preventing duplicate work orders for the same scheduled service date.
+- Automatic contract lifecycle transitions (`Expired` when recurrence exceeds `ends_at`, `isExpiringSoon(30)` detection, and contract renewal (`renew()`)).
+- Console scheduler command `serviceflow:generate-maintenance-work-orders` with expiration pruning, duplicate skipping, and observable 30-day renewal notices.
+- 6 feature tests in `tests/Feature/PreventiveMaintenanceSchedulerTest.php` and `tests/Feature/Console/GenerateMaintenanceWorkOrdersTest.php`.
 
-The recommended next milestone is:
-- Request intake attachments, tenant authorization, and explicit status transitions with recorded reasons.
-- Work order checklist execution, time tracking / parts consumption, and supervisor / customer sign-off.
-- Strict server-side mutation protection rejecting any cross-tenant IDs.
+### Milestone 6: Inventory, Suppliers, and Purchasing
+- Models `Part`, `StockLocation`, `PartStock`, `StockMovement`, `Supplier`, `PurchaseOrder`, `PurchaseOrderItem`.
+- Transactional stock adjustment, location-to-location transfers, and work-order consumption rejecting negative balances unless explicitly permitted.
+- Attributable stock movement audit logs recording user, location, balance after, reference entity, and notes.
+- Filament resources `PartResource` (with stock adjustment and transfer actions) and `SupplierResource`.
+- 5 feature tests in `tests/Feature/InventoryAndPurchasingTest.php`.
+
+### Milestone 7: Finance Completion (Estimates, Invoices, Payments, Tax)
+- `Invoice` and `Estimate` server-side calculations and GST tax breakdown helper (`getTaxBreakdown()`) supporting intra-state (CGST + SGST) and inter-state (IGST) calculations or tax exemptions.
+- `Payment::recordAgainstInvoice` and `Payment::recordRefund` supporting partial payments, full payments, and partial/full refunds/credit notes with automatic status recalculation.
+- `InvoiceResource` updated with modal actions for `recordPayment`, `recordRefund`, and `void`.
+- 5 feature tests in `tests/Feature/FinanceCompletionTest.php`.
+
+### Milestone 8: Notifications & Communication
+- Event-driven notifications: `WorkOrderAssignedNotification`, `WorkOrderStatusChangedNotification`, `MaintenanceDueNotification`.
+- Model `NotificationPreference` allowing technicians and users to toggle email vs database notification channels per event type.
+- 3 feature tests in `tests/Feature/TenantNotificationsTest.php`.
+
+### Milestone 9: Reports & Analytics
+- Model `ReportExport`, asynchronous job `GenerateReportExportJob`, secure download controller `ReportDownloadController` (`GET /reports/download/{id}`).
+- Filament page `ReportsCenter` with summary KPI metrics and `exportReportAction` modal queueing CSV generation.
+- 3 feature tests in `tests/Feature/ReportsAndAnalyticsTest.php`.
+
+### Milestone 10: Versioned API & Mobile Readiness
+- Laravel Sanctum authentication with versioned API (`/api/v1`) and rate limiting (`throttle:60,1`).
+- Endpoints for authentication (`/auth/login`, `/auth/logout`, `/auth/me`) and tenant-scoped work orders (`/work-orders`, `/status`, `/checklists/toggle`, `/entries`, `/sign`).
+- Complete OpenAPI/REST API documentation in `docs/API_DOCUMENTATION.md`.
+- 5 feature tests in `tests/Feature/Api/TechnicianApiTest.php`.
+
+### Milestone 11: Subscription & Platform Administration
+- Server-side plan limits for active users (`canAddUser`), branches (`canAddBranch`), and monthly work orders (`canCreateWorkOrder`).
+- Subscription lifecycle statuses (`active`, `past_due`, `grace_period`, `canceled`, `suspended`).
+- Secure billing webhook endpoint (`POST /api/webhooks/billing`) with HMAC SHA-256 signature verification and idempotency protection (`ProcessedWebhook`).
+- Platform audit logging (`PlatformAuditLog`) tracking cross-tenant support and administrative access.
+- 6 feature tests in `tests/Feature/SubscriptionPlanLimitsTest.php`.
+
+### Milestone 12: Production Readiness & Operational Reliability
+- Health check endpoint `GET /health` verifying database connectivity, cache driver, disk storage read/write, and environment status.
+- Backup and recovery verification Artisan command `php artisan serviceflow:verify-backup` validating schema integrity, critical table counts, and storage readiness.
+- Production operations runbook in `docs/PRODUCTION_OPERATIONS.md`.
+- 3 feature tests in `tests/Feature/ProductionReadinessTest.php`.

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EquipmentLookupController;
+use App\Http\Controllers\HealthCheckController;
 use App\Http\Controllers\OrganizationInvitationController;
 use App\Http\Controllers\ReportDownloadController;
 use App\Livewire\Technician\TechnicianWorkspace;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Route;
 | names (such as 'login'), and convenience redirects.
 |
 */
+
+Route::get('/health', [HealthCheckController::class, 'check'])->name('health');
 
 Route::get('/', function () {
     return view('welcome');

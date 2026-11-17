@@ -14,9 +14,9 @@ return new class extends Migration
             $table->timestamp('trial_ends_at')->nullable()->after('subscription_status');
             $table->timestamp('subscription_ends_at')->nullable()->after('trial_ends_at');
             $table->timestamp('grace_period_ends_at')->nullable()->after('subscription_ends_at');
-            $table->unsignedSmallInteger('max_users')->nullable()->default(5)->after('grace_period_ends_at');
-            $table->unsignedSmallInteger('max_branches')->nullable()->default(1)->after('max_users');
-            $table->unsignedInteger('max_monthly_work_orders')->nullable()->default(50)->after('max_branches');
+            $table->unsignedSmallInteger('max_users')->nullable()->after('grace_period_ends_at');
+            $table->unsignedSmallInteger('max_branches')->nullable()->after('max_users');
+            $table->unsignedInteger('max_monthly_work_orders')->nullable()->after('max_branches');
         });
 
         Schema::create('platform_audit_logs', function (Blueprint $table): void {
